@@ -1522,9 +1522,9 @@
                 priorityChart.appendChild(item);
             });
 
-            // Top Assignees with inclusive language
+            // Top Assignees with inclusive language (anonymized in safe data)
             const assigneeChart = document.getElementById('assigneeChart');
-            const topAssignees = Object.entries(stats.byAssignee)
+            const topAssignees = Object.entries(stats.byAssignee || {})
                 .sort(([,a], [,b]) => b - a)
                 .slice(0, 8);
 
