@@ -18,10 +18,15 @@
     "serve": "npx http-server -p 8080 -o bug-dashboard-embedded.html",
     "serve-safe": "npx http-server -p 8080 -o dashboard-safe-standalone.html",
     "serve-external": "npx http-server -p 8080 -o dashboard-external-data.html",
-    "serve-automated": "npx http-server -p 8080 -o dashboard-automated-fixed.html"
+    "serve-automated": "npx http-server -p 8080 -o dashboard-automated-fixed.html",
+    "serve-with-api": "concurrently \"npx http-server -p 8081 dashboard-automated-fixed.html\" \"node bug-api-server.js\"",
+    "start-api": "node bug-api-server.js"
   },
   "dependencies": {
     "http-server": "^14.1.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   },
   "author": "HiBob Team",
   "license": "MIT"

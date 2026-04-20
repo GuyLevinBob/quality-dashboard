@@ -702,6 +702,47 @@
             background: #FAA32B;
             border-radius: 48% 52% 68% 32% / 42% 58% 42% 58%;
         }
+
+        /* Sync button styling */
+        .sync-controls {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #FDF6EB;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sync-btn {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+        }
+
+        .sync-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #e85a87, #a83d5c);
+            transform: translateY(-1px);
+        }
+
+        .sync-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #lastSyncTime {
+            color: #666;
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -711,8 +752,15 @@
             <div class="subtitle">Production Issue Tracking Dashboard</div>
             <div class="description">Focused view of production bugs (971 total) - filtering only bug type = Production</div>
             <div class="meta">
-                Last Updated: <span id="lastUpdate">Loading...</span> | 
+                Last Updated: <span id="lastUpdate">Loading...</span> |
                 Instance: <span id="jiraInstance">hibob.atlassian.net</span>
+            </div>
+            <div id="sync-controls" class="sync-controls">
+                <button id="syncButton" class="sync-btn">
+                    <span id="syncIcon">🔄</span> 
+                    <span id="syncText">Sync Data</span>
+                </button>
+                <span id="lastSyncTime"></span>
             </div>
         </header>
 
@@ -898,6 +946,115 @@
             } catch (error) {
                 console.error('❌ Failed to load dashboard data:', error);
                 document.getElementById('status').innerHTML = '<span class="error">❌ Failed to load dashboard data. Please try refreshing the page.</span>';
+            }
+        }
+
+        // Sync button functionality
+        let syncInProgress = false;
+        const API_BASE = 'http://localhost:3002';
+
+        async function handleSyncData() {
+            if (syncInProgress) return;
+            
+            syncInProgress = true;
+            updateSyncButton('syncing');
+            
+            try {
+                // Step 1: Trigger fresh JIRA fetch
+                console.log('🔄 Starting sync with local API server...');
+                const syncResponse = await fetch(`${API_BASE}/api/sync`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!syncResponse.ok) {
+                    throw new Error(`Sync failed: ${syncResponse.status}`);
+                }
+                
+                console.log('✅ JIRA sync completed, fetching processed data...');
+                
+                // Step 2: Get fresh processed data
+                const dataResponse = await fetch(`${API_BASE}/api/bugs-lite`);
+                if (!dataResponse.ok) {
+                    throw new Error(`Data fetch failed: ${dataResponse.status}`);
+                }
+                
+                const freshData = await dataResponse.json();
+                
+                // Step 3: Update dashboard
+                data = freshData;
+                console.log(`✅ Loaded ${data.bugs.length} fresh bugs from local API`);
+                loadData(); // Re-initialize dashboard with fresh data
+                
+                updateSyncButton('success');
+                updateLastSyncTime();
+                
+            } catch (error) {
+                console.error('❌ Sync failed:', error);
+                updateSyncButton('error');
+                showSyncError(error.message);
+            } finally {
+                syncInProgress = false;
+            }
+        }
+
+        function updateSyncButton(state) {
+            const button = document.getElementById('syncButton');
+            const icon = document.getElementById('syncIcon');
+            const text = document.getElementById('syncText');
+            
+            if (!button || !icon || !text) return;
+            
+            switch(state) {
+                case 'syncing':
+                    icon.textContent = '⏳';
+                    text.textContent = 'Syncing...';
+                    button.disabled = true;
+                    break;
+                case 'success':
+                    icon.textContent = '✅';
+                    text.textContent = 'Data Synced';
+                    button.disabled = false;
+                    setTimeout(() => {
+                        icon.textContent = '🔄';
+                        text.textContent = 'Sync Data';
+                    }, 2000);
+                    break;
+                case 'error':
+                    icon.textContent = '❌';
+                    text.textContent = 'Sync Failed';
+                    button.disabled = false;
+                    setTimeout(() => {
+                        icon.textContent = '🔄';
+                        text.textContent = 'Sync Data';
+                    }, 3000);
+                    break;
+            }
+        }
+
+        function updateLastSyncTime() {
+            const syncTimeElement = document.getElementById('lastSyncTime');
+            if (syncTimeElement) {
+                const now = new Date().toLocaleTimeString();
+                syncTimeElement.textContent = `Last synced: ${now}`;
+            }
+        }
+
+        function showSyncError(message) {
+            const statusDiv = document.getElementById('status');
+            if (statusDiv) {
+                statusDiv.innerHTML = `<span class="error">⚠️ Sync Error: ${message}</span>`;
+                statusDiv.style.display = 'block';
+                
+                // Show helpful troubleshooting message
+                if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
+                    statusDiv.innerHTML += `<br><small>💡 Make sure the local API server is running: <code>node bug-api-server.js</code></small>`;
+                }
+                
+                // Hide error after 5 seconds
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
             }
         }
 
@@ -1950,6 +2107,12 @@
                     handleSort(column);
                 });
             });
+
+            // Add sync button listener
+            const syncButton = document.getElementById('syncButton');
+            if (syncButton) {
+                syncButton.addEventListener('click', handleSyncData);
+            }
         });
     </script>
 </body>
