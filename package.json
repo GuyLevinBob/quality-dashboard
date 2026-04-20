@@ -1,26 +1,17 @@
 {
-  "name": "testcourse",
-  "version": "0.1.0",
-  "private": true,
+  "name": "hibob-bug-dashboard",
+  "version": "1.0.0",
+  "description": "Production Bug Analytics Dashboard for HiBob",
+  "main": "export-jira-data.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "export": "node export-jira-data.js",
+    "update-dashboard": "node update-dashboard-data.js",
+    "refresh": "npm run export && npm run update-dashboard",
+    "serve": "npx http-server -p 8080 -o bug-dashboard-embedded.html"
   },
   "dependencies": {
-    "next": "16.2.3",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "http-server": "^14.1.1"
   },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.3",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+  "author": "HiBob Team",
+  "license": "MIT"
 }

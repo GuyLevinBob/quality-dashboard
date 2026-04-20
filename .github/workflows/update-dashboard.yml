@@ -1,0 +1,45 @@
+name: Update Dashboard Data
+
+on:
+  schedule:
+    # Run every day at 8 AM UTC (adjust timezone as needed)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Export fresh JIRA data
+      env:
+        JIRA_DOMAIN: ${{ secrets.JIRA_DOMAIN }}
+        JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+      run: |
+        echo "JIRA_DOMAIN=$JIRA_DOMAIN" > .env
+        echo "JIRA_EMAIL=$JIRA_EMAIL" >> .env
+        echo "JIRA_API_TOKEN=$JIRA_API_TOKEN" >> .env
+        node export-jira-data.js
+        
+    - name: Update dashboard with new data
+      run: node update-dashboard-data.js
+      
+    - name: Commit and push if changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git diff --staged --quiet || git commit -m "🤖 Auto-update dashboard data $(date)"
+        git push
