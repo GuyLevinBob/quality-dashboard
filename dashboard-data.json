@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "exported": "2026-04-20T04:49:10.191Z",
+    "exported": "2026-04-20T07:50:55.414Z",
     "totalBugs": 971,
     "projects": [
       "BT"
@@ -12,7 +12,7 @@
     {
       "key": "BT-13289",
       "project": "BT",
-      "summary": "Fix RingLead “Contact Hygiene - Contact to Contact Customer” Merge Failure for Customer Accounts",
+      "summary": "Fix RingLead Customer Contact Merge by Updating Deletion Flow Logic and Billing Contact Criteria",
       "status": "Not Started",
       "priority": "Medium",
       "severity": "Low",
@@ -22,7 +22,7 @@
       "sprint": "PI3.26.Sprint 1 (30/3 -27/4) 2",
       "regression": "No",
       "createdDate": "4/19/2026",
-      "updatedDate": "4/19/2026",
+      "updatedDate": "4/20/2026",
       "daysOpen": 1
     },
     {
@@ -224,14 +224,14 @@
       "status": "Canceled",
       "priority": "Low",
       "severity": "Low",
-      "assignee": "Ilay Reshef",
-      "leadingTeam": "MIS - CORP",
-      "system": "Netsuite",
+      "assignee": "Shahar Reich",
+      "leadingTeam": "AI Dev",
+      "system": "Snowflake",
       "sprint": "PI3.26.Sprint 1 (30/3 -27/4) 2",
       "regression": "No",
       "createdDate": "4/15/2026",
-      "updatedDate": "4/15/2026",
-      "daysOpen": 5
+      "updatedDate": "4/20/2026",
+      "daysOpen": 6
     },
     {
       "key": "BT-13170",
@@ -247,7 +247,7 @@
       "regression": "Yes",
       "createdDate": "4/15/2026",
       "updatedDate": "4/19/2026",
-      "daysOpen": 5
+      "daysOpen": 6
     },
     {
       "key": "BT-13164",
@@ -311,7 +311,7 @@
       "regression": "No",
       "createdDate": "4/14/2026",
       "updatedDate": "4/14/2026",
-      "daysOpen": 6
+      "daysOpen": 7
     },
     {
       "key": "BT-13090",
@@ -327,7 +327,7 @@
       "regression": "No",
       "createdDate": "4/14/2026",
       "updatedDate": "4/14/2026",
-      "daysOpen": 6
+      "daysOpen": 7
     },
     {
       "key": "BT-13085",
@@ -407,7 +407,7 @@
       "regression": "Yes",
       "createdDate": "4/12/2026",
       "updatedDate": "4/16/2026",
-      "daysOpen": 8
+      "daysOpen": 9
     },
     {
       "key": "BT-12992",
@@ -423,7 +423,7 @@
       "regression": "No",
       "createdDate": "4/12/2026",
       "updatedDate": "4/12/2026",
-      "daysOpen": 8
+      "daysOpen": 9
     },
     {
       "key": "BT-12988",
@@ -486,7 +486,7 @@
       "sprint": "PI3.26.Sprint 1 (30/3 -27/4) 2",
       "regression": "No",
       "createdDate": "4/7/2026",
-      "updatedDate": "4/19/2026",
+      "updatedDate": "4/20/2026",
       "daysOpen": 13
     },
     {
@@ -518,7 +518,7 @@
       "sprint": "PI3.26.Sprint 1 (30/3 -27/4) 2",
       "regression": "No",
       "createdDate": "4/7/2026",
-      "updatedDate": "4/19/2026",
+      "updatedDate": "4/20/2026",
       "daysOpen": 13
     },
     {
@@ -535,7 +535,7 @@
       "regression": "No",
       "createdDate": "4/7/2026",
       "updatedDate": "4/10/2026",
-      "daysOpen": 13
+      "daysOpen": 14
     },
     {
       "key": "BT-12973",
@@ -560,13 +560,13 @@
       "status": "Not Started",
       "priority": "High",
       "severity": "High",
-      "assignee": "Yaniv Cohen",
+      "assignee": "Moti Gorsky",
       "leadingTeam": "Data",
       "system": "Snowflake",
       "sprint": "PI3.26.Sprint 1 (30/3 -27/4) 2",
       "regression": "No",
       "createdDate": "4/6/2026",
-      "updatedDate": "4/19/2026",
+      "updatedDate": "4/20/2026",
       "daysOpen": 14
     },
     {
@@ -759,7 +759,7 @@
       "regression": "No",
       "createdDate": "3/31/2026",
       "updatedDate": "4/19/2026",
-      "daysOpen": 20
+      "daysOpen": 21
     },
     {
       "key": "BT-12904",
@@ -887,7 +887,7 @@
       "regression": "Yes",
       "createdDate": "3/29/2026",
       "updatedDate": "3/30/2026",
-      "daysOpen": 22
+      "daysOpen": 23
     },
     {
       "key": "BT-12837",
@@ -935,7 +935,7 @@
       "regression": "No",
       "createdDate": "3/26/2026",
       "updatedDate": "3/30/2026",
-      "daysOpen": 25
+      "daysOpen": 26
     },
     {
       "key": "BT-12811",
@@ -1159,7 +1159,7 @@
       "regression": "Yes",
       "createdDate": "3/23/2026",
       "updatedDate": "3/23/2026",
-      "daysOpen": 28
+      "daysOpen": 29
     },
     {
       "key": "BT-12601",
@@ -1238,7 +1238,7 @@
       "sprint": "PI2.26.Sprint 2 (9/3 - 30/3)",
       "regression": "No",
       "createdDate": "3/20/2026",
-      "updatedDate": "4/19/2026",
+      "updatedDate": "4/20/2026",
       "daysOpen": 31
     },
     {
@@ -1415,7 +1415,7 @@
       "regression": "No",
       "createdDate": "3/17/2026",
       "updatedDate": "4/15/2026",
-      "daysOpen": 34
+      "daysOpen": 35
     },
     {
       "key": "BT-12411",
@@ -1431,7 +1431,7 @@
       "regression": "No",
       "createdDate": "3/17/2026",
       "updatedDate": "3/19/2026",
-      "daysOpen": 34
+      "daysOpen": 35
     },
     {
       "key": "BT-12393",
@@ -1463,7 +1463,7 @@
       "regression": "No",
       "createdDate": "3/15/2026",
       "updatedDate": "3/16/2026",
-      "daysOpen": 36
+      "daysOpen": 37
     },
     {
       "key": "BT-12322",
@@ -1623,7 +1623,7 @@
       "regression": "Yes",
       "createdDate": "3/10/2026",
       "updatedDate": "3/17/2026",
-      "daysOpen": 41
+      "daysOpen": 42
     },
     {
       "key": "BT-12189",
@@ -1751,7 +1751,7 @@
       "regression": "No",
       "createdDate": "3/6/2026",
       "updatedDate": "3/9/2026",
-      "daysOpen": 45
+      "daysOpen": 46
     },
     {
       "key": "BT-12114",
@@ -2071,7 +2071,7 @@
       "regression": "No",
       "createdDate": "2/26/2026",
       "updatedDate": "3/19/2026",
-      "daysOpen": 53
+      "daysOpen": 54
     },
     {
       "key": "BT-11881",
@@ -2231,7 +2231,7 @@
       "regression": "No",
       "createdDate": "2/25/2026",
       "updatedDate": "3/4/2026",
-      "daysOpen": 54
+      "daysOpen": 55
     },
     {
       "key": "BT-11796",
@@ -2375,7 +2375,7 @@
       "regression": "No",
       "createdDate": "2/23/2026",
       "updatedDate": "2/24/2026",
-      "daysOpen": 56
+      "daysOpen": 57
     },
     {
       "key": "BT-11709",
@@ -2583,7 +2583,7 @@
       "regression": "No",
       "createdDate": "2/18/2026",
       "updatedDate": "2/18/2026",
-      "daysOpen": 61
+      "daysOpen": 62
     },
     {
       "key": "BT-11605",
@@ -2775,7 +2775,7 @@
       "regression": "No",
       "createdDate": "2/16/2026",
       "updatedDate": "2/16/2026",
-      "daysOpen": 63
+      "daysOpen": 64
     },
     {
       "key": "BT-11475",
@@ -3015,7 +3015,7 @@
       "regression": "No",
       "createdDate": "2/10/2026",
       "updatedDate": "2/13/2026",
-      "daysOpen": 69
+      "daysOpen": 70
     },
     {
       "key": "BT-11319",
@@ -3463,7 +3463,7 @@
       "regression": "No",
       "createdDate": "1/30/2026",
       "updatedDate": "2/2/2026",
-      "daysOpen": 80
+      "daysOpen": 81
     },
     {
       "key": "BT-10963",
@@ -3527,7 +3527,7 @@
       "regression": "Yes",
       "createdDate": "1/29/2026",
       "updatedDate": "1/29/2026",
-      "daysOpen": 81
+      "daysOpen": 82
     },
     {
       "key": "BT-10883",
@@ -3879,7 +3879,7 @@
       "regression": "Yes",
       "createdDate": "1/22/2026",
       "updatedDate": "2/9/2026",
-      "daysOpen": 88
+      "daysOpen": 89
     },
     {
       "key": "BT-10644",
@@ -3991,7 +3991,7 @@
       "regression": "No",
       "createdDate": "1/20/2026",
       "updatedDate": "1/21/2026",
-      "daysOpen": 89
+      "daysOpen": 90
     },
     {
       "key": "BT-10593",
@@ -4663,7 +4663,7 @@
       "regression": "Yes",
       "createdDate": "1/6/2026",
       "updatedDate": "1/8/2026",
-      "daysOpen": 104
+      "daysOpen": 105
     },
     {
       "key": "BT-10188",
@@ -4951,7 +4951,7 @@
       "regression": "No",
       "createdDate": "12/30/2025",
       "updatedDate": "1/12/2026",
-      "daysOpen": 111
+      "daysOpen": 112
     },
     {
       "key": "BT-10006",
@@ -5654,7 +5654,7 @@
       "sprint": null,
       "regression": "No",
       "createdDate": "12/14/2025",
-      "updatedDate": "4/19/2026",
+      "updatedDate": "4/20/2026",
       "daysOpen": 127
     },
     {
@@ -5671,7 +5671,7 @@
       "regression": "No",
       "createdDate": "12/14/2025",
       "updatedDate": "12/17/2025",
-      "daysOpen": 127
+      "daysOpen": 128
     },
     {
       "key": "BT-9517",
@@ -5703,7 +5703,7 @@
       "regression": "No",
       "createdDate": "12/11/2025",
       "updatedDate": "12/14/2025",
-      "daysOpen": 130
+      "daysOpen": 131
     },
     {
       "key": "BT-9478",
@@ -5718,7 +5718,7 @@
       "sprint": null,
       "regression": "No",
       "createdDate": "12/10/2025",
-      "updatedDate": "4/19/2026",
+      "updatedDate": "4/20/2026",
       "daysOpen": 131
     },
     {
@@ -5798,7 +5798,7 @@
       "sprint": null,
       "regression": "No",
       "createdDate": "12/10/2025",
-      "updatedDate": "4/19/2026",
+      "updatedDate": "4/20/2026",
       "daysOpen": 131
     },
     {
@@ -6071,7 +6071,7 @@
       "regression": "Yes",
       "createdDate": "12/4/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 137
+      "daysOpen": 138
     },
     {
       "key": "BT-9210",
@@ -6295,7 +6295,7 @@
       "regression": "Yes",
       "createdDate": "12/1/2025",
       "updatedDate": "12/16/2025",
-      "daysOpen": 140
+      "daysOpen": 141
     },
     {
       "key": "BT-9063",
@@ -6551,7 +6551,7 @@
       "regression": "No",
       "createdDate": "11/25/2025",
       "updatedDate": "12/3/2025",
-      "daysOpen": 146
+      "daysOpen": 147
     },
     {
       "key": "BT-8932",
@@ -6791,7 +6791,7 @@
       "regression": "No",
       "createdDate": "11/20/2025",
       "updatedDate": "11/27/2025",
-      "daysOpen": 151
+      "daysOpen": 152
     },
     {
       "key": "BT-8743",
@@ -6919,7 +6919,7 @@
       "regression": "No",
       "createdDate": "11/16/2025",
       "updatedDate": "12/10/2025",
-      "daysOpen": 155
+      "daysOpen": 156
     },
     {
       "key": "BT-8546",
@@ -7191,7 +7191,7 @@
       "regression": "Yes",
       "createdDate": "11/11/2025",
       "updatedDate": "11/11/2025",
-      "daysOpen": 160
+      "daysOpen": 161
     },
     {
       "key": "BT-8417",
@@ -7303,7 +7303,7 @@
       "regression": "No",
       "createdDate": "11/7/2025",
       "updatedDate": "11/9/2025",
-      "daysOpen": 164
+      "daysOpen": 165
     },
     {
       "key": "BT-8295",
@@ -7431,7 +7431,7 @@
       "regression": "No",
       "createdDate": "11/6/2025",
       "updatedDate": "11/6/2025",
-      "daysOpen": 165
+      "daysOpen": 166
     },
     {
       "key": "BT-8219",
@@ -7575,7 +7575,7 @@
       "regression": "No",
       "createdDate": "11/4/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 167
+      "daysOpen": 168
     },
     {
       "key": "BT-8051",
@@ -7751,7 +7751,7 @@
       "regression": "No",
       "createdDate": "10/30/2025",
       "updatedDate": "11/2/2025",
-      "daysOpen": 172
+      "daysOpen": 173
     },
     {
       "key": "BT-7899",
@@ -8071,7 +8071,7 @@
       "regression": "Yes",
       "createdDate": "10/25/2025",
       "updatedDate": "3/29/2026",
-      "daysOpen": 177
+      "daysOpen": 178
     },
     {
       "key": "BT-7685",
@@ -8103,7 +8103,7 @@
       "regression": "Yes",
       "createdDate": "10/23/2025",
       "updatedDate": "10/26/2025",
-      "daysOpen": 179
+      "daysOpen": 180
     },
     {
       "key": "BT-7633",
@@ -8215,7 +8215,7 @@
       "regression": "No",
       "createdDate": "10/22/2025",
       "updatedDate": "11/27/2025",
-      "daysOpen": 180
+      "daysOpen": 181
     },
     {
       "key": "BT-7602",
@@ -8247,7 +8247,7 @@
       "regression": "Yes",
       "createdDate": "10/21/2025",
       "updatedDate": "10/31/2025",
-      "daysOpen": 181
+      "daysOpen": 182
     },
     {
       "key": "BT-7583",
@@ -8263,7 +8263,7 @@
       "regression": "Yes",
       "createdDate": "10/21/2025",
       "updatedDate": "1/5/2026",
-      "daysOpen": 181
+      "daysOpen": 182
     },
     {
       "key": "BT-7563",
@@ -8503,7 +8503,7 @@
       "regression": "No",
       "createdDate": "10/16/2025",
       "updatedDate": "10/20/2025",
-      "daysOpen": 186
+      "daysOpen": 187
     },
     {
       "key": "BT-7454",
@@ -8583,7 +8583,7 @@
       "regression": "Yes",
       "createdDate": "10/15/2025",
       "updatedDate": "10/28/2025",
-      "daysOpen": 187
+      "daysOpen": 188
     },
     {
       "key": "BT-7417",
@@ -8599,7 +8599,7 @@
       "regression": "Yes",
       "createdDate": "10/15/2025",
       "updatedDate": "11/9/2025",
-      "daysOpen": 187
+      "daysOpen": 188
     },
     {
       "key": "BT-7413",
@@ -8791,7 +8791,7 @@
       "regression": "Yes",
       "createdDate": "10/8/2025",
       "updatedDate": "10/12/2025",
-      "daysOpen": 194
+      "daysOpen": 195
     },
     {
       "key": "BT-7314",
@@ -8823,7 +8823,7 @@
       "regression": "Yes",
       "createdDate": "10/6/2025",
       "updatedDate": "10/21/2025",
-      "daysOpen": 196
+      "daysOpen": 197
     },
     {
       "key": "BT-7306",
@@ -8871,7 +8871,7 @@
       "regression": "Yes",
       "createdDate": "10/5/2025",
       "updatedDate": "10/16/2025",
-      "daysOpen": 197
+      "daysOpen": 198
     },
     {
       "key": "BT-7279",
@@ -9047,7 +9047,7 @@
       "regression": "No",
       "createdDate": "9/29/2025",
       "updatedDate": "11/11/2025",
-      "daysOpen": 203
+      "daysOpen": 204
     },
     {
       "key": "BT-7166",
@@ -9303,7 +9303,7 @@
       "regression": "No",
       "createdDate": "9/25/2025",
       "updatedDate": "10/23/2025",
-      "daysOpen": 207
+      "daysOpen": 208
     },
     {
       "key": "BT-7065",
@@ -9431,7 +9431,7 @@
       "regression": "No",
       "createdDate": "9/21/2025",
       "updatedDate": "9/21/2025",
-      "daysOpen": 211
+      "daysOpen": 212
     },
     {
       "key": "BT-7008",
@@ -9527,7 +9527,7 @@
       "regression": "Yes",
       "createdDate": "9/17/2025",
       "updatedDate": "9/25/2025",
-      "daysOpen": 215
+      "daysOpen": 216
     },
     {
       "key": "BT-6895",
@@ -9847,7 +9847,7 @@
       "regression": "Yes",
       "createdDate": "9/8/2025",
       "updatedDate": "2/10/2026",
-      "daysOpen": 224
+      "daysOpen": 225
     },
     {
       "key": "BT-6510",
@@ -9863,7 +9863,7 @@
       "regression": "No",
       "createdDate": "9/8/2025",
       "updatedDate": "9/9/2025",
-      "daysOpen": 224
+      "daysOpen": 225
     },
     {
       "key": "BT-6509",
@@ -10039,7 +10039,7 @@
       "regression": "Yes",
       "createdDate": "9/4/2025",
       "updatedDate": "11/3/2025",
-      "daysOpen": 228
+      "daysOpen": 229
     },
     {
       "key": "BT-6395",
@@ -10055,7 +10055,7 @@
       "regression": "No",
       "createdDate": "9/4/2025",
       "updatedDate": "11/3/2025",
-      "daysOpen": 228
+      "daysOpen": 229
     },
     {
       "key": "BT-6374",
@@ -10087,7 +10087,7 @@
       "regression": "No",
       "createdDate": "9/3/2025",
       "updatedDate": "9/14/2025",
-      "daysOpen": 229
+      "daysOpen": 230
     },
     {
       "key": "BT-6357",
@@ -10199,7 +10199,7 @@
       "regression": "Yes",
       "createdDate": "9/2/2025",
       "updatedDate": "9/14/2025",
-      "daysOpen": 230
+      "daysOpen": 231
     },
     {
       "key": "BT-6321",
@@ -10215,7 +10215,7 @@
       "regression": "Yes",
       "createdDate": "9/2/2025",
       "updatedDate": "9/2/2025",
-      "daysOpen": 230
+      "daysOpen": 231
     },
     {
       "key": "BT-6308",
@@ -10327,7 +10327,7 @@
       "regression": "No",
       "createdDate": "8/31/2025",
       "updatedDate": "11/3/2025",
-      "daysOpen": 232
+      "daysOpen": 233
     },
     {
       "key": "BT-6177",
@@ -10423,7 +10423,7 @@
       "regression": "Yes",
       "createdDate": "8/28/2025",
       "updatedDate": "8/31/2025",
-      "daysOpen": 235
+      "daysOpen": 236
     },
     {
       "key": "BT-6027",
@@ -10487,7 +10487,7 @@
       "regression": "No",
       "createdDate": "8/26/2025",
       "updatedDate": "10/28/2025",
-      "daysOpen": 237
+      "daysOpen": 238
     },
     {
       "key": "BT-5950",
@@ -10567,7 +10567,7 @@
       "regression": "No",
       "createdDate": "8/25/2025",
       "updatedDate": "8/25/2025",
-      "daysOpen": 238
+      "daysOpen": 239
     },
     {
       "key": "BT-5907",
@@ -10583,7 +10583,7 @@
       "regression": "Yes",
       "createdDate": "8/25/2025",
       "updatedDate": "9/7/2025",
-      "daysOpen": 238
+      "daysOpen": 239
     },
     {
       "key": "BT-5875",
@@ -10647,7 +10647,7 @@
       "regression": "Yes",
       "createdDate": "8/24/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 239
+      "daysOpen": 240
     },
     {
       "key": "BT-5846",
@@ -10951,7 +10951,7 @@
       "regression": "No",
       "createdDate": "8/14/2025",
       "updatedDate": "8/25/2025",
-      "daysOpen": 249
+      "daysOpen": 250
     },
     {
       "key": "BT-5263",
@@ -10999,7 +10999,7 @@
       "regression": "No",
       "createdDate": "8/13/2025",
       "updatedDate": "8/19/2025",
-      "daysOpen": 250
+      "daysOpen": 251
     },
     {
       "key": "BT-5248",
@@ -11015,7 +11015,7 @@
       "regression": "Yes",
       "createdDate": "8/13/2025",
       "updatedDate": "8/13/2025",
-      "daysOpen": 250
+      "daysOpen": 251
     },
     {
       "key": "BT-5236",
@@ -11063,7 +11063,7 @@
       "regression": "No",
       "createdDate": "8/12/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 251
+      "daysOpen": 252
     },
     {
       "key": "BT-5176",
@@ -11159,7 +11159,7 @@
       "regression": "No",
       "createdDate": "8/10/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 253
+      "daysOpen": 254
     },
     {
       "key": "BT-5049",
@@ -11255,7 +11255,7 @@
       "regression": "No",
       "createdDate": "8/7/2025",
       "updatedDate": "8/11/2025",
-      "daysOpen": 256
+      "daysOpen": 257
     },
     {
       "key": "BT-4996",
@@ -11367,7 +11367,7 @@
       "regression": "Yes",
       "createdDate": "8/5/2025",
       "updatedDate": "8/10/2025",
-      "daysOpen": 258
+      "daysOpen": 259
     },
     {
       "key": "BT-4859",
@@ -11463,7 +11463,7 @@
       "regression": "No",
       "createdDate": "8/4/2025",
       "updatedDate": "11/3/2025",
-      "daysOpen": 259
+      "daysOpen": 260
     },
     {
       "key": "BT-4808",
@@ -11511,7 +11511,7 @@
       "regression": "Yes",
       "createdDate": "8/3/2025",
       "updatedDate": "8/6/2025",
-      "daysOpen": 260
+      "daysOpen": 261
     },
     {
       "key": "BT-4764",
@@ -11719,7 +11719,7 @@
       "regression": "Yes",
       "createdDate": "7/29/2025",
       "updatedDate": "9/9/2025",
-      "daysOpen": 265
+      "daysOpen": 266
     },
     {
       "key": "BT-4545",
@@ -12007,7 +12007,7 @@
       "regression": "No",
       "createdDate": "7/21/2025",
       "updatedDate": "10/28/2025",
-      "daysOpen": 273
+      "daysOpen": 274
     },
     {
       "key": "BT-4134",
@@ -12167,7 +12167,7 @@
       "regression": "No",
       "createdDate": "7/17/2025",
       "updatedDate": "7/23/2025",
-      "daysOpen": 277
+      "daysOpen": 278
     },
     {
       "key": "BT-3979",
@@ -12311,7 +12311,7 @@
       "regression": "No",
       "createdDate": "7/14/2025",
       "updatedDate": "7/14/2025",
-      "daysOpen": 280
+      "daysOpen": 281
     },
     {
       "key": "BT-3859",
@@ -12327,7 +12327,7 @@
       "regression": "No",
       "createdDate": "7/14/2025",
       "updatedDate": "11/4/2025",
-      "daysOpen": 280
+      "daysOpen": 281
     },
     {
       "key": "BT-3858",
@@ -12343,7 +12343,7 @@
       "regression": "No",
       "createdDate": "7/14/2025",
       "updatedDate": "7/21/2025",
-      "daysOpen": 280
+      "daysOpen": 281
     },
     {
       "key": "BT-3852",
@@ -12407,7 +12407,7 @@
       "regression": "No",
       "createdDate": "7/13/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 281
+      "daysOpen": 282
     },
     {
       "key": "BT-3807",
@@ -12678,7 +12678,7 @@
       "sprint": "PI3.Sprint 1",
       "regression": "Yes",
       "createdDate": "7/3/2025",
-      "updatedDate": "4/19/2026",
+      "updatedDate": "4/20/2026",
       "daysOpen": 291
     },
     {
@@ -12823,7 +12823,7 @@
       "regression": "No",
       "createdDate": "7/1/2025",
       "updatedDate": "7/1/2025",
-      "daysOpen": 293
+      "daysOpen": 294
     },
     {
       "key": "BT-3452",
@@ -13159,7 +13159,7 @@
       "regression": "Yes",
       "createdDate": "6/25/2025",
       "updatedDate": "7/7/2025",
-      "daysOpen": 299
+      "daysOpen": 300
     },
     {
       "key": "BT-3142",
@@ -13175,7 +13175,7 @@
       "regression": "No",
       "createdDate": "6/25/2025",
       "updatedDate": "7/22/2025",
-      "daysOpen": 299
+      "daysOpen": 300
     },
     {
       "key": "BT-3139",
@@ -13191,7 +13191,7 @@
       "regression": "No",
       "createdDate": "6/25/2025",
       "updatedDate": "7/22/2025",
-      "daysOpen": 299
+      "daysOpen": 300
     },
     {
       "key": "BT-3123",
@@ -13415,7 +13415,7 @@
       "regression": "No",
       "createdDate": "6/19/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 305
+      "daysOpen": 306
     },
     {
       "key": "BT-2876",
@@ -13431,7 +13431,7 @@
       "regression": "Yes",
       "createdDate": "6/19/2025",
       "updatedDate": "2/5/2026",
-      "daysOpen": 305
+      "daysOpen": 306
     },
     {
       "key": "BT-2859",
@@ -13751,7 +13751,7 @@
       "regression": "Yes",
       "createdDate": "6/12/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 312
+      "daysOpen": 313
     },
     {
       "key": "BT-2579",
@@ -13895,7 +13895,7 @@
       "regression": "Yes",
       "createdDate": "6/10/2025",
       "updatedDate": "10/28/2025",
-      "daysOpen": 314
+      "daysOpen": 315
     },
     {
       "key": "BT-2498",
@@ -13975,7 +13975,7 @@
       "regression": "Yes",
       "createdDate": "6/9/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 315
+      "daysOpen": 316
     },
     {
       "key": "BT-2460",
@@ -13991,7 +13991,7 @@
       "regression": "No",
       "createdDate": "6/9/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 315
+      "daysOpen": 316
     },
     {
       "key": "BT-2435",
@@ -14023,7 +14023,7 @@
       "regression": "Yes",
       "createdDate": "6/8/2025",
       "updatedDate": "2/11/2026",
-      "daysOpen": 316
+      "daysOpen": 317
     },
     {
       "key": "BT-2419",
@@ -14039,7 +14039,7 @@
       "regression": "No",
       "createdDate": "6/8/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 316
+      "daysOpen": 317
     },
     {
       "key": "BT-2415",
@@ -14055,7 +14055,7 @@
       "regression": "No",
       "createdDate": "6/8/2025",
       "updatedDate": "2/5/2026",
-      "daysOpen": 316
+      "daysOpen": 317
     },
     {
       "key": "BT-2380",
@@ -14231,7 +14231,7 @@
       "regression": "No",
       "createdDate": "6/4/2025",
       "updatedDate": "2/5/2026",
-      "daysOpen": 320
+      "daysOpen": 321
     },
     {
       "key": "BT-2299",
@@ -14631,7 +14631,7 @@
       "regression": "Yes",
       "createdDate": "5/22/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 333
+      "daysOpen": 334
     },
     {
       "key": "BT-1759",
@@ -14647,7 +14647,7 @@
       "regression": "No",
       "createdDate": "5/22/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 333
+      "daysOpen": 334
     },
     {
       "key": "BT-1732",
@@ -14775,7 +14775,7 @@
       "regression": "No",
       "createdDate": "5/19/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 336
+      "daysOpen": 337
     },
     {
       "key": "BT-1341",
@@ -14807,7 +14807,7 @@
       "regression": "Yes",
       "createdDate": "5/18/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 337
+      "daysOpen": 338
     },
     {
       "key": "BT-1337",
@@ -14919,7 +14919,7 @@
       "regression": "No",
       "createdDate": "5/14/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 341
+      "daysOpen": 342
     },
     {
       "key": "BT-1231",
@@ -14967,7 +14967,7 @@
       "regression": "No",
       "createdDate": "5/13/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 342
+      "daysOpen": 343
     },
     {
       "key": "BT-1198",
@@ -14983,7 +14983,7 @@
       "regression": "Yes",
       "createdDate": "5/13/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 342
+      "daysOpen": 343
     },
     {
       "key": "BT-1169",
@@ -15015,7 +15015,7 @@
       "regression": "No",
       "createdDate": "5/12/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 343
+      "daysOpen": 344
     },
     {
       "key": "BT-1148",
@@ -15031,7 +15031,7 @@
       "regression": "No",
       "createdDate": "5/12/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 343
+      "daysOpen": 344
     },
     {
       "key": "BT-1111",
@@ -15047,7 +15047,7 @@
       "regression": "Yes",
       "createdDate": "5/11/2025",
       "updatedDate": "2/5/2026",
-      "daysOpen": 344
+      "daysOpen": 345
     },
     {
       "key": "BT-1102",
@@ -15127,7 +15127,7 @@
       "regression": "No",
       "createdDate": "5/8/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 347
+      "daysOpen": 348
     },
     {
       "key": "BT-1020",
@@ -15255,7 +15255,7 @@
       "regression": "No",
       "createdDate": "5/5/2025",
       "updatedDate": "11/11/2025",
-      "daysOpen": 350
+      "daysOpen": 351
     },
     {
       "key": "BT-931",
@@ -15271,7 +15271,7 @@
       "regression": "No",
       "createdDate": "5/5/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 350
+      "daysOpen": 351
     },
     {
       "key": "BT-927",
@@ -15287,7 +15287,7 @@
       "regression": "No",
       "createdDate": "5/5/2025",
       "updatedDate": "1/22/2026",
-      "daysOpen": 350
+      "daysOpen": 351
     },
     {
       "key": "BT-874",
@@ -15495,7 +15495,7 @@
       "regression": null,
       "createdDate": "4/29/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 356
+      "daysOpen": 357
     },
     {
       "key": "BT-674",
@@ -15511,7 +15511,7 @@
       "regression": "Yes",
       "createdDate": "4/28/2025",
       "updatedDate": "6/22/2025",
-      "daysOpen": 357
+      "daysOpen": 358
     },
     {
       "key": "BT-669",
@@ -15573,10 +15573,10 @@
     },
     "byLeadingTeam": {
       "MIS - GTM": 61,
-      "AI Dev": 32,
+      "AI Dev": 33,
       "MIS - GTC": 324,
       "AI Mind": 5,
-      "MIS - CORP": 431,
+      "MIS - CORP": 430,
       "Data": 83,
       "OCIO": 2,
       "MIS - Platform": 33
@@ -15589,9 +15589,9 @@
       "Workato": 35,
       "Stripe": 6,
       "ZIP": 175,
-      "Netsuite": 198,
+      "Netsuite": 197,
       "Nexonia": 3,
-      "Snowflake": 77,
+      "Snowflake": 78,
       "CaptivateIQ": 21,
       "Jira": 10,
       "Tableau": 2,
