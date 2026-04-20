@@ -272,16 +272,35 @@
                     return;
                 }
                 
-                DATA_URL = `https://drive.google.com/uc?id=${fileId}&export=download`;
+                // Try multiple methods to handle CORS issues
+                const directUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
+                const corsProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(directUrl)}`;
                 
                 showStatus('🔄 Testing connection to Google Drive...', 'loading');
                 
-                const response = await fetch(DATA_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: Make sure file is publicly shared`);
+                let response;
+                let data;
+                
+                try {
+                    // Try direct access first
+                    response = await fetch(directUrl);
+                    if (!response.ok) throw new Error('Direct access blocked');
+                    data = await response.json();
+                    DATA_URL = directUrl;
+                } catch (directError) {
+                    try {
+                        // Fallback to CORS proxy
+                        showStatus('🔄 Using CORS proxy to access Google Drive...', 'loading');
+                        response = await fetch(corsProxyUrl);
+                        if (!response.ok) throw new Error('CORS proxy failed');
+                        const proxyData = await response.json();
+                        data = JSON.parse(proxyData.contents);
+                        DATA_URL = corsProxyUrl;
+                    } catch (proxyError) {
+                        throw new Error(`Both methods failed. Direct: ${directError.message}, Proxy: ${proxyError.message}`);
+                    }
                 }
-
-                const data = await response.json();
+                // Data is already loaded above
                 
                 if (!data.bugs || !Array.isArray(data.bugs)) {
                     throw new Error('Invalid data format in uploaded file');
@@ -296,8 +315,8 @@
                 // Initialize dashboard with loaded data
                 initializeDashboard(data);
                 
-                // Save the working URL
-                localStorage.setItem('gdriveDataUrl', DATA_URL);
+                // Save the working file ID
+                localStorage.setItem('gdriveFileId', fileId);
 
             } catch (error) {
                 showStatus(`❌ Connection failed: ${error.message}<br><br>
@@ -371,29 +390,45 @@
 
         // Auto-load saved URL on page load
         window.addEventListener('load', function() {
-            const savedUrl = localStorage.getItem('gdriveDataUrl');
-            if (savedUrl) {
-                DATA_URL = savedUrl;
-                fetch(DATA_URL)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('setupInstructions').style.display = 'none';
-                        document.getElementById('dashboardContent').style.display = 'block';
-                        initializeDashboard(data);
-                    })
-                    .catch(error => {
-                        console.log('Saved URL no longer works, showing setup instructions');
-                    });
+            const savedFileId = localStorage.getItem('gdriveFileId');
+            if (savedFileId) {
+                loadDataWithFileId(savedFileId);
             }
         });
+        
+        async function loadDataWithFileId(fileId) {
+            try {
+                const directUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
+                const corsProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(directUrl)}`;
+                
+                let data;
+                try {
+                    const response = await fetch(directUrl);
+                    if (!response.ok) throw new Error('Direct access blocked');
+                    data = await response.json();
+                    DATA_URL = directUrl;
+                } catch (directError) {
+                    const response = await fetch(corsProxyUrl);
+                    if (!response.ok) throw new Error('CORS proxy failed');
+                    const proxyData = await response.json();
+                    data = JSON.parse(proxyData.contents);
+                    DATA_URL = corsProxyUrl;
+                }
+                
+                document.getElementById('setupInstructions').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+                initializeDashboard(data);
+            } catch (error) {
+                console.log('Auto-load failed, showing setup instructions:', error);
+            }
+        }
 
         // Auto-refresh every 30 minutes
         setInterval(() => {
-            if (DATA_URL) {
-                fetch(DATA_URL)
-                    .then(response => response.json())
-                    .then(data => {
-                        initializeDashboard(data);
+            const savedFileId = localStorage.getItem('gdriveFileId');
+            if (savedFileId) {
+                loadDataWithFileId(savedFileId)
+                    .then(() => {
                         console.log('Dashboard data refreshed from Google Drive');
                     })
                     .catch(error => {
