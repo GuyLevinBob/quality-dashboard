@@ -7,7 +7,16 @@
     "export": "node export-jira-data.js",
     "update-dashboard": "node update-dashboard-data.js",
     "refresh": "npm run export && npm run update-dashboard",
-    "serve": "npx http-server -p 8080 -o bug-dashboard-embedded.html"
+    "export-safe": "node export-safe-data.js",
+    "refresh-safe": "npm run export && npm run export-safe",
+    "upload-external": "node upload-to-external.js",
+    "scheduler-start": "node daily-scheduler.js start",
+    "scheduler-once": "node daily-scheduler.js run-once",
+    "scheduler-status": "node daily-scheduler.js status", 
+    "serve": "npx http-server -p 8080 -o bug-dashboard-embedded.html",
+    "serve-safe": "npx http-server -p 8080 -o dashboard-safe-standalone.html",
+    "serve-external": "npx http-server -p 8080 -o dashboard-external-data.html",
+    "serve-automated": "npx http-server -p 8080 -o dashboard-automated.html"
   },
   "dependencies": {
     "http-server": "^14.1.1"

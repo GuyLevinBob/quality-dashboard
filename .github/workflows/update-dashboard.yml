@@ -33,13 +33,19 @@ jobs:
         echo "JIRA_API_TOKEN=$JIRA_API_TOKEN" >> .env
         node export-jira-data.js
         
-    - name: Update dashboard with new data
+    - name: Create safe dashboard data
+      run: node export-safe-data.js
+      
+    - name: Copy safe data to dashboard-data.json
+      run: cp dashboard-safe-data.json dashboard-data.json
+      
+    - name: Update dashboard HTML with new data
       run: node update-dashboard-data.js
       
     - name: Commit and push if changes
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add .
+        git add dashboard-data.json bug-dashboard-embedded.html
         git diff --staged --quiet || git commit -m "🤖 Auto-update dashboard data $(date)"
         git push

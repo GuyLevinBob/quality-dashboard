@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Bug Analytics | HiBob</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Domine:wght@400;500;600;700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background: linear-gradient(135deg, #FDF6EB 0%, #FFFFFF 50%, #FAC7D1 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #3A3A37;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .loading-banner {
+            background: linear-gradient(135deg, #2196f3, #21cbf3);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        
+        .header {
+            background: #FFFFFF;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(238, 22, 79, 0.08);
+            margin-bottom: 32px;
+            text-align: center;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+        }
+        
+        .header h1 {
+            font-family: 'Archivo Black', sans-serif;
+            color: #EE164F;
+            font-size: 2.8em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        
+        .header .subtitle {
+            font-family: 'Domine', serif;
+            color: #83143D;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .header .description {
+            color: #3A3A37;
+            font-size: 1.1em;
+            opacity: 0.8;
+            margin-bottom: 16px;
+        }
+        
+        .automation-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: #FFFFFF;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(238, 22, 79, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #EE164F, #FAA32B);
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #EE164F;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1.2em;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .stat-trend {
+            font-size: 0.9em;
+            color: #28a745;
+        }
+        
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .chart-card {
+            background: #FFFFFF;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+            border: 1px solid rgba(238, 22, 79, 0.05);
+        }
+        
+        .chart-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #3A3A37;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+        
+        .chart-label {
+            width: 120px;
+            font-weight: 500;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .chart-bar-fill {
+            flex: 1;
+            height: 24px;
+            background: linear-gradient(90deg, #EE164F, #FAA32B);
+            border-radius: 4px;
+            margin-right: 10px;
+            position: relative;
+        }
+        
+        .chart-value {
+            font-weight: 600;
+            color: #3A3A37;
+            min-width: 40px;
+            text-align: right;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            color: #c62828;
+        }
+        
+        .dashboard-content {
+            display: none;
+        }
+        
+        .refresh-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loading-banner" id="loadingBanner">
+            🔄 Loading latest production bug analytics...
+        </div>
+
+        <div class="header">
+            <h1>HiBob Bug Analytics</h1>
+            <div class="subtitle">Automated Production Quality Dashboard</div>
+            <div class="description">
+                Real-time production bug analytics with daily automated updates from JIRA.
+            </div>
+            <div class="automation-badge">🤖 Auto-Updated Daily</div>
+            <div class="automation-badge">🔒 Secure Data Processing</div>
+            <div class="automation-badge">📊 971+ Bugs Tracked</div>
+            <div class="meta" id="dataInfo">
+                Loading dashboard data...
+            </div>
+        </div>
+
+        <div class="dashboard-content" id="dashboardContent">
+            <div class="refresh-info">
+                <strong>🔄 Automated Updates:</strong> This dashboard is automatically updated daily at 8 AM UTC with fresh JIRA data. 
+                No manual intervention required - your team always sees the latest production bug analytics.
+            </div>
+            
+            <div class="stats-overview" id="statsGrid">
+                <!-- Stats cards will be generated here -->
+            </div>
+            
+            <div class="charts-section" id="chartsGrid">
+                <!-- Charts will be generated here -->
+            </div>
+        </div>
+        
+        <div class="error-message" id="errorMessage" style="display: none;">
+            <!-- Error messages will appear here -->
+        </div>
+    </div>
+
+    <script>
+        async function loadDashboardData() {
+            try {
+                console.log('Loading dashboard data from repository...');
+                
+                // Load data from the same domain (no CORS issues)
+                const response = await fetch('./dashboard-data.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: Failed to load dashboard data`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.bugs || !Array.isArray(data.bugs)) {
+                    throw new Error('Invalid data format: missing bugs array');
+                }
+
+                console.log(`Loaded ${data.bugs.length} bugs from automated data source`);
+                
+                // Hide loading banner and show dashboard
+                document.getElementById('loadingBanner').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+                
+                // Initialize dashboard
+                initializeDashboard(data);
+
+            } catch (error) {
+                console.error('Failed to load dashboard data:', error);
+                showError(`Failed to load dashboard data: ${error.message}`);
+            }
+        }
+
+        function initializeDashboard(data) {
+            // Update header info
+            const exportDate = new Date(data.metadata.exported || Date.now());
+            document.getElementById('dataInfo').innerHTML = `
+                📊 ${data.bugs.length} bugs loaded | 
+                📅 Last Updated: ${exportDate.toLocaleDateString()} ${exportDate.toLocaleTimeString()} | 
+                🤖 Source: Automated JIRA Export (Secure)
+            `;
+            
+            // Generate statistics
+            const stats = generateComprehensiveStats(data.bugs);
+            
+            // Render stats and charts
+            document.getElementById('statsGrid').innerHTML = renderStatsCards(stats);
+            document.getElementById('chartsGrid').innerHTML = renderCharts(stats);
+            
+            console.log('Dashboard initialized successfully');
+        }
+
+        function generateComprehensiveStats(bugs) {
+            const stats = {
+                total: bugs.length,
+                byStatus: {},
+                byPriority: {},
+                bySeverity: {},
+                byLeadingTeam: {},
+                bySystem: {},
+                bySprint: {},
+                byRegression: {},
+                avgDaysOpen: 0,
+                deployed: 0,
+                highPriority: 0,
+                criticalSeverity: 0,
+                regressionCount: 0
+            };
+
+            let totalDays = 0;
+            
+            bugs.forEach(bug => {
+                // Basic counts
+                stats.byStatus[bug.status] = (stats.byStatus[bug.status] || 0) + 1;
+                stats.byPriority[bug.priority] = (stats.byPriority[bug.priority] || 0) + 1;
+                
+                if (bug.severity) {
+                    stats.bySeverity[bug.severity] = (stats.bySeverity[bug.severity] || 0) + 1;
+                    if (bug.severity === 'Critical') stats.criticalSeverity++;
+                }
+                
+                if (bug.leadingTeam) {
+                    stats.byLeadingTeam[bug.leadingTeam] = (stats.byLeadingTeam[bug.leadingTeam] || 0) + 1;
+                }
+                
+                if (bug.system) {
+                    stats.bySystem[bug.system] = (stats.bySystem[bug.system] || 0) + 1;
+                }
+                
+                if (bug.sprint) {
+                    stats.bySprint[bug.sprint] = (stats.bySprint[bug.sprint] || 0) + 1;
+                }
+                
+                if (bug.regression) {
+                    stats.byRegression[bug.regression] = (stats.byRegression[bug.regression] || 0) + 1;
+                    if (bug.regression === 'Yes') stats.regressionCount++;
+                }
+                
+                // Derived metrics
+                if (bug.status === 'Deployed') stats.deployed++;
+                if (bug.priority === 'High' || bug.severity === 'High' || bug.severity === 'Critical') {
+                    stats.highPriority++;
+                }
+                
+                totalDays += bug.daysOpen || 0;
+            });
+
+            stats.avgDaysOpen = Math.round(totalDays / bugs.length);
+            
+            return stats;
+        }
+
+        function renderStatsCards(stats) {
+            const cards = [
+                { 
+                    label: 'Total Bugs', 
+                    value: stats.total, 
+                    color: '#EE164F',
+                    trend: 'All production issues tracked'
+                },
+                { 
+                    label: 'Deployed', 
+                    value: stats.deployed, 
+                    color: '#28a745',
+                    trend: `${Math.round((stats.deployed/stats.total)*100)}% resolved`
+                },
+                { 
+                    label: 'High Priority', 
+                    value: stats.highPriority, 
+                    color: '#FAA32B',
+                    trend: 'Needs attention'
+                },
+                { 
+                    label: 'Critical Issues', 
+                    value: stats.criticalSeverity, 
+                    color: '#dc3545',
+                    trend: 'Immediate action required'
+                },
+                { 
+                    label: 'Avg Days Open', 
+                    value: stats.avgDaysOpen, 
+                    color: '#6f42c1',
+                    trend: 'Resolution time metric'
+                },
+                { 
+                    label: 'Active Teams', 
+                    value: Object.keys(stats.byLeadingTeam).length, 
+                    color: '#17a2b8',
+                    trend: 'Teams involved'
+                }
+            ];
+
+            return cards.map(card => `
+                <div class="stat-card">
+                    <div class="stat-number" style="color: ${card.color}">${card.value}</div>
+                    <div class="stat-label">${card.label}</div>
+                    <div class="stat-trend">${card.trend}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderCharts(stats) {
+            const charts = [
+                { title: 'Status Distribution', data: stats.byStatus },
+                { title: 'Priority Levels', data: stats.byPriority },
+                { title: 'Leading Teams', data: stats.byLeadingTeam },
+                { title: 'Systems Affected', data: stats.bySystem }
+            ];
+
+            return charts.map(chart => {
+                if (!chart.data || Object.keys(chart.data).length === 0) {
+                    return `
+                        <div class="chart-card">
+                            <div class="chart-title">${chart.title}</div>
+                            <p style="text-align: center; color: #666; padding: 40px;">No data available</p>
+                        </div>
+                    `;
+                }
+
+                const maxValue = Math.max(...Object.values(chart.data));
+                const chartBars = Object.entries(chart.data)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 8) // Show top 8
+                    .map(([key, value]) => {
+                        const percentage = (value / maxValue) * 100;
+                        return `
+                            <div class="chart-bar">
+                                <div class="chart-label">${key}</div>
+                                <div class="chart-bar-fill" style="width: ${percentage}%"></div>
+                                <div class="chart-value">${value}</div>
+                            </div>
+                        `;
+                    }).join('');
+
+                return `
+                    <div class="chart-card">
+                        <div class="chart-title">${chart.title}</div>
+                        ${chartBars}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.innerHTML = `<strong>❌ Error:</strong> ${message}`;
+            errorDiv.style.display = 'block';
+            
+            document.getElementById('loadingBanner').style.display = 'none';
+        }
+
+        // Load dashboard data when page loads
+        window.addEventListener('load', loadDashboardData);
+        
+        // Auto-refresh every 30 minutes to catch any updates
+        setInterval(loadDashboardData, 30 * 60 * 1000);
+    </script>
+</body>
+</html>
