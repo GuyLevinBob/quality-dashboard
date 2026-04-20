@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HiBob Bug Analytics Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FDF6EB 0%, #FFFFFF 50%, #FAC7D1 100%);
+            margin: 0;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 60px;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(238, 22, 79, 0.08);
+            text-align: center;
+            max-width: 600px;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+        }
+        .logo {
+            font-family: 'Arial Black', sans-serif;
+            color: #EE164F;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        .subtitle {
+            color: #83143D;
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .dashboard-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #EE164F, #FAA32B);
+            color: white;
+            text-decoration: none;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(238, 22, 79, 0.2);
+        }
+        .dashboard-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(238, 22, 79, 0.3);
+        }
+        .description {
+            color: #3A3A37;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+        .status {
+            background: #f8f9fa;
+            border-left: 4px solid #EE164F;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">HiBob Analytics</div>
+        <div class="subtitle">Production Bug Dashboard</div>
+        
+        <div class="description">
+            Welcome to the HiBob Production Bug Analytics Dashboard. 
+            This tool provides real-time insights into production issues, 
+            team performance metrics, and quality trends.
+        </div>
+        
+        <a href="bug-dashboard-embedded.html" class="dashboard-link">
+            🚀 Open Dashboard
+        </a>
+        
+        <div class="status">
+            <strong>📊 Dashboard Status:</strong> Active<br>
+            <strong>🔄 Last Updated:</strong> <span id="lastUpdate">Loading...</span><br>
+            <strong>📈 Total Bugs:</strong> 971 issues tracked
+        </div>
+        
+        <div class="description">
+            <small>
+                Access requires team credentials. For support or access issues, 
+                contact the development team.
+            </small>
+        </div>
+    </div>
+    
+    <script>
+        // Show current date as last update
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString();
+    </script>
+</body>
+</html>
