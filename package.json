@@ -10,6 +10,7 @@
     "export-safe": "node export-safe-data.js",
     "refresh-safe": "npm run export && npm run export-safe",
     "upload-external": "node upload-to-external.js",
+    "daily-update": "node daily-auto-update.js",
     "scheduler-start": "node daily-scheduler.js start",
     "scheduler-once": "node daily-scheduler.js run-once",
     "scheduler-status": "node daily-scheduler.js status", 

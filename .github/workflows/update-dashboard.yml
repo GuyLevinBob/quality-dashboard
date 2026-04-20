@@ -1,51 +1,33 @@
-name: Update Dashboard Data
+name: Deploy Dashboard Updates
 
 on:
-  schedule:
-    # Run every day at 8 AM UTC (adjust timezone as needed)
-    - cron: '0 8 * * *'
+  push:
+    branches: [ main ]
+    paths: [ 'dashboard-data.json' ]
   workflow_dispatch: # Allow manual triggering
 
 jobs:
-  update-data:
+  deploy:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
       
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        
-    - name: Install dependencies
-      run: npm install
-      
-    - name: Export fresh JIRA data
-      env:
-        JIRA_DOMAIN: ${{ secrets.JIRA_DOMAIN }}
-        JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
-        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+    - name: Verify dashboard data
       run: |
-        echo "JIRA_DOMAIN=$JIRA_DOMAIN" > .env
-        echo "JIRA_EMAIL=$JIRA_EMAIL" >> .env
-        echo "JIRA_API_TOKEN=$JIRA_API_TOKEN" >> .env
-        node export-jira-data.js
+        echo "📊 Verifying dashboard data file..."
+        if [ -f "dashboard-data.json" ]; then
+          echo "✅ Dashboard data file exists"
+          wc -l dashboard-data.json
+          echo "📈 Data file ready for deployment"
+        else
+          echo "❌ Dashboard data file not found"
+          exit 1
+        fi
         
-    - name: Create safe dashboard data
-      run: node export-safe-data.js
-      
-    - name: Copy safe data to dashboard-data.json
-      run: cp dashboard-safe-data.json dashboard-data.json
-      
-    - name: Update dashboard HTML with new data
-      run: node update-dashboard-data.js
-      
-    - name: Commit and push if changes
+    - name: Deploy notification
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add dashboard-data.json bug-dashboard-embedded.html
-        git diff --staged --quiet || git commit -m "🤖 Auto-update dashboard data $(date)"
-        git push
+        echo "🚀 Dashboard deployment triggered by data update"
+        echo "📊 GitHub Pages will automatically serve updated dashboard"
+        echo "🌐 Team dashboard URL: https://guylevinbob.github.io/quality-dashboard/dashboard-automated.html"
