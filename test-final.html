@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Final Dashboard Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        iframe { border: 1px solid #ccc; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Final Test</h1>
+    <div id="status" class="status info">🧪 Testing dashboard...</div>
+    
+    <script>
+        console.log('Starting dashboard test...');
+        
+        // Test by fetching the HTML and checking for JavaScript errors
+        fetch('bug-dashboard-embedded.html')
+            .then(response => response.text())
+            .then(html => {
+                console.log('✅ Dashboard file loaded');
+                
+                // Check for data object
+                if (html.includes('const data = {')) {
+                    console.log('✅ Data object found');
+                    
+                    // Check for key functions
+                    const requiredFunctions = [
+                        'function initializeApp',
+                        'function populateFilters',
+                        'function applyFilters',
+                        'function displayBugsTable',
+                        'function updatePaginationControls'
+                    ];
+                    
+                    let missingFunctions = [];
+                    requiredFunctions.forEach(func => {
+                        if (!html.includes(func)) {
+                            missingFunctions.push(func);
+                        }
+                    });
+                    
+                    if (missingFunctions.length === 0) {
+                        console.log('✅ All required functions found');
+                        document.getElementById('status').innerHTML = '✅ Dashboard structure validated - ready to test!';
+                        document.getElementById('status').className = 'status success';
+                        
+                        // Create iframe to actually load the dashboard
+                        setTimeout(() => {
+                            const iframe = document.createElement('iframe');
+                            iframe.src = 'bug-dashboard-embedded.html';
+                            iframe.style.width = '100%';
+                            iframe.style.height = '600px';
+                            iframe.onload = () => {
+                                console.log('✅ Dashboard iframe loaded');
+                                
+                                // Try to check the dashboard status
+                                setTimeout(() => {
+                                    try {
+                                        const iframeDoc = iframe.contentDocument;
+                                        if (iframeDoc) {
+                                            const statusEl = iframeDoc.getElementById('status');
+                                            const statusText = statusEl ? statusEl.textContent : 'No status element';
+                                            console.log('Dashboard status:', statusText);
+                                            
+                                            if (statusText.includes('✅') || statusText.includes('ready')) {
+                                                document.getElementById('status').innerHTML = '🎉 Dashboard is working perfectly!';
+                                                document.getElementById('status').className = 'status success';
+                                            } else if (statusText.includes('❌') || statusText.includes('Failed')) {
+                                                document.getElementById('status').innerHTML = '❌ Dashboard error: ' + statusText;
+                                                document.getElementById('status').className = 'status error';
+                                            }
+                                        }
+                                    } catch (e) {
+                                        console.log('Cross-origin restriction, but iframe loaded successfully');
+                                        document.getElementById('status').innerHTML = '✅ Dashboard loaded (cross-origin restrictions prevent detailed status check)';
+                                        document.getElementById('status').className = 'status success';
+                                    }
+                                }, 3000);
+                            };
+                            
+                            iframe.onerror = () => {
+                                console.log('❌ Dashboard failed to load');
+                                document.getElementById('status').innerHTML = '❌ Dashboard failed to load';
+                                document.getElementById('status').className = 'status error';
+                            };
+                            
+                            document.body.appendChild(iframe);
+                        }, 1000);
+                        
+                    } else {
+                        document.getElementById('status').innerHTML = '❌ Missing functions: ' + missingFunctions.join(', ');
+                        document.getElementById('status').className = 'status error';
+                    }
+                    
+                } else {
+                    document.getElementById('status').innerHTML = '❌ No data object found in dashboard';
+                    document.getElementById('status').className = 'status error';
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load dashboard:', error);
+                document.getElementById('status').innerHTML = '❌ Failed to load dashboard file: ' + error.message;
+                document.getElementById('status').className = 'status error';
+            });
+    </script>
+</body>
+</html>

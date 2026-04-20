@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Production Bug Analytics | HiBob</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Domine:wght@400;500;600;700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- External scripts removed - functionality integrated into dashboard -->
+    <!-- External scripts not needed for automated version -->
     <style>
         * {
             margin: 0;
@@ -877,10 +877,10 @@
         let bugsData = [];
         let filteredData = [];
 
-        // Load dashboard data from automated source (preserves ALL existing functionality)
+        // Load dashboard data from automated source
         let data = null;
         
-        async function loadDashboardData() {
+        async function loadDashboardDataFromSource() {
             try {
                 console.log('🔄 Loading dashboard data from automated source...');
                 const response = await fetch('./dashboard-data.json');
@@ -890,9 +890,9 @@
                 }
                 
                 data = await response.json();
-                console.log(`✅ Loaded ${data.bugs.length} bugs with full functionality preserved`);
+                console.log(`✅ Loaded ${data.bugs.length} bugs from automated data source`);
                 
-                // Initialize dashboard with all existing functionality
+                // Initialize dashboard with loaded data (preserves ALL existing functionality)
                 loadData();
                 
             } catch (error) {
@@ -901,15 +901,35 @@
             }
         }
         
-        // Placeholder data structure (will be replaced by loaded data)
-        // All existing functionality preserved - just data source changed
+        // Note: Dashboard data will be loaded from dashboard-data.json
+        // All existing functionality preserved - just changed data source
         
-        
-        // Efficiently populate missing fields for ALL bug entries
-        function populateMissingFields() {
-            // REMOVED: Fake data arrays that were generating random values
-            console.log('🗑️ Removed fake leadingTeams and systems arrays');
-            console.log('📊 Will only use real data from Jira export for filters');
+        // All your existing functions start here
+    "totalBugs": 1302,
+    "projects": [
+      "BT"
+    ],
+    "jiraInstance": "hibob.atlassian.net"
+  },
+  "bugs": [
+    {
+      "key": "BT-13274",
+      "project": "BT",
+      "summary": "Production - Agent Companion - Skills loaded incorrectly into Claude SDK (wrong path, combined file, broken frontmatter)",
+      "status": "Not Started",
+      "priority": "Medium",
+      "assignee": "Omri Bitan",
+      "reporter": "Omri Bitan",
+      "created": "2026-04-19T11:13:44.441+0300",
+      "updated": "2026-04-19T11:14:54.697+0300",
+      "createdDate": "4/19/2026",
+      "updatedDate": "4/19/2026",
+      "daysOpen": 1,
+      "leadingTeam": "AI Dev",
+      "system": "Other",
+      "sprint": "PI3.26.Sprint 1 (30/3 -27/4)",
+      "description": "Bug DescriptionThe Agent Companion skill loading implementation does not follow the Claude Agent SDK standard for skills. This causes skills to be discovered incorrectly, shows internal server filesystem paths to users in the UI, and potentially loads wrong/stale skills across agents.Root Cause AnalysisThree separate issues were identified in backend/services/agent_companion/claude/config.py (_handle_skill_file function):1. All skills combined into a single SKILL.md file (breaks SDK discovery)The current code loads all skills from S3 and concatenates them with --- separators into one SKILL.md file:combined_skills = '\\n\\n---\\n\\n'.join(all_skills_content)Problem: The Claude SDK expects each skill in its own directory (~/.claude/skills/{skill-name}/SKILL.md), each with its own YAML frontmatter containing name and description. The --- separator is the YAML frontmatter delimiter, so combining skills this way destroys the YAML frontmatter of all skills except the first one. The SDK sees one mega-skill instead of individual skills.SDK Standard: Each skill must be in its own directory:.claude/skills/\n  data-visualization/\n    SKILL.md\n  data-querying/\n    SKILL.md2. Path mismatch between skill write path and SDK cwd (skills not found or wrong skills loaded)_handle_skill_file writes skills using os.path.realpath(project_name) where project_name is the agent name (e.g., snowflake-oauth), producing a path like: ~/.claude/skills/-app-backend-snowflake-oauth/SKILL.mdBut create_claude_options sets the SDK's cwd to project_name which is assistant_ui (a different variable). The SDK discovers project-level skills relative to cwd, so these two paths never match.This is also environment-dependent: os.path.realpath('snowflake-oauth') produces completely different paths on local dev vs Docker container vs ECS.3. Cross-agent skill contaminationSkills are written to ~/.claude/skills/ (user-level) and setting_sources includes user. User-level skills are global -- the SDK loads ALL user skills regardless of which agent is active. Agent A's skills are visible to Agent B.ImpactUsers see internal server filesystem paths (e.g., /home/appuser/.claude/skills/-app-backend-snowflake-oauth) in the chat UI when skills are invokedSkills may not load at all due to path mismatchSkills from one agent may leak into another agent's sessionOnly the first skill's YAML frontmatter is visible to Claude for auto-discoveryAll skill content loads at once instead of lazily per-skillFix Plan (Option 1: Project-scoped skills)Deterministic per-agent cwd: Use ~/.claude/agent-workspaces/{agent_project_name} as the SDK cwdOne directory per skill: Write each S3 skill to {cwd}/.claude/skills/{skill-name}/SKILL.md with original YAML frontmatter intactProject-only setting source: Change setting_sources from ['user', 'project'] to ['project']Stale skill cleanup: Before writing, remove old skill directories not in current skills-config.jsonFiles to Changebackend/services/agent_companion/claude/config.py - Rewrite _handle_skill_file, fix cwd in create_claude_optionsbackend/services/agent_companion/claude/message_processor.py - Verify SKILL_CONTENT_INDICATORS still match new paths.cursor/skills/agent-companion-structure/SKILL.md - Update documentationEnvironmentAffects both dev and production (Docker container running as appuser with CWD /app/backend)."
+    },
     {
       "key": "BT-13264",
       "project": "BT",
@@ -20903,8 +20923,8 @@
       "updated": "2026-04-19T11:14:54.697+0300",
       "createdDate": "4/19/2026",
       "updatedDate": "4/19/2026",
-            // REMOVED: Fake data arrays that were generating random values
-            console.log('🗑️ Removed fake leadingTeams and systems arrays');rst one. The SDK sees one mega-skill instead of individual skills.SDK Standard: Each skill must be in its own directory:.claude/skills/\n  data-visualization/\n    SKILL.md\n  data-querying/\n    SKILL.md2. Path mismatch between skill write path and SDK cwd (skills not found or wrong skills loaded)_handle_skill_file writes skills using os.path.realpath(project_name) where project_name is the agent name (e.g., snowflake-oauth), producing a path like: ~/.claude/skills/-app-backend-snowflake-oauth/SKILL.mdBut create_claude_options sets the SDK's cwd to project_name which is assistant_ui (a different variable). The SDK discovers project-level skills relative to cwd, so these two paths never match.This is also environment-dependent: os.path.realpath('snowflake-oauth') produces completely different paths on local dev vs Docker container vs ECS.3. Cross-agent skill contaminationSkills are written to ~/.claude/skills/ (user-level) and setting_sources includes user. User-level skills are global -- the SDK loads ALL user skills regardless of which agent is active. Agent A's skills are visible to Agent B.ImpactUsers see internal server filesystem paths (e.g., /home/appuser/.claude/skills/-app-backend-snowflake-oauth) in the chat UI when skills are invokedSkills may not load at all due to path mismatchSkills from one agent may leak into another agent's sessionOnly the first skill's YAML frontmatter is visible to Claude for auto-discoveryAll skill content loads at once instead of lazily per-skillFix Plan (Option 1: Project-scoped skills)Deterministic per-agent cwd: Use ~/.claude/agent-workspaces/{agent_project_name} as the SDK cwdOne directory per skill: Write each S3 skill to {cwd}/.claude/skills/{skill-name}/SKILL.md with original YAML frontmatter intactProject-only setting source: Change setting_sources from ['user', 'project'] to ['project']Stale skill cleanup: Before writing, remove old skill directories not in current skills-config.jsonFiles to Changebackend/services/agent_companion/claude/config.py - Rewrite _handle_skill_file, fix cwd in create_claude_optionsbackend/services/agent_companion/claude/message_processor.py - Verify SKILL_CONTENT_INDICATORS still match new paths.cursor/skills/agent-companion-structure/SKILL.md - Update documentationEnvironmentAffects both dev and production (Docker container running as appuser with CWD /app/backend)."
+      "daysOpen": 1,
+      "description": "Bug DescriptionThe Agent Companion skill loading implementation does not follow the Claude Agent SDK standard for skills. This causes skills to be discovered incorrectly, shows internal server filesystem paths to users in the UI, and potentially loads wrong/stale skills across agents.Root Cause AnalysisThree separate issues were identified in backend/services/agent_companion/claude/config.py (_handle_skill_file function):1. All skills combined into a single SKILL.md file (breaks SDK discovery)The current code loads all skills from S3 and concatenates them with --- separators into one SKILL.md file:combined_skills = '\\n\\n---\\n\\n'.join(all_skills_content)Problem: The Claude SDK expects each skill in its own directory (~/.claude/skills/{skill-name}/SKILL.md), each with its own YAML frontmatter containing name and description. The --- separator is the YAML frontmatter delimiter, so combining skills this way destroys the YAML frontmatter of all skills except the first one. The SDK sees one mega-skill instead of individual skills.SDK Standard: Each skill must be in its own directory:.claude/skills/\n  data-visualization/\n    SKILL.md\n  data-querying/\n    SKILL.md2. Path mismatch between skill write path and SDK cwd (skills not found or wrong skills loaded)_handle_skill_file writes skills using os.path.realpath(project_name) where project_name is the agent name (e.g., snowflake-oauth), producing a path like: ~/.claude/skills/-app-backend-snowflake-oauth/SKILL.mdBut create_claude_options sets the SDK's cwd to project_name which is assistant_ui (a different variable). The SDK discovers project-level skills relative to cwd, so these two paths never match.This is also environment-dependent: os.path.realpath('snowflake-oauth') produces completely different paths on local dev vs Docker container vs ECS.3. Cross-agent skill contaminationSkills are written to ~/.claude/skills/ (user-level) and setting_sources includes user. User-level skills are global -- the SDK loads ALL user skills regardless of which agent is active. Agent A's skills are visible to Agent B.ImpactUsers see internal server filesystem paths (e.g., /home/appuser/.claude/skills/-app-backend-snowflake-oauth) in the chat UI when skills are invokedSkills may not load at all due to path mismatchSkills from one agent may leak into another agent's sessionOnly the first skill's YAML frontmatter is visible to Claude for auto-discoveryAll skill content loads at once instead of lazily per-skillFix Plan (Option 1: Project-scoped skills)Deterministic per-agent cwd: Use ~/.claude/agent-workspaces/{agent_project_name} as the SDK cwdOne directory per skill: Write each S3 skill to {cwd}/.claude/skills/{skill-name}/SKILL.md with original YAML frontmatter intactProject-only setting source: Change setting_sources from ['user', 'project'] to ['project']Stale skill cleanup: Before writing, remove old skill directories not in current skills-config.jsonFiles to Changebackend/services/agent_companion/claude/config.py - Rewrite _handle_skill_file, fix cwd in create_claude_optionsbackend/services/agent_companion/claude/message_processor.py - Verify SKILL_CONTENT_INDICATORS still match new paths.cursor/skills/agent-companion-structure/SKILL.md - Update documentationEnvironmentAffects both dev and production (Docker container running as appuser with CWD /app/backend)."
     }
   }
 }; 
@@ -21942,7 +21962,7 @@
 
         // Event listeners with HiBob's modern, supportive approach
         document.addEventListener('DOMContentLoaded', function() {
-            loadDashboardData(); // Load data from automated source, then initialize dashboard
+            loadDashboardDataFromSource(); // Load from automated source, then initialize all functionality
             
             // Add search filter listener
             document.getElementById('searchFilter').addEventListener('input', applyFilters);

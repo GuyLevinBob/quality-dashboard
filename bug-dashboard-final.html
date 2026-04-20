@@ -5,911 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Production Bug Analytics | HiBob</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Domine:wght@400;500;600;700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- External scripts removed - functionality integrated into dashboard -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Lato', sans-serif;
-            background: linear-gradient(135deg, #FDF6EB 0%, #FFFFFF 50%, #FAC7D1 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #3A3A37;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            background: #FFFFFF;
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 12px 40px rgba(238, 22, 79, 0.08);
-            margin-bottom: 32px;
-            text-align: center;
-            border: 1px solid rgba(238, 22, 79, 0.1);
-        }
-        
-        .header h1 {
-            font-family: 'Archivo Black', sans-serif;
-            color: #EE164F;
-            font-size: 2.8em;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: -0.02em;
-        }
-        
-        .header .subtitle {
-            font-family: 'Domine', serif;
-            color: #83143D;
-            font-size: 1.4em;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .header .description {
-            color: #3A3A37;
-            font-size: 1.1em;
-            opacity: 0.8;
-        }
-        
-        .header .meta {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #FDF6EB;
-            font-size: 0.9em;
-            color: #83143D;
-        }
-        
-        .stats-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        
-        .stat-card {
-            background: #FFFFFF;
-            padding: 32px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(238, 22, 79, 0.05);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #EE164F, #FAA32B);
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 48px rgba(238, 22, 79, 0.12);
-        }
-        
-        .stat-number {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 3.5em;
-            margin-bottom: 12px;
-            line-height: 0.9;
-        }
-        
-        .stat-label {
-            font-family: 'Domine', serif;
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #3A3A37;
-        }
-        
-        .stat-detail {
-            font-size: 0.95em;
-            opacity: 0.7;
-            color: #83143D;
-        }
-        
-        .total { color: #EE164F; }
-        .high-priority { color: #83143D; }
-        .deployed { color: #FAA32B; }
-        .avg-days { color: #EE164F; }
-        
-        .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        
-        .chart-card {
-            background: #FFFFFF;
-            padding: 32px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
-            border: 1px solid rgba(238, 22, 79, 0.05);
-        }
-        
-        .chart-title {
-            font-family: 'Domine', serif;
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #3A3A37;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-        
-        .chart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            margin: 12px 0;
-            border-radius: 16px;
-            transition: all 0.2s ease;
-            border-left: 4px solid;
-        }
-        
-        .chart-item:hover {
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        
-        /* HiBob brand-specific status colors */
-        .chart-item.not-started { 
-            background: #FEABB0; 
-            border-color: #EE164F; 
-        }
-        .chart-item.deployed { 
-            background: #FFD887; 
-            border-color: #FAA32B; 
-        }
-        .chart-item.canceled { 
-            background: #FDF6EB; 
-            border-color: #83143D; 
-        }
-        .chart-item.in-progress { 
-            background: #F36488; 
-            border-color: #EE164F; 
-        }
-        .chart-item.pending { 
-            background: #FEBB59; 
-            border-color: #FAA32B; 
-        }
-        .chart-item.rejected { 
-            background: #FAC7D1; 
-            border-color: #83143D; 
-        }
-        
-        /* Priority colors */
-        .chart-item.high { 
-            background: #FEABB0; 
-            border-color: #EE164F; 
-        }
-        .chart-item.medium { 
-            background: #FFD887; 
-            border-color: #FAA32B; 
-        }
-        .chart-item.low { 
-            background: #F7E7CE; 
-            border-color: #FAA32B; 
-        }
-        
-        .chart-label {
-            font-weight: 600;
-            color: #3A3A37;
-            font-size: 0.95em;
-        }
-        
-        .chart-value {
-            font-family: 'Domine', serif;
-            font-weight: 700;
-            color: #3A3A37;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.9em;
-        }
-        
-        .bugs-table {
-            background: #FFFFFF;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
-            overflow: hidden;
-            border: 1px solid rgba(238, 22, 79, 0.05);
-        }
-        
-        .table-header {
-            background: linear-gradient(135deg, #EE164F, #FAA32B);
-            padding: 32px;
-            color: white;
-        }
-        
-        .table-title {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 1.8em;
-            text-transform: uppercase;
-            letter-spacing: -0.01em;
-        }
-        
-        .table-subtitle {
-            font-family: 'Domine', serif;
-            font-size: 1.1em;
-            opacity: 0.9;
-            margin-top: 8px;
-        }
-        
-        .filters {
-            padding: 24px 32px;
-            background: #FDF6EB;
-            border-bottom: 1px solid rgba(238, 22, 79, 0.1);
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-            align-items: flex-start;
-        }
-        
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        
-        .filter-group label {
-            font-family: 'Domine', serif;
-            font-weight: 600;
-            color: #3A3A37;
-            font-size: 0.95em;
-        }
-        
-        .filter-group select, .filter-group input {
-            padding: 10px 16px;
-            border: 2px solid rgba(238, 22, 79, 0.2);
-            border-radius: 12px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.9em;
-            background: white;
-            color: #3A3A37;
-            transition: all 0.2s ease;
-        }
-
-        /* Multi-select dropdown styles */
-        .multiselect-container {
-            position: relative;
-            display: block;
-            width: 100%;
-        }
-
-        .multiselect-button {
-            padding: 10px 16px;
-            border: 2px solid rgba(238, 22, 79, 0.2);
-            border-radius: 12px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.9em;
-            background: white;
-            cursor: pointer;
-            text-align: left;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #3A3A37;
-        }
-
-        .multiselect-button:focus {
-            outline: none;
-            border-color: #EE164F;
-            box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.1);
-        }
-
-        .multiselect-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 2px solid rgba(238, 22, 79, 0.2);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-        }
-
-        .multiselect-dropdown.show {
-            display: block;
-        }
-
-        .multiselect-option {
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .multiselect-option:hover {
-            background-color: #FDF6EB;
-        }
-
-        .multiselect-option input[type="checkbox"] {
-            margin: 0;
-            accent-color: #EE164F;
-        }
-        
-        /* Clear button styling */
-        .clear-button {
-            padding: 10px 20px;
-            background-color: #EE164F;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.9em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            width: 100%;
-        }
-        
-        .clear-button:hover {
-            background-color: #d61446;
-        }
-        
-        .clear-button:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.3);
-        }
-
-        /* Sortable column headers */
-        .sortable-header {
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-            transition: color 0.2s ease;
-            display: flex;
-            text-align: left;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            height: 100%;
-            padding: 12px 8px;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-        }
-        
-        /* Make th elements clickable containers */
-        th[data-column] {
-            cursor: pointer;
-            user-select: none;
-            padding: 0;
-        }
-
-        .sortable-header:hover,
-        th[data-column]:hover .sortable-header {
-            color: #EE164F;
-        }
-
-        /* Ensure header text content stays horizontal and doesn't get cut off */
-        .sortable-header {
-            min-height: 40px;
-            line-height: 1.2;
-        }
-        
-        /* Ensure all headers have consistent font size and height */
-        .sortable-header {
-            font-size: 0.9em !important;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            line-height: 1.3;
-        }
-        
-        /* Ensure consistent header styling */
-        th {
-            height: 48px;
-            vertical-align: middle;
-        }
-
-        .sort-indicator {
-            display: inline-block;
-            margin-left: 8px;
-            font-size: 0.8em;
-            opacity: 0.5;
-            min-width: 12px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        .sort-indicator.active {
-            opacity: 1;
-            color: #EE164F;
-        }
-
-        /* Clickable issue links */
-        .issue-link {
-            color: #EE164F;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .issue-link:hover {
-            color: #83143D;
-            text-decoration: underline;
-        }
-        
-        .filter-group select:focus, .filter-group input:focus {
-            outline: none;
-            border-color: #EE164F;
-            box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.1);
-        }
-        
-        .table-container {
-            max-height: 600px;
-            overflow-y: auto;
-            position: relative;
-            border-radius: 0 0 20px 20px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        /* Frozen/Sticky table headers */
-        table thead {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: #FFFFFF;
-            box-shadow: 0 2px 4px rgba(238, 22, 79, 0.1);
-        }
-        
-        th, td {
-            text-align: left;
-            border-bottom: 1px solid rgba(238, 22, 79, 0.08);
-            vertical-align: middle;
-        }
-        
-        /* Add padding back to td elements since they don't have the sortable-header wrapper */
-        td {
-            padding: 12px 8px;
-            height: 48px;
-            vertical-align: middle;
-            text-align: left;
-        }
-
-        /* Column-specific widths to prevent overflow */
-        th:nth-child(1), td:nth-child(1) { width: 100px; min-width: 100px; } /* Issue Key - increased width */
-        th:nth-child(2), td:nth-child(2) { width: 300px; min-width: 200px; } /* Summary */
-        th:nth-child(3), td:nth-child(3) { width: 180px; min-width: 120px; } /* Status - wider for PENDING VERIFICATION */
-        th:nth-child(4), td:nth-child(4) { width: 100px; min-width: 80px; } /* Priority */
-        th:nth-child(5), td:nth-child(5) { width: 120px; min-width: 100px; } /* Assignee */
-        th:nth-child(6), td:nth-child(6) { width: 130px; min-width: 110px; } /* Leading Team */
-        th:nth-child(7), td:nth-child(7) { width: 120px; min-width: 100px; } /* System */
-        th:nth-child(8), td:nth-child(8) { width: 180px; min-width: 140px; } /* Sprint */
-        th:nth-child(9), td:nth-child(9) { width: 100px; min-width: 80px; } /* Regression */
-        th:nth-child(10), td:nth-child(10) { width: 120px; min-width: 100px; } /* Fix Duration - increased width */
-        th:nth-child(11), td:nth-child(11) { width: 100px; min-width: 80px; } /* Created - increased width */
-        
-        th {
-            background: #FDF6EB;
-            font-family: 'Domine', serif;
-            font-weight: 600;
-            color: #3A3A37;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            font-size: 0.9em;
-            text-align: left;
-            padding: 12px 8px;
-        }
-        
-        /* Ensure the header content displays properly */
-        th .sortable-header {
-            font-family: inherit;
-            font-weight: inherit;
-            color: inherit;
-            font-size: inherit;
-        }
-        
-        td {
-            font-size: 0.9em;
-        }
-        
-        tr:hover {
-            background: rgba(238, 22, 79, 0.02);
-        }
-        
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.2px;
-            white-space: nowrap;
-            display: inline-block;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.2;
-        }
-        
-        .status-not-started { background: #FEABB0; color: #83143D; }
-        .status-deployed { background: #FFD887; color: #3A3A37; }
-        .status-canceled { background: #FDF6EB; color: #83143D; }
-        .status-in-progress { background: #F36488; color: white; }
-        .status-pending-verification { background: #FEBB59; color: #3A3A37; }
-        .status-rejected { background: #FAC7D1; color: #83143D; }
-        .status-on-hold { background: #E8E8E8; color: #666666; }
-        .status-pending-deployment { background: #D4EDDA; color: #155724; }
-        
-        .priority-badge {
-            padding: 6px 8px;
-            border-radius: 12px;
-            font-size: 1em;
-            font-weight: 600;
-            display: inline-block;
-            text-align: center;
-            min-width: 60px;
-        }
-        
-        .priority-high { background: #FEABB0; color: #83143D; }
-        .priority-medium { background: #FFD887; color: #3A3A37; }
-        .priority-low { background: #F7E7CE; color: #3A3A37; }
-        
-        .bug-key {
-            font-family: 'Domine', serif;
-            font-weight: 600;
-            color: #EE164F;
-        }
-        
-        .days-open {
-            font-family: 'Domine', serif;
-            font-weight: 700;
-            color: #83143D;
-        }
-        
-        @media (max-width: 768px) {
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-overview {
-                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            }
-            
-            .filters {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            
-            .header h1 {
-                font-size: 2.2em;
-            }
-        }
-        
-        /* Additional mobile optimizations for table headers */
-        @media (max-width: 1024px) {
-            /* Adjust table for mobile and tablet */
-            .table-container {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            /* Ensure all header text remains horizontal on smaller screens */
-            th, .sortable-header {
-                white-space: nowrap !important;
-            }
-            
-            /* Maintain consistent header sizing on mobile */
-            .sortable-header {
-                font-size: 0.85em !important;
-                min-height: 44px;
-            }
-            
-            th, td {
-                height: 44px;
-            }
-        }
-        
-        .status { 
-            text-align: center; 
-            padding: 24px; 
-            font-size: 1.2em; 
-            margin: 24px 0;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.08);
-        }
-        .success { 
-            color: #FAA32B; 
-            font-family: 'Domine', serif;
-            font-weight: 600; 
-        }
-        .error { 
-            color: #EE164F; 
-            font-family: 'Domine', serif;
-            font-weight: 600; 
-        }
-        .loading {
-            color: #3B82F6;
-            font-family: 'Domine', serif;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .loading::before {
-            content: "";
-            width: 16px;
-            height: 16px;
-            border: 2px solid #E5E7EB;
-            border-top-color: #3B82F6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        .warning {
-            color: #F59E0B;
-            font-family: 'Domine', serif;
-            font-weight: 600;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* HiBob organic shapes */
-        .organic-shape {
-            position: absolute;
-            opacity: 0.05;
-            z-index: 0;
-        }
-        
-        .organic-shape-1 {
-            top: -20px;
-            right: -20px;
-            width: 80px;
-            height: 80px;
-            background: #EE164F;
-            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
-        }
-        
-        .organic-shape-2 {
-            bottom: -15px;
-            left: -15px;
-            width: 60px;
-            height: 60px;
-            background: #FAA32B;
-            border-radius: 48% 52% 68% 32% / 42% 58% 42% 58%;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1>Production Bug Analytics</h1>
-            <div class="subtitle">Production Issue Tracking Dashboard</div>
-            <div class="description">Focused view of production bugs (971 total) - filtering only bug type = Production</div>
-            <div class="meta">
-                Last Updated: <span id="lastUpdate">Loading...</span> | 
-                Instance: <span id="jiraInstance">hibob.atlassian.net</span>
-            </div>
-        </header>
-
-        <div id="status" class="status">Loading bug data...</div>
-
-        <div id="dashboard-content" style="display: none;">
-            <div class="stats-overview">
-                <div class="stat-card">
-                    <div class="organic-shape organic-shape-1"></div>
-                    <div class="stat-number total" id="totalBugs">-</div>
-                    <div class="stat-label">Total Issues</div>
-                    <div class="stat-detail">All projects tracked</div>
-                </div>
-                <div class="stat-card">
-                    <div class="organic-shape organic-shape-2"></div>
-                    <div class="stat-number high-priority" id="highPriorityBugs">-</div>
-                    <div class="stat-label">High Priority</div>
-                    <div class="stat-detail">Needs immediate attention</div>
-                </div>
-                <div class="stat-card">
-                    <div class="organic-shape organic-shape-1"></div>
-                    <div class="stat-number deployed" id="deployedBugs">-</div>
-                    <div class="stat-label">Resolved</div>
-                    <div class="stat-detail">Successfully deployed</div>
-                </div>
-                <div class="stat-card">
-                    <div class="organic-shape organic-shape-2"></div>
-                    <div class="stat-number avg-days" id="avgDaysOpen">-</div>
-                    <div class="stat-label">Avg Resolution</div>
-                    <div class="stat-detail">Days to fix</div>
-                </div>
-            </div>
-
-            <div class="charts-container">
-                <div class="chart-card">
-                    <div class="chart-title">Issue Status</div>
-                    <div id="statusChart"></div>
-                </div>
-                
-                <div class="chart-card">
-                    <div class="chart-title">Priority Levels</div>
-                    <div id="priorityChart"></div>
-                </div>
-                
-                <div class="chart-card">
-                    <div class="chart-title">Team Workload</div>
-                    <div id="assigneeChart"></div>
-                </div>
-            </div>
-
-            <div class="bugs-table">
-                <div class="table-header">
-                    <div class="table-title">Issue Details</div>
-                    <div class="table-subtitle">Complete tracking and status overview</div>
-                </div>
-                <div class="filters">
-                    <div class="filter-group">
-                        <label for="statusFilter">Status:</label>
-                        <div class="multiselect-container">
-                            <div class="multiselect-button" id="statusFilterButton">
-                                <span>Choose a Value</span>
-                                <span>▼</span>
-                            </div>
-                            <div class="multiselect-dropdown" id="statusFilterDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label for="severityFilter">Severity:</label>
-                        <div class="multiselect-container">
-                            <div class="multiselect-button" id="severityFilterButton">
-                                <span>Choose a Value</span>
-                                <span>▼</span>
-                            </div>
-                            <div class="multiselect-dropdown" id="severityFilterDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label for="assigneeFilter">Assignee:</label>
-                        <div class="multiselect-container">
-                            <div class="multiselect-button" id="assigneeFilterButton">
-                                <span>Choose a Value</span>
-                                <span>▼</span>
-                            </div>
-                            <div class="multiselect-dropdown" id="assigneeFilterDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label for="leadingTeamFilter">Leading Team:</label>
-                        <div class="multiselect-container">
-                            <div class="multiselect-button" id="leadingTeamFilterButton">
-                                <span>Choose a Value</span>
-                                <span>▼</span>
-                            </div>
-                            <div class="multiselect-dropdown" id="leadingTeamFilterDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label for="systemFilter">System:</label>
-                        <div class="multiselect-container">
-                            <div class="multiselect-button" id="systemFilterButton">
-                                <span>Choose a Value</span>
-                                <span>▼</span>
-                            </div>
-                            <div class="multiselect-dropdown" id="systemFilterDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label for="sprintFilter">Sprint:</label>
-                        <div class="multiselect-container">
-                            <div class="multiselect-button" id="sprintFilterButton">
-                                <span>Choose a Value</span>
-                                <span>▼</span>
-                            </div>
-                            <div class="multiselect-dropdown" id="sprintFilterDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label for="regressionFilter">Regression:</label>
-                        <div class="multiselect-container">
-                            <div class="multiselect-button" id="regressionFilterButton">
-                                <span>Choose a Value</span>
-                                <span>▼</span>
-                            </div>
-                            <div class="multiselect-dropdown" id="regressionFilterDropdown"></div>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label for="searchFilter">Search:</label>
-                        <input type="text" id="searchFilter" placeholder="Find issues...">
-                    </div>
-                    <div class="filter-group">
-                        <label>&nbsp;</label>
-                        <button id="clearFiltersButton" class="clear-button">Clear</button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table id="bugsTable">
-                        <thead>
-                            <tr>
-                                <th data-column="key"><div class="sortable-header">Issue Key<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="summary"><div class="sortable-header">Summary<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="status"><div class="sortable-header">Status<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="severity"><div class="sortable-header">Severity<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="assignee"><div class="sortable-header">Assignee<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="leadingTeam"><div class="sortable-header">Leading Team<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="system"><div class="sortable-header">System<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="sprint"><div class="sortable-header">Sprint<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="regression"><div class="sortable-header">Regression<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="fixDuration"><div class="sortable-header">Fix Duration<span class="sort-indicator">↕</span></div></th>
-                                <th data-column="createdDate"><div class="sortable-header">Created<span class="sort-indicator">↕</span></div></th>
-                            </tr>
-                        </thead>
-                        <tbody id="bugsTableBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let bugsData = [];
-        let filteredData = [];
-
-        // Load dashboard data from automated source (preserves ALL existing functionality)
-        let data = null;
-        
-        async function loadDashboardData() {
-            try {
-                console.log('🔄 Loading dashboard data from automated source...');
-                const response = await fetch('./dashboard-data.json');
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to load dashboard data: ${response.status}`);
-                }
-                
-                data = await response.json();
-                console.log(`✅ Loaded ${data.bugs.length} bugs with full functionality preserved`);
-                
-                // Initialize dashboard with all existing functionality
-                loadData();
-                
-            } catch (error) {
-                console.error('❌ Failed to load dashboard data:', error);
-                document.getElementById('status').innerHTML = '<span class="error">❌ Failed to load dashboard data. Please try refreshing the page.</span>';
-            }
-        }
-        
-        // Placeholder data structure (will be replaced by loaded data)
-        // All existing functionality preserved - just data source changed
-        
-        
-        // Efficiently populate missing fields for ALL bug entries
-        function populateMissingFields() {
-            // REMOVED: Fake data arrays that were generating random values
-            console.log('🗑️ Removed fake leadingTeams and systems arrays');
-            console.log('📊 Will only use real data from Jira export for filters');
+    
+    <!-- Embedded data architecture with pagination -->
+        const data = {
+  "metadata": {
+    "exported": "2026-04-19T08:27:12.947Z",
+    "totalBugs": 1302,
+    "projects": [
+      "BT"
+    ],
+    "jiraInstance": "hibob.atlassian.net"
+  },
+  "bugs": [
+    {
+      "key": "BT-13274",
+      "project": "BT",
+      "summary": "Production - Agent Companion - Skills loaded incorrectly into Claude SDK (wrong path, combined file, broken frontmatter)",
+      "status": "Not Started",
+      "priority": "Medium",
+      "assignee": "Omri Bitan",
+      "reporter": "Omri Bitan",
+      "created": "2026-04-19T11:13:44.441+0300",
+      "updated": "2026-04-19T11:14:54.697+0300",
+      "createdDate": "4/19/2026",
+      "updatedDate": "4/19/2026",
+      "daysOpen": 1,
+      "leadingTeam": "AI Dev",
+      "system": "Other",
+      "sprint": "PI3.26.Sprint 1 (30/3 -27/4)",
+      "description": "Bug DescriptionThe Agent Companion skill loading implementation does not follow the Claude Agent SDK standard for skills. This causes skills to be discovered incorrectly, shows internal server filesystem paths to users in the UI, and potentially loads wrong/stale skills across agents.Root Cause AnalysisThree separate issues were identified in backend/services/agent_companion/claude/config.py (_handle_skill_file function):1. All skills combined into a single SKILL.md file (breaks SDK discovery)The current code loads all skills from S3 and concatenates them with --- separators into one SKILL.md file:combined_skills = '\\n\\n---\\n\\n'.join(all_skills_content)Problem: The Claude SDK expects each skill in its own directory (~/.claude/skills/{skill-name}/SKILL.md), each with its own YAML frontmatter containing name and description. The --- separator is the YAML frontmatter delimiter, so combining skills this way destroys the YAML frontmatter of all skills except the first one. The SDK sees one mega-skill instead of individual skills.SDK Standard: Each skill must be in its own directory:.claude/skills/\n  data-visualization/\n    SKILL.md\n  data-querying/\n    SKILL.md2. Path mismatch between skill write path and SDK cwd (skills not found or wrong skills loaded)_handle_skill_file writes skills using os.path.realpath(project_name) where project_name is the agent name (e.g., snowflake-oauth), producing a path like: ~/.claude/skills/-app-backend-snowflake-oauth/SKILL.mdBut create_claude_options sets the SDK's cwd to project_name which is assistant_ui (a different variable). The SDK discovers project-level skills relative to cwd, so these two paths never match.This is also environment-dependent: os.path.realpath('snowflake-oauth') produces completely different paths on local dev vs Docker container vs ECS.3. Cross-agent skill contaminationSkills are written to ~/.claude/skills/ (user-level) and setting_sources includes user. User-level skills are global -- the SDK loads ALL user skills regardless of which agent is active. Agent A's skills are visible to Agent B.ImpactUsers see internal server filesystem paths (e.g., /home/appuser/.claude/skills/-app-backend-snowflake-oauth) in the chat UI when skills are invokedSkills may not load at all due to path mismatchSkills from one agent may leak into another agent's sessionOnly the first skill's YAML frontmatter is visible to Claude for auto-discoveryAll skill content loads at once instead of lazily per-skillFix Plan (Option 1: Project-scoped skills)Deterministic per-agent cwd: Use ~/.claude/agent-workspaces/{agent_project_name} as the SDK cwdOne directory per skill: Write each S3 skill to {cwd}/.claude/skills/{skill-name}/SKILL.md with original YAML frontmatter intactProject-only setting source: Change setting_sources from ['user', 'project'] to ['project']Stale skill cleanup: Before writing, remove old skill directories not in current skills-config.jsonFiles to Changebackend/services/agent_companion/claude/config.py - Rewrite _handle_skill_file, fix cwd in create_claude_optionsbackend/services/agent_companion/claude/message_processor.py - Verify SKILL_CONTENT_INDICATORS still match new paths.cursor/skills/agent-companion-structure/SKILL.md - Update documentationEnvironmentAffects both dev and production (Docker container running as appuser with CWD /app/backend)."
+    },
     {
       "key": "BT-13264",
       "project": "BT",
@@ -20903,798 +20028,1055 @@
       "updated": "2026-04-19T11:14:54.697+0300",
       "createdDate": "4/19/2026",
       "updatedDate": "4/19/2026",
-            // REMOVED: Fake data arrays that were generating random values
-            console.log('🗑️ Removed fake leadingTeams and systems arrays');rst one. The SDK sees one mega-skill instead of individual skills.SDK Standard: Each skill must be in its own directory:.claude/skills/\n  data-visualization/\n    SKILL.md\n  data-querying/\n    SKILL.md2. Path mismatch between skill write path and SDK cwd (skills not found or wrong skills loaded)_handle_skill_file writes skills using os.path.realpath(project_name) where project_name is the agent name (e.g., snowflake-oauth), producing a path like: ~/.claude/skills/-app-backend-snowflake-oauth/SKILL.mdBut create_claude_options sets the SDK's cwd to project_name which is assistant_ui (a different variable). The SDK discovers project-level skills relative to cwd, so these two paths never match.This is also environment-dependent: os.path.realpath('snowflake-oauth') produces completely different paths on local dev vs Docker container vs ECS.3. Cross-agent skill contaminationSkills are written to ~/.claude/skills/ (user-level) and setting_sources includes user. User-level skills are global -- the SDK loads ALL user skills regardless of which agent is active. Agent A's skills are visible to Agent B.ImpactUsers see internal server filesystem paths (e.g., /home/appuser/.claude/skills/-app-backend-snowflake-oauth) in the chat UI when skills are invokedSkills may not load at all due to path mismatchSkills from one agent may leak into another agent's sessionOnly the first skill's YAML frontmatter is visible to Claude for auto-discoveryAll skill content loads at once instead of lazily per-skillFix Plan (Option 1: Project-scoped skills)Deterministic per-agent cwd: Use ~/.claude/agent-workspaces/{agent_project_name} as the SDK cwdOne directory per skill: Write each S3 skill to {cwd}/.claude/skills/{skill-name}/SKILL.md with original YAML frontmatter intactProject-only setting source: Change setting_sources from ['user', 'project'] to ['project']Stale skill cleanup: Before writing, remove old skill directories not in current skills-config.jsonFiles to Changebackend/services/agent_companion/claude/config.py - Rewrite _handle_skill_file, fix cwd in create_claude_optionsbackend/services/agent_companion/claude/message_processor.py - Verify SKILL_CONTENT_INDICATORS still match new paths.cursor/skills/agent-companion-structure/SKILL.md - Update documentationEnvironmentAffects both dev and production (Docker container running as appuser with CWD /app/backend)."
+      "daysOpen": 1,
+      "description": "Bug DescriptionThe Agent Companion skill loading implementation does not follow the Claude Agent SDK standard for skills. This causes skills to be discovered incorrectly, shows internal server filesystem paths to users in the UI, and potentially loads wrong/stale skills across agents.Root Cause AnalysisThree separate issues were identified in backend/services/agent_companion/claude/config.py (_handle_skill_file function):1. All skills combined into a single SKILL.md file (breaks SDK discovery)The current code loads all skills from S3 and concatenates them with --- separators into one SKILL.md file:combined_skills = '\\n\\n---\\n\\n'.join(all_skills_content)Problem: The Claude SDK expects each skill in its own directory (~/.claude/skills/{skill-name}/SKILL.md), each with its own YAML frontmatter containing name and description. The --- separator is the YAML frontmatter delimiter, so combining skills this way destroys the YAML frontmatter of all skills except the first one. The SDK sees one mega-skill instead of individual skills.SDK Standard: Each skill must be in its own directory:.claude/skills/\n  data-visualization/\n    SKILL.md\n  data-querying/\n    SKILL.md2. Path mismatch between skill write path and SDK cwd (skills not found or wrong skills loaded)_handle_skill_file writes skills using os.path.realpath(project_name) where project_name is the agent name (e.g., snowflake-oauth), producing a path like: ~/.claude/skills/-app-backend-snowflake-oauth/SKILL.mdBut create_claude_options sets the SDK's cwd to project_name which is assistant_ui (a different variable). The SDK discovers project-level skills relative to cwd, so these two paths never match.This is also environment-dependent: os.path.realpath('snowflake-oauth') produces completely different paths on local dev vs Docker container vs ECS.3. Cross-agent skill contaminationSkills are written to ~/.claude/skills/ (user-level) and setting_sources includes user. User-level skills are global -- the SDK loads ALL user skills regardless of which agent is active. Agent A's skills are visible to Agent B.ImpactUsers see internal server filesystem paths (e.g., /home/appuser/.claude/skills/-app-backend-snowflake-oauth) in the chat UI when skills are invokedSkills may not load at all due to path mismatchSkills from one agent may leak into another agent's sessionOnly the first skill's YAML frontmatter is visible to Claude for auto-discoveryAll skill content loads at once instead of lazily per-skillFix Plan (Option 1: Project-scoped skills)Deterministic per-agent cwd: Use ~/.claude/agent-workspaces/{agent_project_name} as the SDK cwdOne directory per skill: Write each S3 skill to {cwd}/.claude/skills/{skill-name}/SKILL.md with original YAML frontmatter intactProject-only setting source: Change setting_sources from ['user', 'project'] to ['project']Stale skill cleanup: Before writing, remove old skill directories not in current skills-config.jsonFiles to Changebackend/services/agent_companion/claude/config.py - Rewrite _handle_skill_file, fix cwd in create_claude_optionsbackend/services/agent_companion/claude/message_processor.py - Verify SKILL_CONTENT_INDICATORS still match new paths.cursor/skills/agent-companion-structure/SKILL.md - Update documentationEnvironmentAffects both dev and production (Docker container running as appuser with CWD /app/backend)."
     }
   }
 }; 
-
-        // Efficiently populate missing fields for ALL bug entries
-        function populateMissingFields() {
-            // REMOVED: Fake data arrays that were generating random values
-            console.log('🗑️ Removed fake leadingTeams and systems arrays');
-            console.log('📊 Will only use real data from Jira export for filters');
-            
-            // JIRA-DATA-PRESERVING VERIFICATION SYSTEM - NEVER overwrites real Jira data
-            // HONEST DATA REPORTING + JIRA API INTEGRATION FRAMEWORK
-            function createHonestDataReportingSystem(bugs) {
-                console.log('🔍 HONEST DATA REPORTING - Only real data, no inventions!');
-                console.log('❌ STOPPING: Fake data generation based on creation dates');
-                console.log('✅ STARTING: Truth-only reporting + Jira API framework');
-                
-                const verificationReport = {
-                    totalBugs: bugs.length,
-                    realJiraSprintData: {},
-                    completelyMissingSprint: [],
-                    dataIntegrityIssues: [],
-                    preservedCount: 0,
-                    missingCount: 0,
-                    noneResolvedCount: 0
-                };
-                
-                console.log('🚨 CRITICAL: This system PRESERVES existing Jira sprint data and handles "None" intelligently!');
-                console.log('💡 NEW LOGIC: "None" current sprint → Look for historical/completed sprints');
-                console.log('=====================================');
-                
-                // STEP 1: Analyze existing Jira sprint data - PRESERVE IT!
-                bugs.forEach(bug => {
-                    if (bug.sprint && bug.sprint !== 'N/A' && bug.sprint !== 'None' && bug.sprint.includes('Sprint')) {
-                        // This is REAL Jira data - PRESERVE IT!
-                        verificationReport.realJiraSprintData[bug.sprint] = (verificationReport.realJiraSprintData[bug.sprint] || 0) + 1;
-                        verificationReport.preservedCount++;
-                    } else if (bug.sprint === 'None') {
-                        // "None" means currently not in active sprint, but may have sprint history
-                        // In production, this would query Jira for historical sprints
-                        // For now, we'll use a fallback based on creation date
-                        const fallbackSprint = getSprintFromCreationDate(bug.createdDate || bug.created);
-                        console.log(`📋 ${bug.key}: Current sprint is "None" - using fallback: ${fallbackSprint}`);
-                        bug.sprint = fallbackSprint;
-                        verificationReport.realJiraSprintData[fallbackSprint] = (verificationReport.realJiraSprintData[fallbackSprint] || 0) + 1;
-                        verificationReport.preservedCount++;
-                        verificationReport.noneResolvedCount++;
-                    } else if (!bug.sprint || bug.sprint === 'N/A') {
-                        // This is truly missing data
-                        let reason = 'Unknown';
-                        if (!bug.hasOwnProperty('sprint')) {
-                            reason = 'No sprint field in JSON export';
-                        } else if (bug.sprint === 'N/A') {
-                            reason = 'Sprint field is "N/A"';
-                        } else if (!bug.sprint || bug.sprint === '') {
-                            reason = 'Sprint field is empty/null';
-                        }
-                        
-                        verificationReport.completelyMissingSprint.push({
-                            key: bug.key,
-                            summary: bug.summary,
-                            createdDate: bug.createdDate || bug.created,
-                            reason: reason
-                        });
-                        verificationReport.missingCount++;
-                    }
-                });
-                
-                // Helper function to assign sprint based on creation date when current sprint is "None"
-                function getSprintFromCreationDate(createdDate) {
-                    if (!createdDate) return "PI3.26.Sprint 1 (30/3 -27/4)";
-                    
-                    let created;
-                    if (typeof createdDate === 'string') {
-                        if (createdDate.includes('/')) {
-                            const parts = createdDate.split('/');
-                            created = new Date(parts[2], parts[0] - 1, parts[1]);
-                        } else {
-                            created = new Date(createdDate);
-                        }
-                    } else {
-                        created = new Date(createdDate);
-                    }
-                    
-                    const year = created.getFullYear();
-                    const month = created.getMonth() + 1;
-                    
-                    // Conservative sprint assignment for "None" cases
-                    if (year === 2025) {
-                        if (month === 1) return "PI3.25.Sprint 1 (2/1 -29/1)";
-                        if (month === 2) return "PI1.26.Sprint 2 (19/1 - 2/2)"; // Like your BT-10222 example
-                        if (month === 3) return "PI3.25.Sprint 3 (26/2 -26/3)";
-                        if (month === 4) return "PI3.25.Sprint 4 (27/3 -24/4)";
-                        if (month >= 5) return "PI3.26.Sprint 2 (28/4 -25/5)";
-                    } else if (year === 2026) {
-                        if (month <= 2) return "PI1.26.Sprint 2 (19/1 - 2/2)";
-                        if (month <= 3) return "PI3.26.Sprint 1 (30/3 -27/4)";
-                        if (month >= 4) return "PI3.26.Sprint 2 (28/4 -25/5)";
-                    }
-                    
-                    return "PI3.26.Sprint 1 (30/3 -27/4)";
-                }
-                
-                console.log(`📊 DETAILED JIRA DATA ANALYSIS:
-                ✅ PRESERVED: ${verificationReport.preservedCount} bugs have REAL Jira sprint data (NEVER touch these!)
-                🚨 MISSING: ${verificationReport.missingCount} bugs have NO sprint field in JSON export
-                📈 Data Coverage: ${Math.round(verificationReport.preservedCount / bugs.length * 100)}%
-                
-                🔍 WHY SO MANY MISSING?
-                → Newer bugs (BT-13xxx series) appear to lack sprint field in export
-                → Older bugs have complete sprint data
-                → This suggests export timing or field evolution issues`);
-                
-                console.log('\n🎯 REAL JIRA SPRINT DISTRIBUTION (preserved as-is):');
-                Object.entries(verificationReport.realJiraSprintData)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 10)
-                    .forEach(([sprint, count]) => {
-                        console.log(`  ✅ ${sprint}: ${count} bugs (REAL JIRA DATA)`);
-                    });
-                
-                if (verificationReport.missingCount > 0) {
-                    // Count reasons for missing data
-                    const reasonCounts = {};
-                    verificationReport.completelyMissingSprint.forEach(bug => {
-                        reasonCounts[bug.reason] = (reasonCounts[bug.reason] || 0) + 1;
-                    });
-                    
-                    console.log('\n🔧 BREAKDOWN OF WHY SPRINT DATA IS MISSING:');
-                    Object.entries(reasonCounts).forEach(([reason, count]) => {
-                        console.log(`  📊 ${reason}: ${count} bugs`);
-                    });
-                    
-                    console.log('\n🔧 EXAMPLES OF BUGS WITH MISSING SPRINT DATA:');
-                    verificationReport.completelyMissingSprint.slice(0, 5).forEach((bug, index) => {
-                        console.log(`  ${index + 1}. ${bug.key}: "${bug.summary?.substring(0, 50)}..." (Reason: ${bug.reason})`);
-                    });
-                    
-                    console.log('\n✅ EXAMPLES OF BUGS WITH EXISTING SPRINT DATA:');
-                    const bugsWithSprints = bugs.filter(b => b.sprint && b.sprint.includes('Sprint')).slice(0, 5);
-                    bugsWithSprints.forEach((bug, index) => {
-                        console.log(`  ${index + 1}. ${bug.key}: "${bug.sprint}" (Created: ${bug.createdDate})`);
-                    });
-                    
-                    // Analyze pattern by creation date
-                    const missingDates = verificationReport.completelyMissingSprint.map(b => new Date(b.createdDate || '2026-01-01'));
-                    const existingDates = bugsWithSprints.map(b => new Date(b.createdDate || '2026-01-01'));
-                    
-                    const avgMissingDate = new Date(missingDates.reduce((sum, date) => sum + date.getTime(), 0) / missingDates.length);
-                    const avgExistingDate = new Date(existingDates.reduce((sum, date) => sum + date.getTime(), 0) / existingDates.length);
-                    
-                    console.log(`\n📅 PATTERN ANALYSIS:
-                    - Bugs with missing sprint data: avg created ${avgMissingDate.toISOString().split('T')[0]}
-                    - Bugs with existing sprint data: avg created ${avgExistingDate.toISOString().split('T')[0]}
-                    → ${avgMissingDate > avgExistingDate ? 'NEWER bugs tend to be missing sprint data' : 'OLDER bugs tend to be missing sprint data'}`);
-                }
-                
-                // STEP 2: Apply smart fallback to remaining missing bugs (already handled most in STEP 1)
-                console.log('\n🔧 FINAL CLEANUP: Handling any remaining missing sprint data...');
-                
-                let additionalFixed = 0;
-                bugs.forEach(bug => {
-                    // Check if this bug still has missing sprint data after our smart processing
-                    if (!bug.sprint || bug.sprint === 'N/A' || bug.sprint === 'MISSING_FROM_EXPORT') {
-                        // Apply the same smart fallback we use for "None" cases
-                        const smartFallback = getSprintFromCreationDate(bug.createdDate || bug.created);
-                        if (smartFallback && smartFallback !== 'PI3.26.Sprint 1 (30/3 -27/4)') {
-                            // Only use fallback if it's more specific than the default
-                            bug.sprint = smartFallback;
-                            console.log(`  🔧 ${bug.key}: Smart fallback → ${smartFallback}`);
-                            additionalFixed++;
-                        } else {
-                            // Truly unresolvable case - show as dash
-                            bug.sprint = '-';
-                            console.log(`  ➖ ${bug.key}: No data available → "-"`);
-                        }
-                    }
-                });
-                
-                console.log(`✅ Additional bugs fixed with smart fallback: ${additionalFixed}`);
-                
-                // FINAL STATISTICS
-                const finalStats = {
-                    hasRealSprint: bugs.filter(b => b.sprint && b.sprint !== '-' && b.sprint.includes('Sprint')).length,
-                    showingDash: bugs.filter(b => b.sprint === '-').length,
-                    total: bugs.length
-                };
-                
-                console.log(`\n📊 FINAL SPRINT COVERAGE:
-                ✅ Bugs with sprint data: ${finalStats.hasRealSprint}/${finalStats.total} (${Math.round(finalStats.hasRealSprint/finalStats.total*100)}%)
-                ➖ Truly missing (showing "-"): ${finalStats.showingDash}
-                🎯 Success rate: ${Math.round(finalStats.hasRealSprint/finalStats.total*100)}%`);
-                
-                // STEP 3: Create Jira validation framework
-                console.log('\n🔍 JIRA VALIDATION FRAMEWORK:');
-                
-                // Mock what real Jira validation would look like
-                const mockJiraValidation = function(bugKey) {
-                    // This is what the real implementation would do:
-                    // const response = await fetch(`/jira/api/issue/${bugKey}?fields=sprint`);
-                    // const jiraData = await response.json();
-                    // return jiraData.fields.sprint;
-                    
-                    // Mock response based on user's evidence
-                    const knownJiraValues = {
-                        'BT-6644': 'PI5.Sprint 3 (27/10-10/11)', // From user's Jira screenshot
-                        'BT-557': 'PI1.Sprint 1' // From user's earlier screenshot
-                    };
-                    
-                    return knownJiraValues[bugKey] || null;
-                };
-                
-                console.log('📋 VALIDATION LOGIC IMPLEMENTED:');
-                console.log(`
-                async function validateSprintAgainstJira(bugKey, currentSprintValue) {
-                    const jiraSprintValue = await queryJiraAPI(bugKey);
-                    if (jiraSprintValue !== currentSprintValue) {
-                        console.warn(\`MISMATCH: \${bugKey} - Table: "\${currentSprintValue}" vs Jira: "\${jiraSprintValue}"\`);
-                        return { valid: false, jiraValue: jiraSprintValue };
-                    }
-                    return { valid: true, jiraValue: jiraSprintValue };
-                }`);
-                
-                // STEP 4: Demonstrate validation with user's example
-                console.log('\n📋 VALIDATION DEMONSTRATION:');
-                const testCases = ['BT-6644', 'BT-557', 'BT-674', 'BT-610', 'BT-10222'];
-                
-                testCases.forEach((testKey) => {
-                    const bug = bugs.find(b => b.key === testKey);
-                    const mockJiraValue = mockJiraValidation(testKey);
-                    
-                    if (bug) {
-                        const currentValue = bug.sprint || 'N/A';
-                        if (mockJiraValue && currentValue !== mockJiraValue) {
-                            console.error(`🚨 VALIDATION FAILURE: ${testKey}
-                                Table shows: "${currentValue}"
-                                Jira shows:  "${mockJiraValue}"
-                                → This proves we need live Jira validation!`);
-                        } else if (bug.sprint && bug.sprint !== 'N/A' && bug.sprint !== '-') {
-                            console.log(`  ✅ ${testKey}: Table data: "${bug.sprint}" (needs Jira confirmation)`);
-                        } else {
-                            const status = bug.sprint === '-' ? 'No data available (-)' : 'Missing from export';
-                            console.log(`  ❌ ${testKey}: ${status} - Jira has: "${mockJiraValue || 'needs query'}"`);
-                        }
-                    } else {
-                        if (testKey === 'BT-10222') {
-                            console.log(`  🔧 ${testKey}: NOT in export but user shows "None" → "PI1.26.Sprint 2" (FIXED LOGIC APPLIED)`);
-                        } else {
-                            console.log(`  ❌ ${testKey}: NOT FOUND in dataset - Jira has: "${mockJiraValue || 'needs query'}" (EXPORT INCOMPLETE)`);
-                        }
-                    }
-                });
-                
-                console.log(`\n🎯 SPRINT RESOLUTION COMPLETE:
-                - Real Jira data preserved: ${verificationReport.preservedCount - verificationReport.noneResolvedCount}/${bugs.length}
-                - "None" cases resolved: ${verificationReport.noneResolvedCount}
-                - Smart fallbacks applied: Will be counted in final cleanup
-                - Truly missing (showing as "-"): Will be counted in final cleanup
-                - Data integrity maintained: 100%
-                - Ready for Jira validation: YES
-                
-                🚨 ENHANCED LOGIC + LIMITATIONS:
-                   ✅ NEW: "None" sprint values are now handled intelligently
-                   ✅ NEW: Uses creation date to infer historical sprints
-                   
-                   Export date: ${data.metadata.exported}
-                   ❌ BT-6644 with "PI5.Sprint 3" in live Jira is NOT in export
-                   ❌ BT-10222 shows "None" but has completed "PI1.26.Sprint 2"
-                   → Export may be incomplete or outdated
-                
-                💡 RECOMMENDED SOLUTION:
-                   1. ✅ IMPLEMENTED: Handle "None" sprint values intelligently  
-                   2. Create fresh Jira export with ALL current bugs
-                   3. Implement live Jira API integration:
-                      - GET /rest/api/2/issue/{bugKey}?expand=changelog&fields=customfield_sprint
-                      - Query sprint history for "None" cases
-                      - Real-time sprint validation  
-                      - Auto-sync with Jira changes
-                   4. Add "Last Synced" indicator per bug
-                
-                📋 PRODUCTION IMPLEMENTATION:
-                   const validateAllSprints = async () => {
-                       for (const bug of bugs) {
-                           const jiraData = await fetch(\`/jira/api/issue/\${bug.key}\`);
-                           const jiraSprint = jiraData.fields.customfield_sprint;
-                           if (bug.sprint !== jiraSprint) {
-                               console.warn(\`SYNC NEEDED: \${bug.key}\`);
-                               bug.sprint = jiraSprint; // Update with real data
-                           }
-                       }
-                   };`);
-                
-                return { bugs, verificationReport };
-            }
-            
-            // Helper function to convert MM/DD/YYYY to ISO date
-            function convertDateFormat(dateStr) {
-                if (!dateStr) return new Date().toISOString();
-                const parts = dateStr.split('/');
-                if (parts.length === 3) {
-                    return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}T00:00:00.000Z`;
-                }
-                return dateStr;
-            }
-
-            // COMPREHENSIVE BULK UPDATE: Process ALL 1302 bugs systematically
-            const startTime = performance.now();
-            
-            // REMOVED: No more fake data generation
-            console.log('🚨 REMOVED: Fake leadingTeam and system assignment');
-            console.log('✅ Will only show real data from Jira export');
-            
-            // HONEST DATA REPORTING - No fake sprint generation
-            console.log('🚨 STOPPING FAKE DATA GENERATION');
-            console.log('✅ SHOWING ONLY REAL DATA FROM EXPORT');
-            
-            // Apply ONLY truthful data handling - NO FAKE DATA GENERATION
-            let realDataStats = { 
-                sprint: { real: 0, none: 0, missing: 0, na: 0 },
-                leadingTeam: { real: 0, missing: 0 },
-                system: { real: 0, missing: 0 }
-            };
-            
-            bugsData.forEach(bug => {
-                // SPRINT field analysis
-                if (bug.sprint && bug.sprint !== 'N/A' && bug.sprint !== 'None' && bug.sprint.includes('Sprint')) {
-                    realDataStats.sprint.real++;
-                    // Keep real data as-is
-                } else if (bug.sprint === 'None') {
-                    realDataStats.sprint.none++;
-                    // Keep as "None" - don't invent data
-                } else if (bug.sprint === 'N/A') {
-                    realDataStats.sprint.na++;
-                    // Keep as "N/A"
-                } else if (!bug.sprint) {
-                    realDataStats.sprint.missing++;
-                    bug.sprint = 'No Data';  // Honest about missing data
-                }
-                
-                // LEADING TEAM field analysis - no fake data
-                if (bug.leadingTeam && bug.leadingTeam.trim() !== '') {
-                    realDataStats.leadingTeam.real++;
-                    // Keep real data as-is
-                } else {
-                    realDataStats.leadingTeam.missing++;
-                    bug.leadingTeam = 'No Data';
-                }
-                
-                // SYSTEM field analysis - no fake data
-                if (bug.system && bug.system.trim() !== '') {
-                    realDataStats.system.real++;
-                    // Keep real data as-is
-                } else {
-                    realDataStats.system.missing++;
-                    bug.system = 'No Data';
-                }
-            });
-            
-            console.log(`📊 COMPREHENSIVE HONEST DATA REPORT:
-            
-            📋 SPRINT FIELD:
-            ✅ Real sprint data: ${realDataStats.sprint.real}/${bugsData.length} (${Math.round(realDataStats.sprint.real/bugsData.length*100)}%)
-            ⚪ Current sprint "None": ${realDataStats.sprint.none} (need Jira API for history)
-            ❓ Sprint marked "N/A": ${realDataStats.sprint.na}
-            ❌ No sprint field: ${realDataStats.sprint.missing}
-            
-            👥 LEADING TEAM FIELD:
-            ✅ Real team data: ${realDataStats.leadingTeam.real}/${bugsData.length} (${Math.round(realDataStats.leadingTeam.real/bugsData.length*100)}%)
-            ❌ Missing team field: ${realDataStats.leadingTeam.missing}
-            
-            🖥️ SYSTEM FIELD:
-            ✅ Real system data: ${realDataStats.system.real}/${bugsData.length} (${Math.round(realDataStats.system.real/bugsData.length*100)}%)
-            ❌ Missing system field: ${realDataStats.system.missing}
-            
-            🚨 EXPORT QUALITY ISSUE: ${((realDataStats.sprint.missing + realDataStats.leadingTeam.missing + realDataStats.system.missing) / (bugsData.length * 3) * 100).toFixed(1)}% of total field data is missing from export!
-            
-            🔍 SPECIFIC VERIFICATION: BT-737 example:`)
-            
-            // Verify specific bug mentioned by user
-            const bt737 = bugsData.find(bug => bug.key === 'BT-737');
-            if (bt737) {
-                console.log(`
-                📋 BT-737 FIELD ANALYSIS:
-                - Summary: "${bt737.summary}"
-                - Sprint: ${bt737.sprint === 'No Data' ? 'MISSING from export (showing "No Data")' : `"${bt737.sprint}"`}
-                - Leading Team: ${bt737.leadingTeam === 'No Data' ? 'MISSING from export (showing "No Data")' : `"${bt737.leadingTeam}"`}
-                - System: ${bt737.system === 'No Data' ? 'MISSING from export (showing "No Data")' : `"${bt737.system}"`}
-                
-                ✅ TRUTH: Only showing what's actually in Jira export
-                ❌ BEFORE: Was generating fake random values
-                💡 SOLUTION: Use Jira API to get real field values`);
-            } else {
-                console.log('❌ BT-737 not found in dataset');
-            }
-            
-            const endTime = performance.now();
-            console.log(`🎯 COMPREHENSIVE UPDATE COMPLETE: All ${bugsData.length} bugs processed in ${Math.round(endTime - startTime)}ms`);
-            
-            // Verification: Check that all bugs have sprint data
-            const bugsWithoutSprint = bugsData.filter(bug => !bug.sprint).length;
-            console.log(`✅ Sprint verification: ${bugsData.length - bugsWithoutSprint}/${bugsData.length} bugs have sprint data`);
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        // Load and display data using HiBob brand voice (supportive, personable, inclusive)
-        async function loadData() {
-            try {
-                console.log('🚀 Starting loadData function...');
-                console.log('📊 Data object exists:', !!data);
-                console.log('📊 Bugs count:', data.bugs ? data.bugs.length : 'undefined');
-                
-                // Data is already filtered to Production bugs at the Jira export level
-                bugsData = data.bugs;
-                console.log('✅ bugsData loaded (already filtered to Production bugs in export), length:', bugsData.length);
-                
-                console.log('🔧 Populating missing fields from export data...');
-                populateMissingFields();
-                console.log('✅ Missing fields populated');
-                
-                filteredData = [...bugsData];
-                console.log('✅ FilteredData set, length:', filteredData.length);
-                
-                console.log('🎨 Displaying dashboard with export data...');
-                displayStats(data.stats);
-                createBrandCharts(data.stats);
-                populateFilters();
-                displayBugsTable();
-                console.log('✅ Dashboard displayed instantly with export data');
-                
-                document.getElementById('lastUpdate').textContent = 
-                    new Date(data.metadata.exported).toLocaleString() + ' (Export Data)';
-                document.getElementById('jiraInstance').textContent = data.metadata.jiraInstance;
-                
-                document.getElementById('status').innerHTML = '<span class="success">✅ Dashboard loaded! Starting real-time enhancement...</span>';
-                document.getElementById('dashboard-content').style.display = 'block';
-                
-                console.log('🎉 HiBob Bug Dashboard loaded instantly!');
-                
-                // Initialize demand-driven enhancement (enhances only what user views)
-                initializeDemandDrivenEnhancement();
-                    
-            } catch (error) {
-                console.error('💥 CRITICAL ERROR in loadData:', error);
-                console.error('Stack trace:', error.stack);
-                document.getElementById('status').innerHTML = '<span class="error">❌ We\'re having trouble loading your data: ' + error.message + '</span>';
-            }
-        }
-
-        // Demand-driven enhancement: Only enhance bugs the user is actually viewing
-        let jiraIntegration = null;
-        let isEnhancing = false;
-        let enhancedBugKeys = new Set(); // Track which bugs have been enhanced
         
-        async function initializeDemandDrivenEnhancement() {
-            try {
-                console.log('🎯 Initializing demand-driven enhancement...');
-                
-                if (typeof initializeJiraIntegrationProxy === 'undefined') {
-                    console.warn('⚠️ JIRA proxy integration not available - using export data only');
-                    updateStatus('✅ Dashboard ready (export data only)', 'success');
-                    return;
-                }
-                
-                // Test proxy connectivity
-                try {
-                    console.log('🧪 Testing proxy connectivity...');
-                    const testBugKey = bugsData.length > 0 ? bugsData[0].key : 'BT-737';
-                    await fetch(`http://localhost:3001/api/jira/rest/api/2/issue/${testBugKey}`);
-                    console.log('✅ Proxy connection successful!');
-                    
-                    jiraIntegration = initializeJiraIntegrationProxy();
-                    updateStatus('✅ Dashboard ready - Real-time enhancement available', 'success');
-                    
-                    // Enhance visible bugs immediately (without filters applied yet)
-                    console.log('🎯 Scheduling auto-enhancement of first 50 visible bugs...');
-                    updateStatus('✅ Dashboard ready - Auto-enhancing first 50 bugs...', 'loading');
-                    setTimeout(() => enhanceVisibleBugs('initial auto-enhancement'), 500);
-                    
-                } catch (error) {
-                    console.warn('⚠️ Proxy not available:', error.message);
-                    updateStatus('✅ Dashboard ready (proxy unavailable)', 'success');
-                }
-                
-            } catch (error) {
-                console.error('❌ Demand-driven enhancement initialization failed:', error);
-                updateStatus('⚠️ Enhancement unavailable - showing export data', 'warning');
+        body {
+            font-family: 'Lato', sans-serif;
+            background: linear-gradient(135deg, #FDF6EB 0%, #FFFFFF 50%, #FAC7D1 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #3A3A37;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: #FFFFFF;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(238, 22, 79, 0.08);
+            margin-bottom: 32px;
+            text-align: center;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+        }
+        
+        .header h1 {
+            font-family: 'Archivo Black', sans-serif;
+            color: #EE164F;
+            font-size: 2.8em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        
+        .header .subtitle {
+            font-family: 'Domine', serif;
+            color: #83143D;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .header .description {
+            color: #3A3A37;
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+        
+        .header .meta {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #FDF6EB;
+            font-size: 0.9em;
+            color: #83143D;
+        }
+        
+        .success { 
+            color: #FAA32B; 
+            font-family: 'Domine', serif;
+            font-weight: 600; 
+        }
+        .error { 
+            color: #EE164F; 
+            font-family: 'Domine', serif;
+            font-weight: 600; 
+        }
+        .loading {
+            color: #3B82F6;
+            font-family: 'Domine', serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .loading::before {
+            content: "";
+            width: 16px;
+            height: 16px;
+            border: 2px solid #E5E7EB;
+            border-top-color: #3B82F6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .warning {
+            color: #F59E0B;
+            font-family: 'Domine', serif;
+            font-weight: 600;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
         }
         
-        // Enhance only the bugs currently visible in the table
-        async function enhanceVisibleBugs(reason = 'initial load') {
-            if (!jiraIntegration || isEnhancing) {
-                console.log('⏸️ Enhancement skipped:', !jiraIntegration ? 'no integration' : 'already enhancing');
-                return;
-            }
-            
-            try {
-                isEnhancing = true;
-                
-                // Get currently visible bugs from the table
-                const visibleBugs = getVisibleBugs();
-                
-                // Filter out bugs that are already enhanced
-                const bugsToEnhance = visibleBugs.filter(bug => !enhancedBugKeys.has(bug.key));
-                
-                if (bugsToEnhance.length === 0) {
-                    console.log('✅ All visible bugs already enhanced');
-                    updateStatus('✅ All visible bugs enhanced with real-time data', 'success');
-                    return;
-                }
-                
-                console.log(`🎯 Enhancing ${bugsToEnhance.length} visible bugs (${reason})`);
-                console.log(`📋 Sample bugs to enhance:`, bugsToEnhance.slice(0, 3).map(b => b.key).join(', '));
-                updateStatus(`🔄 Enhancing ${bugsToEnhance.length} visible bugs (${reason})...`, 'loading');
-                
-                const startTime = Date.now();
-                await jiraIntegration.enhanceBugsWithRealData(bugsToEnhance);
-                const elapsed = Math.round((Date.now() - startTime) / 1000);
-                
-                // Mark these bugs as enhanced
-                bugsToEnhance.forEach(bug => enhancedBugKeys.add(bug.key));
-                
-                // Refresh only the table display, preserving filters
-                refreshTableOnly();
-                
-                updateStatus(`✅ Enhanced ${bugsToEnhance.length} bugs (${elapsed}s) - Apply filters to enhance more`, 'success');
-                
-                // Update timestamp
-                document.getElementById('lastUpdate').textContent = 
-                    new Date().toLocaleString() + ' (Real-time Enhanced)';
-                    
-                console.log(`✅ Enhanced ${bugsToEnhance.length} visible bugs in ${elapsed}s`);
-                
-            } catch (error) {
-                console.error('❌ Visible bug enhancement failed:', error);
-                updateStatus('⚠️ Enhancement failed - showing export data', 'warning');
-            } finally {
-                isEnhancing = false;
-            }
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
         }
         
-        // Get bugs that are currently visible in the filtered table
-        function getVisibleBugs() {
-            // Return the currently filtered data (what user is seeing)
-            const visible = filteredData.slice(0, 50); // Limit to first 50 visible rows for performance
-            console.log(`📊 getVisibleBugs(): Found ${visible.length} visible bugs from ${filteredData.length} total filtered`);
-            return visible;
+        .stat-card {
+            background: #FFFFFF;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(238, 22, 79, 0.05);
+            position: relative;
+            overflow: hidden;
         }
         
-        // Trigger enhancement when user changes filters
-        function onFiltersChanged(reason = 'filter change') {
-            console.log(`🔍 Filters changed: ${reason}`);
-            // Small delay to let filter logic complete, then enhance visible bugs
-            setTimeout(() => enhanceVisibleBugs(reason), 200);
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #EE164F, #FAA32B);
         }
         
-        // Helper function to update status message
-        function updateStatus(message, type = 'info') {
-            const statusElement = document.getElementById('status');
-            const className = type === 'success' ? 'success' : type === 'loading' ? 'loading' : type === 'warning' ? 'warning' : 'error';
-            statusElement.innerHTML = `<span class="${className}">${message}</span>`;
+        .stat-number {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 3.2em;
+            margin-bottom: 16px;
         }
         
-        // Helper function to refresh ONLY the table display (preserves filter state)
-        function refreshTableOnly() {
-            try {
-                // Only refresh the bugs table display - DO NOT call populateFilters()
-                displayBugsTable();
-                
-                console.log('🔄 Table refreshed with enhanced data (filters preserved)');
-            } catch (error) {
-                console.error('❌ Error refreshing table:', error);
-            }
+        .stat-number.total {
+            color: #EE164F;
         }
         
-        // Helper function to refresh dashboard display with updated data (ONLY for initial load)
-        function refreshDashboardDisplay() {
-            try {
-                // Recalculate stats with potentially updated data
-                filteredData = [...bugsData];
-                
-                // Re-populate filters in case new data affects filter options
-                populateFilters();
-                
-                // Refresh the bugs table display
-                displayBugsTable();
-                
-                console.log('🔄 Dashboard display refreshed with enhanced data');
-            } catch (error) {
-                console.error('❌ Error refreshing dashboard:', error);
-            }
+        .stat-number.high-priority {
+            color: #FF6B6B;
+        }
+        
+        .stat-number.deployed {
+            color: #51CF66;
+        }
+        
+        .stat-number.avg-days {
+            color: #FAA32B;
+        }
+        
+        .stat-label {
+            font-family: 'Domine', serif;
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #83143D;
+            margin-bottom: 8px;
+        }
+        
+        .stat-detail {
+            font-size: 0.9em;
+            color: #6B7280;
+            opacity: 0.8;
         }
 
-        function displayStats(stats) {
-            document.getElementById('totalBugs').textContent = stats.totalBugs;
-            document.getElementById('highPriorityBugs').textContent = stats.bySeverity['High'] || 0;
-            document.getElementById('deployedBugs').textContent = stats.byStatus['Deployed'] || 0;
-            document.getElementById('avgDaysOpen').textContent = stats.averageDaysOpen;
+        /* Multi-select dropdown styles */
+        .multiselect-container {
+            position: relative;
+            display: block;
+            width: 100%;
         }
 
-        function createBrandCharts(stats) {
-            // Status Chart with HiBob brand colors and language
-            const statusChart = document.getElementById('statusChart');
-            Object.entries(stats.byStatus).forEach(([status, count]) => {
-                const item = document.createElement('div');
-                item.className = 'chart-item ' + (status ? status.toLowerCase().replace(/\s+/g, '-') : 'unknown');
-                item.innerHTML = `
-                    <span class="chart-label">${status}</span>
-                    <span class="chart-value">${count}</span>
-                `;
-                statusChart.appendChild(item);
-            });
-
-            // Severity Chart with supportive language
-            const priorityChart = document.getElementById('priorityChart');
-            Object.entries(stats.bySeverity || {}).forEach(([severity, count]) => {
-                const item = document.createElement('div');
-                item.className = 'chart-item ' + (severity ? severity.toLowerCase() : 'unknown');
-                item.innerHTML = `
-                    <span class="chart-label">${severity} Severity</span>
-                    <span class="chart-value">${count}</span>
-                `;
-                priorityChart.appendChild(item);
-            });
-
-            // Top Assignees with inclusive language
-            const assigneeChart = document.getElementById('assigneeChart');
-            const topAssignees = Object.entries(stats.byAssignee)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 8);
-
-            topAssignees.forEach(([assignee, count]) => {
-                const item = document.createElement('div');
-                item.className = 'chart-item';
-                item.innerHTML = `
-                    <span class="chart-label">${assignee}</span>
-                    <span class="chart-value">${count}</span>
-                `;
-                assigneeChart.appendChild(item);
-            });
+        .multiselect-button {
+            padding: 10px 16px;
+            border: 2px solid rgba(238, 22, 79, 0.2);
+            border-radius: 16px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9em;
+            background: white;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(238, 22, 79, 0.04);
         }
 
-        function populateFilters() {
-            const statuses = [...new Set(bugsData.map(bug => bug.status))];
-            // Always include standard severity levels, plus any other values found
-            const severityValues = [...new Set(bugsData.map(bug => bug.severity).filter(s => s))];
-            const severities = ['Critical', 'High', 'Medium', 'Low', ...severityValues.filter(s => !['Critical', 'High', 'Medium', 'Low'].includes(s))];
-            const assignees = [...new Set(bugsData.map(bug => bug.assignee))];
-            const leadingTeams = [...new Set(bugsData.map(bug => bug.leadingTeam).filter(t => t))];
-            const systems = [...new Set(bugsData.map(bug => bug.system).filter(s => s))];
-            // Collect and sort all unique sprints properly
-            const allSprints = [...new Set(bugsData.map(bug => bug.sprint).filter(s => s))];
-            const sprints = allSprints.sort((a, b) => {
-                // Extract PI and sprint numbers for proper sorting
-                const parseSprintInfo = (sprintStr) => {
-                    const match = sprintStr.match(/PI(\d+)\.(\d+)\.Sprint\s+(\d+)/);
-                    if (match) {
-                        return {
-                            pi: parseInt(match[1]),
-                            version: parseInt(match[2]),
-                            sprint: parseInt(match[3])
-                        };
-                    }
-                    return { pi: 0, version: 0, sprint: 0 };
-                };
-                
-                const infoA = parseSprintInfo(a);
-                const infoB = parseSprintInfo(b);
-                
-                // Sort by PI, then version, then sprint number
-                if (infoA.pi !== infoB.pi) return infoB.pi - infoA.pi; // Newer PIs first
-                if (infoA.version !== infoB.version) return infoB.version - infoA.version; // Newer versions first
-                return infoB.sprint - infoA.sprint; // Newer sprints first
-            });
-
-            // Always include Yes/No options for regression, plus any other values found
-            const regressionValues = [...new Set(bugsData.map(bug => bug.regression).filter(r => r))];
-            const regressions = ['Yes', 'No', ...regressionValues.filter(r => r !== 'Yes' && r !== 'No')];
-            
-            populateMultiSelect('status', statuses);
-            populateMultiSelect('severity', severities);
-            populateMultiSelect('assignee', assignees);
-            populateMultiSelect('leadingTeam', leadingTeams);
-            populateMultiSelect('system', systems);
-            populateMultiSelect('sprint', sprints);
-            populateMultiSelect('regression', regressions);
-            
-            // COMPREHENSIVE SPRINT VERIFICATION - Test 50+ records as requested
-            function verifySprints(bugs) {
-                console.log('=== COMPREHENSIVE SPRINT VERIFICATION REPORT ===');
-                console.log('Total bugs:', bugs.length);
-                
-                // Count all unique sprint values
-                const sprintCounts = {};
-                bugs.forEach(bug => {
-                    const sprint = bug.sprint || 'MISSING';
-                    sprintCounts[sprint] = (sprintCounts[sprint] || 0) + 1;
-                });
-                
-                console.log('\n📊 Current sprint distribution (top 15):');
-                Object.entries(sprintCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 15)
-                    .forEach(([sprint, count]) => {
-                        console.log(`  ${sprint}: ${count} bugs`);
-                    });
-                
-                // DETAILED VERIFICATION: Test 50+ specific records
-                console.log('\n🔍 DETAILED VERIFICATION OF 50+ RECORDS:');
-                const testSample = bugs.slice(0, 52); // Test first 52 bugs
-                let correctAssignments = 0;
-                let piOneAssignments = 0;
-                
-                testSample.forEach((bug, index) => {
-                    const hasCorrectSprint = bug.sprint && bug.sprint.includes('Sprint');
-                    if (hasCorrectSprint) correctAssignments++;
-                    
-                    if (bug.sprint && bug.sprint.includes('PI1.Sprint')) {
-                        piOneAssignments++;
-                    }
-                    
-                    // Log detailed info for first 10 and all PI1.Sprint bugs
-                    if (index < 10 || (bug.sprint && bug.sprint.includes('PI1.Sprint'))) {
-                        console.log(`${index + 1}. ${bug.key}: "${bug.summary?.substring(0, 40)}..." → ${bug.sprint} (Created: ${bug.createdDate})`);
-                    }
-                });
-                
-                console.log(`\n📈 SAMPLE VERIFICATION RESULTS (52 bugs tested):
-                - Correct sprint format: ${correctAssignments}/52 (${Math.round(correctAssignments/52*100)}%)
-                - PI1.Sprint assignments: ${piOneAssignments}
-                - Total unique sprints: ${Object.keys(sprintCounts).length}`);
-                
-                // Test specific important cases
-                const importantCases = ['BT-557', 'BT-610', 'BT-425', 'BT-13274', 'BT-13270'];
-                console.log('\n⚡ CRITICAL TEST CASES:');
-                importantCases.forEach(bugKey => {
-                    const bug = bugs.find(b => b.key === bugKey);
-                    if (bug) {
-                        const summaryHint = bug.summary?.includes('Sprint') ? `(Summary: "${bug.summary}")` : '';
-                        console.log(`✅ ${bugKey}: ${bug.sprint} ${summaryHint}`);
-                    } else {
-                        console.log(`❌ ${bugKey}: NOT FOUND`);
-                    }
-                });
-                
-                // Check for missing sprint data
-                const missing = bugs.filter(b => !b.sprint || b.sprint === 'MISSING').length;
-                const naCount = bugs.filter(b => b.sprint === 'N/A').length;
-                console.log(`\n📋 DATA QUALITY:
-                - Bugs without sprint: ${missing}/${bugs.length}
-                - Bugs showing N/A: ${naCount}/${bugs.length}
-                - Data completeness: ${Math.round((bugs.length - missing)/bugs.length*100)}%
-                - N/A issues resolved: ${naCount === 0 ? 'YES' : 'NO'}`);
-                
-                // Return summary for dashboard
-                return {
-                    totalSprints: Object.keys(sprintCounts).length,
-                    piOneCount: bugs.filter(b => b.sprint && b.sprint.includes('PI1.Sprint')).length,
-                    completeness: Math.round((bugs.length - missing)/bugs.length*100),
-                    distribution: sprintCounts
-                };
-            }
-            
-            // Run additional detailed verification of 50+ records
-            const detailedVerification = verifySprints(bugsData);
-            
-            console.log('=== SPRINT DATA ANALYSIS ===');
-            console.log('Total bugs processed:', bugsData.length);
-            console.log('Unique sprints found:', sprints.length);
-            
-            // Analyze date ranges in the data
-            const dates = bugsData.map(bug => new Date(bug.created || bug.createdDate || '2026-01-01')).sort();
-            console.log('Date range in data:', {
-                earliest: dates[0]?.toISOString()?.split('T')[0],
-                latest: dates[dates.length - 1]?.toISOString()?.split('T')[0]
-            });
-            
-            console.log('Sprint distribution:', 
-                sprints.slice(0, 10).map(sprint => ({
-                    sprint, 
-                    count: bugsData.filter(bug => bug.sprint === sprint).length
-                }))
-            );
-            
-            // Verify all bugs have sprint data
-            const bugsWithoutSprint = bugsData.filter(bug => !bug.sprint).length;
-            console.log('Bugs without sprint:', bugsWithoutSprint);
-            console.log('✅ Sprint data fix completed for all 1302 bugs');
+        .multiselect-button:hover {
+            border-color: #EE164F;
+            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.08);
+            transform: translateY(-1px);
         }
 
-        // Global filter selections
+        .multiselect-button:focus {
+            outline: none;
+            border-color: #EE164F;
+            box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.1);
+        }
+
+        .multiselect-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid rgba(238, 22, 79, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.12);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .multiselect-dropdown.show {
+            display: block;
+        }
+
+        .multiselect-option {
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .multiselect-option:hover {
+            background-color: #FDF6EB;
+        }
+
+        .multiselect-option input[type="checkbox"] {
+            margin: 0;
+            accent-color: #EE164F;
+        }
+
+        /* Clear button styling */
+        .clear-button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #EE164F, #FAA32B);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-family: 'Domine', serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .clear-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+            transition: all 0.3s ease;
+            transform: scale(0);
+        }
+
+        .clear-button:hover::before {
+            transform: scale(1);
+        }
+
+        .clear-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.3);
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .chart-card {
+            background: #FFFFFF;
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+            border: 1px solid rgba(238, 22, 79, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #EE164F, #FAA32B);
+        }
+        
+        .chart-title {
+            font-family: 'Domine', serif;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #83143D;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(238, 22, 79, 0.1);
+        }
+        
+        .chart-label {
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .chart-value {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1.1em;
+            color: #EE164F;
+            margin-left: auto;
+        }
+        
+        /* Status-specific styling */
+        .chart-item.deployed {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+        }
+        
+        .chart-item.not-started {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+        }
+        
+        .chart-item.in-progress {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+        }
+        
+        .chart-item.canceled, .chart-item.cancelled {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+        }
+        
+        /* Priority-specific styling */
+        .chart-item.high {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+        }
+        
+        .chart-item.medium {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+        }
+        
+        .chart-item.low {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+        }
+        
+        .bugs-table {
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(238, 22, 79, 0.05);
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #EE164F, #FAA32B);
+            padding: 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Add organic shapes to the header */
+        .table-header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+            opacity: 0.6;
+        }
+        
+        .table-header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: -15px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 48% 52% 68% 32% / 42% 58% 42% 58%;
+            opacity: 0.5;
+        }
+        
+        .table-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1.8em;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            color: white;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .table-subtitle {
+            font-family: 'Domine', serif;
+            font-size: 1.1em;
+            opacity: 0.9;
+            color: white;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .filters {
+            padding: 24px 32px;
+            background: #FDF6EB;
+            border-bottom: 1px solid rgba(238, 22, 79, 0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            align-items: flex-start;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-family: 'Domine', serif;
+            font-weight: 600;
+            color: #3A3A37;
+            font-size: 0.95em;
+        }
+        
+        .filter-group input[type="text"] {
+            padding: 10px 16px;
+            border: 2px solid rgba(238, 22, 79, 0.2);
+            border-radius: 16px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9em;
+            background: white;
+            color: #3A3A37;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(238, 22, 79, 0.04);
+        }
+        
+        .filter-group input[type="text"]:hover {
+            border-color: #EE164F;
+            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.08);
+            transform: translateY(-1px);
+        }
+        
+        .filter-group input[type="text"]:focus {
+            outline: none;
+            border-color: #EE164F;
+            box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.1);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .bugs-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0;
+        }
+        
+        .bugs-table th {
+            background: #F8FAFC;
+            padding: 16px 20px;
+            text-align: left;
+            font-family: 'Domine', serif;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #E2E8F0;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .bugs-table th:hover {
+            background: linear-gradient(135deg, #FDF6EB, #FFFFFF);
+            color: #EE164F;
+        }
+        
+        .bugs-table th.sorted::after {
+            position: absolute;
+            right: 8px;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .bugs-table th.sorted.asc::after {
+            content: '▲';
+            color: #EE164F;
+        }
+        
+        .bugs-table th.sorted.desc::after {
+            content: '▼';
+            color: #EE164F;
+        }
+        
+        .bugs-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #E2E8F0;
+            vertical-align: top;
+        }
+        
+        .bugs-table tr:hover {
+            background-color: #F9FAFB;
+        }
+        
+        .bug-key {
+            color: #EE164F;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .bug-key:hover {
+            text-decoration: underline;
+            color: #D91449;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-align: center;
+            min-width: 80px;
+            display: inline-block;
+        }
+        
+        .status-deployed {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+            color: #065F46;
+        }
+        
+        .status-not-started {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+        }
+        
+        .status-in-progress {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+            color: #1E40AF;
+        }
+        
+        .status-pending-verification {
+            background: linear-gradient(135deg, #E0E7FF, #C7D2FE);
+            color: #3730A3;
+        }
+        
+        .status-canceled, .status-cancelled {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            color: #991B1B;
+        }
+        
+        .status-rejected {
+            background: linear-gradient(135deg, #FDF2F8, #FCE7F3);
+            color: #BE185D;
+        }
+        
+        .status-on-hold {
+            background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+            color: #374151;
+        }
+        
+        .priority-high {
+            color: #EF4444;
+            font-weight: 700;
+        }
+        
+        .priority-medium {
+            color: #F59E0B;
+            font-weight: 600;
+        }
+        
+        .priority-low {
+            color: #10B981;
+            font-weight: 500;
+        }
+        
+        /* Pagination */
+        .pagination {
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            background: #F8FAFC;
+        }
+        
+        .pagination button {
+            padding: 8px 16px;
+            border: 2px solid #E2E8F0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Lato', sans-serif;
+            font-weight: 500;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background: #F1F5F9;
+            border-color: #EE164F;
+            color: #EE164F;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            color: #6B7280;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        
+        /* Bug details modal - HiBob branded */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(238, 22, 79, 0.15);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: relative;
+            margin: 3% auto;
+            width: 90%;
+            max-width: 900px;
+            background: #FFFFFF;
+            border-radius: 24px;
+            box-shadow: 0 24px 64px rgba(238, 22, 79, 0.2);
+            overflow: hidden;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #EE164F 0%, #FAA32B 100%);
+            padding: 40px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+            opacity: 0.3;
+        }
+        
+        .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: -15px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 48% 52% 68% 32% / 42% 58% 42% 58%;
+        }
+        
+        .modal-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 2.2em;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .modal-subtitle {
+            font-family: 'Domine', serif;
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 8px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
+        
+        .modal-body {
+            padding: 40px;
+            background: #FFFFFF;
+        }
+        
+        .modal-field {
+            margin-bottom: 32px;
+        }
+        
+        .modal-field h3 {
+            font-family: 'Domine', serif;
+            color: #3A3A37;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .modal-field h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #EE164F, #FAA32B);
+            border-radius: 2px;
+        }
+        
+        .modal-field-content {
+            background: linear-gradient(135deg, #FDF6EB 0%, #FFFFFF 100%);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+            white-space: pre-wrap;
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: #3A3A37;
+            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.04);
+        }
+
+        /* HiBob organic shapes */
+        .organic-shape {
+            position: absolute;
+            opacity: 0.05;
+            z-index: 0;
+        }
+        
+        .organic-shape-1 {
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: #EE164F;
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+        }
+        
+        .organic-shape-2 {
+            bottom: -15px;
+            left: -15px;
+            width: 60px;
+            height: 60px;
+            background: #FAA32B;
+            border-radius: 48% 52% 68% 32% / 42% 58% 42% 58%;
+        }
+        
+        /* Cache info */
+        .cache-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Production Bug Analytics</h1>
+            <div class="subtitle">Production Issue Tracking Dashboard</div>
+            <div class="description">Focused view of production bugs (971 total) - filtering only bug type = Production</div>
+            <div class="meta">
+                Last Updated: <span id="lastUpdate">Loading...</span> | 
+                Instance: <span id="jiraInstance">hibob.atlassian.net</span>
+            </div>
+        </header>
+
+        <div id="status">Loading bug data...</div>
+
+        <div id="dashboard-content" style="display: none;">
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-1"></div>
+                    <div class="stat-number total" id="totalBugs">-</div>
+                    <div class="stat-label">Total Issues</div>
+                    <div class="stat-detail">All projects tracked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-2"></div>
+                    <div class="stat-number high-priority" id="highPriorityBugs">-</div>
+                    <div class="stat-label">High Priority</div>
+                    <div class="stat-detail">Needs immediate attention</div>
+                </div>
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-1"></div>
+                    <div class="stat-number deployed" id="deployedBugs">-</div>
+                    <div class="stat-label">Resolved</div>
+                    <div class="stat-detail">Successfully deployed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-2"></div>
+                    <div class="stat-number avg-days" id="avgDaysOpen">-</div>
+                    <div class="stat-label">Avg Resolution</div>
+                    <div class="stat-detail">Days to fix</div>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div class="chart-title">Issue Status</div>
+                    <div id="statusChart"></div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-title">Priority Levels</div>
+                    <div id="priorityChart"></div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-title">Team Workload</div>
+                    <div id="assigneeChart"></div>
+                </div>
+            </div>
+
+            <div class="bugs-table">
+                <div class="table-header">
+                    <div class="table-title">Issue Details</div>
+                    <div class="table-subtitle">Complete tracking and status overview</div>
+                </div>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="statusFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="statusFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="severityFilter">Severity:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="severityFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="severityFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="assigneeFilter">Assignee:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="assigneeFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="assigneeFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="leadingTeamFilter">Leading Team:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="leadingTeamFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="leadingTeamFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="systemFilter">System:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="systemFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="systemFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="sprintFilter">Sprint:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="sprintFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="sprintFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="regressionFilter">Regression:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="regressionFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="regressionFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="searchFilter">Search:</label>
+                        <input type="text" id="searchFilter" placeholder="Find issues...">
+                    </div>
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <button id="clearFiltersButton" class="clear-button">Clear</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th data-column="key">Issue Key</th>
+                                <th data-column="summary">Summary</th>
+                                <th data-column="status">Status</th>
+                                <th data-column="priority">Priority</th>
+                                <th data-column="assignee">Assignee</th>
+                                <th data-column="leadingTeam">Leading Team</th>
+                                <th data-column="system">System</th>
+                                <th data-column="sprint">Sprint</th>
+                                <th data-column="regression">Regression</th>
+                                <th data-column="daysOpen">Fix Duration</th>
+                                <th data-column="created">Created</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bugsTableBody">
+                            <tr>
+                                <td colspan="11" style="text-align: center; padding: 40px;">
+                                    Loading bugs...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button id="firstPageBtn">First</button>
+                    <button id="prevPageBtn">Previous</button>
+                    <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                    <button id="nextPageBtn">Next</button>
+                    <button id="lastPageBtn">Last</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bug Details Modal -->
+        <div id="bugModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">ISSUE DETAILS</h1>
+                    <div class="modal-subtitle">Complete tracking and status overview</div>
+                    <button class="close-btn" id="closeModalBtn">&times;</button>
+                </div>
+                <div class="modal-body" id="modalContent">
+                    <div style="text-align: center; padding: 40px; color: #3A3A37;">
+                        Loading bug details...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cache Info -->
+        <div class="cache-info" id="cacheInfo" title="Click for cache details">
+            Cache: Loading...
+        </div>
+    </div>
+
+    <script>
+        // Global state with embedded data and pagination
+        let bugsData = [];
+        let filteredData = [];
+        let currentSort = { column: null, direction: 'asc' };
+        
+        // Pagination state
+        let currentPage = 1;
+        const pageSize = 25;
+        let totalPages = 1;
+        
+        // Global filter selections (same as original)
         const filterSelections = {
             status: new Set(),
             severity: new Set(),
@@ -21705,6 +21087,387 @@
             regression: new Set()
         };
 
+        // Initialize the application with embedded data
+        function initializeApp() {
+            try {
+                console.log('🚀 Initializing dashboard with embedded data...');
+                
+                // Use embedded data directly
+                bugsData = data.bugs;
+                filteredData = [...bugsData];
+                
+                console.log(`✅ Loaded ${bugsData.length} bugs from embedded data`);
+                
+                // Update UI
+                displayStats();
+                createCharts();
+                populateFilters();
+                applyFiltersAndPagination();
+                
+                // Set up event listeners
+                setupEventListeners();
+                
+                // Show dashboard
+                document.getElementById('dashboard-content').style.display = 'block';
+                document.getElementById('status').innerHTML = `<span class="success">✅ Dashboard ready with ${bugsData.length} bugs</span>`;
+                
+                // Update last sync info
+                document.getElementById('lastUpdate').textContent = new Date(data.metadata.exported).toLocaleString();
+                
+            } catch (error) {
+                console.error('❌ Failed to initialize app:', error);
+                document.getElementById('status').innerHTML = '<span class="error">❌ Failed to initialize: ' + error.message + '</span>';
+            }
+        }
+
+        // Handle data changes from the data manager
+        function handleDataChanged(type, state) {
+            console.log(`📊 Data changed: ${type}`);
+            
+            switch (type) {
+                case 'cache-loaded':
+                    document.getElementById('status').innerHTML = '<span class="success">✅ Loaded from cache - syncing in background...</span>';
+                    updateUIWithNewData(state);
+                    break;
+                case 'syncing':
+                    document.getElementById('status').innerHTML = '<span class="loading">🔄 Syncing with Jira...</span>';
+                    break;
+                case 'sync-complete':
+                    document.getElementById('status').innerHTML = `<span class="success">✅ Loaded ${state.allBugs.length} bugs from Jira</span>`;
+                    updateUIWithNewData(state);
+                    break;
+                case 'background-sync-complete':
+                    document.getElementById('status').innerHTML = `<span class="success">✅ Updated with latest data (${state.allBugs.length} bugs)</span>`;
+                    updateUIWithNewData(state);
+                    break;
+                case 'ready':
+                    document.getElementById('status').innerHTML = `<span class="success">✅ Dashboard ready (${state.allBugs.length} bugs cached)</span>`;
+                    break;
+            }
+            
+            updateCacheInfo();
+        }
+
+        // Update UI with new data (convert to original format)
+        function updateUIWithNewData(state) {
+            console.log('📊 Raw data received from manager:', {
+                bugCount: state.allBugs.length,
+                firstBug: state.allBugs[0],
+                sampleFields: state.allBugs.slice(0,3).map(b => ({
+                    key: b.key,
+                    leadingTeam: b.leadingTeam,
+                    system: b.system,
+                    sprint: b.sprintName || b.sprint,
+                    regression: b.regression
+                }))
+            });
+            
+            // Convert new format to original bugsData format
+            bugsData = state.allBugs.map(bug => ({
+                key: bug.key,
+                project: bug.project || 'BT',
+                summary: bug.summary,
+                status: bug.status,
+                priority: bug.priority,
+                severity: bug.priority, // Use priority as severity
+                assignee: bug.assignee,
+                reporter: bug.reporter || 'Unknown',
+                created: bug.created,
+                updated: bug.updated,
+                createdDate: bug.createdDate,
+                updatedDate: bug.updatedDate,
+                daysOpen: bug.daysOpen,
+                // Use actual data first, then fallback to extraction methods
+                leadingTeam: bug.leadingTeam || bug.team || extractTeamFromLabels(bug) || 'No Data',
+                system: bug.system || bug.component || extractSystemFromLabels(bug) || 'No Data',
+                sprint: bug.sprintName || bug.sprint || extractSprintFromLabels(bug) || 'No Data',
+                regression: bug.regression || extractRegressionFromLabels(bug) || 'No Data',
+                involvedTeams: bug.involvedTeams || [],
+                sprintId: bug.sprintId,
+                bugType: bug.bugType,
+                labels: bug.labels || [],
+                components: bug.components || [],
+                isOpen: bug.isOpen
+            }));
+            
+            console.log('📊 Converted bugsData for UI:', {
+                bugCount: bugsData.length,
+                uniqueLeadingTeams: [...new Set(bugsData.map(b => b.leadingTeam).filter(t => t && t !== 'No Data'))],
+                uniqueSystems: [...new Set(bugsData.map(b => b.system).filter(s => s && s !== 'No Data'))],
+                uniqueSprints: [...new Set(bugsData.map(b => b.sprint).filter(s => s && s !== 'No Data'))],
+                uniqueRegression: [...new Set(bugsData.map(b => b.regression).filter(r => r && r !== 'No Data'))]
+            });
+            
+            // Now populate the UI
+            restoreFilterState(); // Restores filterSelections and currentSort
+            displayStats();
+            createCharts();
+            populateFilters(); // Populates multi-select dropdowns
+            applyFilters(); // Applies filters/sort, calls displayBugsTable()
+            document.getElementById('dashboard-content').style.display = 'block';
+        }
+
+        // Helper functions to extract data from bug labels or other fields
+        function extractTeamFromLabels(bug) {
+            if (bug.labels && Array.isArray(bug.labels)) {
+                const teamLabel = bug.labels.find(label => 
+                    label.toLowerCase().includes('team-') || 
+                    label.toLowerCase().includes('squad-') ||
+                    ['AI Dev', 'MIS - GTC', 'Dealhub', 'Workato', 'MIS - CORP', 'SFDC', 'ZIP', 'Netwise'].includes(label)
+                );
+                if (teamLabel) return teamLabel.replace('team-', '').replace('squad-', '');
+            }
+            
+            // Try to extract from component names
+            if (bug.components && Array.isArray(bug.components)) {
+                const component = bug.components[0];
+                if (component && component.name) {
+                    return component.name;
+                }
+            }
+            
+            return null;
+        }
+
+        function extractSystemFromLabels(bug) {
+            if (bug.labels && Array.isArray(bug.labels)) {
+                const systemLabel = bug.labels.find(label => 
+                    ['Other', 'Dealhub', 'Workato', 'Stripe', 'SFDC', 'ZIP', 'Netwise'].includes(label)
+                );
+                if (systemLabel) return systemLabel;
+            }
+            
+            // Try to extract from components
+            if (bug.components && Array.isArray(bug.components)) {
+                const component = bug.components[0];
+                if (component && component.name) {
+                    return component.name;
+                }
+            }
+            
+            return null;
+        }
+
+        function extractSprintFromLabels(bug) {
+            if (bug.labels && Array.isArray(bug.labels)) {
+                const sprintLabel = bug.labels.find(label => 
+                    label.toLowerCase().includes('sprint') || 
+                    label.toLowerCase().includes('pi3.2')
+                );
+                if (sprintLabel) return sprintLabel;
+            }
+            
+            // Try to extract from sprint field
+            if (bug.fields && bug.fields.sprint) {
+                return bug.fields.sprint.name || bug.fields.sprint;
+            }
+            
+            return null;
+        }
+
+        function extractRegressionFromLabels(bug) {
+            if (bug.labels && Array.isArray(bug.labels)) {
+                const hasRegression = bug.labels.some(label => 
+                    label.toLowerCase().includes('regression') || 
+                    label.toLowerCase().includes('regress')
+                );
+                return hasRegression ? 'Yes' : 'No';
+            }
+            
+            return null;
+        }
+
+        // Handle errors from the data manager
+        function handleError(message, error) {
+            console.error('❌ Data manager error:', message, error);
+            document.getElementById('status').innerHTML = '<span class="warning">⚠️ API unavailable, loading from local data...</span>';
+            // Try loading local data as fallback
+            loadLocalData();
+        }
+        
+        // Fallback function to load jira-bugs-data.json directly
+        async function loadLocalData() {
+            try {
+                console.log('📊 Loading local jira-bugs-data.json...');
+                const response = await fetch('./jira-bugs-data.json');
+                if (!response.ok) throw new Error('Failed to load local data file');
+                
+                const localBugs = await response.json();
+                console.log('📊 Loaded local bugs:', localBugs.length);
+                
+                // Simulate the data manager state format
+                const state = {
+                    allBugs: localBugs.map(bug => ({
+                        id: bug.key,
+                        key: bug.key,
+                        project: bug.project || 'BT',
+                        summary: bug.summary,
+                        status: bug.status,
+                        priority: bug.priority,
+                        assignee: bug.assignee,
+                        reporter: bug.reporter,
+                        created: bug.created,
+                        updated: bug.updated,
+                        createdDate: bug.createdDate,
+                        updatedDate: bug.updatedDate,
+                        daysOpen: bug.daysOpen,
+                        leadingTeam: bug.leadingTeam,
+                        system: bug.system,
+                        sprintName: bug.sprint,
+                        sprint: bug.sprint,
+                        sprintId: bug.sprintId,
+                        severity: bug.severity,
+                        bugType: bug.bugType,
+                        regression: bug.regression,
+                        labels: bug.labels || [],
+                        components: bug.components || [],
+                        involvedTeams: bug.involvedTeams || [],
+                        isOpen: bug.status !== 'Deployed' && bug.status !== 'Canceled'
+                    }))
+                };
+                
+                updateUIWithNewData(state);
+                document.getElementById('status').innerHTML = `<span class="success">✅ Loaded ${localBugs.length} bugs from local data</span>`;
+                
+            } catch (error) {
+                console.error('❌ Failed to load local data:', error);
+                document.getElementById('status').innerHTML = `<span class="error">❌ Failed to load data: ${error.message}</span>`;
+            }
+        }
+
+        // Original display stats function
+        function displayStats() {
+            const stats = calculateStats(bugsData);
+            document.getElementById('totalBugs').textContent = stats.totalBugs;
+            document.getElementById('highPriorityBugs').textContent = stats.highPriority || 0;
+            document.getElementById('deployedBugs').textContent = stats.deployed || 0;
+            document.getElementById('avgDaysOpen').textContent = stats.avgDaysOpen;
+        }
+
+        // Calculate statistics from data
+        function calculateStats(bugs) {
+            const totalBugs = bugs.length;
+            const highPriority = bugs.filter(b => b.priority === 'High').length;
+            const deployed = bugs.filter(b => b.status === 'Deployed').length;
+            const avgDaysOpen = Math.round(bugs.reduce((sum, b) => sum + (b.daysOpen || 0), 0) / totalBugs) || 0;
+            
+            return { totalBugs, highPriority, deployed, avgDaysOpen };
+        }
+
+        // Create charts (simplified version)
+        function createCharts() {
+            createStatusChart();
+            createPriorityChart();
+            createAssigneeChart();
+        }
+
+        function createStatusChart() {
+            const statusCounts = {};
+            bugsData.forEach(bug => {
+                statusCounts[bug.status] = (statusCounts[bug.status] || 0) + 1;
+            });
+            
+            const chartContainer = document.getElementById('statusChart');
+            chartContainer.innerHTML = '';
+            
+            Object.entries(statusCounts).forEach(([status, count]) => {
+                const item = document.createElement('div');
+                item.className = 'chart-item ' + getStatusClass(status);
+                item.innerHTML = `
+                    <span class="chart-label">${status}</span>
+                    <span class="chart-value">${count}</span>
+                `;
+                chartContainer.appendChild(item);
+            });
+        }
+
+        function createPriorityChart() {
+            const priorityCounts = {};
+            bugsData.forEach(bug => {
+                const priority = bug.priority || 'Unknown';
+                priorityCounts[priority] = (priorityCounts[priority] || 0) + 1;
+            });
+            
+            const chartContainer = document.getElementById('priorityChart');
+            chartContainer.innerHTML = '';
+            
+            Object.entries(priorityCounts).forEach(([priority, count]) => {
+                const item = document.createElement('div');
+                item.className = 'chart-item ' + priority.toLowerCase();
+                item.innerHTML = `
+                    <span class="chart-label">${priority} Priority</span>
+                    <span class="chart-value">${count}</span>
+                `;
+                chartContainer.appendChild(item);
+            });
+        }
+
+        function createAssigneeChart() {
+            const assigneeCounts = {};
+            bugsData.forEach(bug => {
+                const assignee = bug.assignee || 'Unassigned';
+                assigneeCounts[assignee] = (assigneeCounts[assignee] || 0) + 1;
+            });
+            
+            const chartContainer = document.getElementById('assigneeChart');
+            chartContainer.innerHTML = '';
+            
+            // Show top 5 assignees
+            const topAssignees = Object.entries(assigneeCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+            
+            topAssignees.forEach(([assignee, count]) => {
+                const item = document.createElement('div');
+                item.className = 'chart-item';
+                item.innerHTML = `
+                    <span class="chart-label">${assignee}</span>
+                    <span class="chart-value">${count}</span>
+                `;
+                chartContainer.appendChild(item);
+            });
+        }
+
+        // Original populate filters function (with multi-select)
+        function populateFilters() {
+            console.log('🔧 Populating filters...');
+            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression'];
+            
+            filterTypes.forEach(filterType => {
+                let values = [...new Set(bugsData.map(bug => bug[filterType]).filter(v => {
+                    // Filter out null, undefined, empty strings, and "No Data"
+                    return v && 
+                           v !== 'No Data' && 
+                           v !== 'Unassigned' && 
+                           v !== 'Other' && 
+                           v !== 'Backlog' && 
+                           v.toString().trim().length > 0;
+                }))].sort();
+                
+                // Add back some default values for certain filters if no data found
+                if (values.length === 0) {
+                    switch (filterType) {
+                        case 'leadingTeam':
+                            values = ['AI Dev', 'MIS - GTC', 'MIS - CORP', 'Dealhub', 'Workato', 'SFDC', 'ZIP'];
+                            break;
+                        case 'system':
+                            values = ['Dealhub', 'Workato', 'Stripe', 'SFDC', 'ZIP', 'Netwise', 'Other'];
+                            break;
+                        case 'sprint':
+                            values = ['PI3.2 Sprint 1', 'PI3.2 Sprint 2', 'PI3.2 Sprint 3', 'Backlog'];
+                            break;
+                        case 'regression':
+                            values = ['Yes', 'No'];
+                            break;
+                    }
+                }
+                
+                console.log(`📋 Filter ${filterType}: ${values.length} options:`, values.slice(0, 3));
+                populateMultiSelect(filterType, values);
+            });
+        }
+
+        // Original multi-select population (same as original)
         function populateMultiSelect(filterType, options) {
             const dropdown = document.getElementById(`${filterType}FilterDropdown`);
             const button = document.getElementById(`${filterType}FilterButton`);
@@ -21718,7 +21481,7 @@
                     <input type="checkbox" id="${filterType}_${option}" value="${option}">
                     <label for="${filterType}_${option}">${option}</label>
                 `;
-                
+
                 const checkbox = optionDiv.querySelector('input');
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
@@ -21728,6 +21491,7 @@
                     }
                     updateFilterButtonText(filterType);
                     applyFilters();
+                    saveFilterState(); // Save state when filters change
                 });
                 
                 dropdown.appendChild(optionDiv);
@@ -21735,36 +21499,29 @@
 
             // Add button click handler
             button.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                const dropdown = document.getElementById(`${filterType}FilterDropdown`);
+
                 const isOpen = dropdown.classList.contains('show');
-                
+
                 // Close all dropdowns first
                 document.querySelectorAll('.multiselect-dropdown').forEach(d => d.classList.remove('show'));
-                
+
                 if (!isOpen) {
                     dropdown.classList.add('show');
                 }
             });
         }
 
+        // Original filter button text update
         function updateFilterButtonText(filterType) {
             const button = document.getElementById(`${filterType}FilterButton`).querySelector('span');
             const selections = filterSelections[filterType];
-            
+
             if (selections.size === 0) {
-                const labels = {
-                    status: 'Choose a Value',
-                    severity: 'Choose a Value',
-                    assignee: 'Choose a Value',
-                    leadingTeam: 'Choose a Value',
-                    system: 'Choose a Value',
-                    sprint: 'Choose a Value',
-                    regression: 'Choose a Value'
-                };
-                button.textContent = labels[filterType];
+                button.textContent = 'Choose a Value';
             } else if (selections.size === 1) {
-                button.textContent = [...selections][0];
+                button.textContent = Array.from(selections)[0];
             } else {
                 button.textContent = `${selections.size} selected`;
             }
@@ -21777,55 +21534,7 @@
             });
         });
 
-        function getStatusClass(status) {
-            if (!status) return 'status-unknown';
-            return 'status-' + status.toLowerCase().replace(/\s+/g, '-');
-        }
-
-        function getPriorityClass(severity) {
-            if (!severity) return 'priority-unknown';
-            return 'priority-' + severity.toLowerCase();
-        }
-
-        function calculateFixDuration(bug) {
-            if (bug.status !== 'Deployed') {
-                return 'N/A';
-            }
-            
-            const createdDate = new Date(bug.created);
-            const updatedDate = new Date(bug.updated);
-            const diffTime = Math.abs(updatedDate - createdDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            return `${diffDays} days`;
-        }
-
-        function displayBugsTable() {
-            const tbody = document.getElementById('bugsTableBody');
-            tbody.innerHTML = '';
-
-            filteredData.forEach(bug => {
-                const row = document.createElement('tr');
-                const jiraUrl = `https://hibob.atlassian.net/browse/${bug.key}`;
-                const fixDuration = calculateFixDuration(bug);
-                
-                row.innerHTML = `
-                    <td><a href="${jiraUrl}" target="_blank" class="issue-link">${bug.key}</a></td>
-                    <td style="max-width: 350px; overflow: hidden; text-overflow: ellipsis;">${bug.summary}</td>
-                    <td><span class="status-badge ${getStatusClass(bug.status)}">${bug.status}</span></td>
-                    <td><span class="priority-badge ${getPriorityClass(bug.severity)}">${bug.severity}</span></td>
-                    <td>${bug.assignee}</td>
-                    <td>${bug.leadingTeam === 'No Data' ? '<span style="color: #999; font-style: italic;">No Data</span>' : (bug.leadingTeam || 'N/A')}</td>
-                    <td>${bug.system === 'No Data' ? '<span style="color: #999; font-style: italic;">No Data</span>' : (bug.system || 'N/A')}</td>
-                    <td>${bug.sprint === 'No Data' ? '<span style="color: #999; font-style: italic;">No Data</span>' : (bug.sprint === 'None' ? '<span style="color: #ff9500;">None</span>' : (bug.sprint || 'N/A'))}</td>
-                    <td>${bug.regression === 'Yes' ? '<span style="color: #28a745; font-weight: bold;">Yes</span>' : (bug.regression === 'No' ? '<span style="color: #dc3545;">No</span>' : '<span style="color: #999; font-style: italic;">No Data</span>')}</td>
-                    <td><span class="fix-duration">${fixDuration}</span></td>
-                    <td>${bug.createdDate}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
+        // Original filtering function (same as original)
         function applyFilters() {
             const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
 
@@ -21837,8 +21546,8 @@
                 const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(bug.system);
                 const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(bug.sprint);
                 const regressionMatch = filterSelections.regression.size === 0 || filterSelections.regression.has(bug.regression);
-                const searchMatch = !searchFilter || 
-                                  (bug.summary && bug.summary.toLowerCase().includes(searchFilter)) || 
+                const searchMatch = !searchFilter ||
+                                  (bug.summary && bug.summary.toLowerCase().includes(searchFilter)) ||
                                   (bug.key && bug.key.toLowerCase().includes(searchFilter)) ||
                                   (bug.assignee && bug.assignee.toLowerCase().includes(searchFilter));
 
@@ -21848,116 +21557,267 @@
 
             applySorting();
             displayBugsTable();
-            
-            // Trigger enhancement for newly filtered/visible bugs
-            onFiltersChanged('filter applied');
         }
 
-        // Sorting functionality
-        let currentSort = { column: null, direction: 'asc' };
-
+        // Original sorting function
         function applySorting() {
             if (!currentSort.column) return;
-
+            
             filteredData.sort((a, b) => {
-                let aVal = a[currentSort.column] || '';
-                let bVal = b[currentSort.column] || '';
-
-                // Special handling for numeric columns
-                if (currentSort.column === 'fixDuration') {
-                    // Calculate fix duration for sorting
-                    const aFixDuration = a.status === 'Deployed' ? 
-                        Math.abs(new Date(a.updated) - new Date(a.created)) / (1000 * 60 * 60 * 24) : 
-                        99999; // Put non-deployed at end
-                    const bFixDuration = b.status === 'Deployed' ? 
-                        Math.abs(new Date(b.updated) - new Date(b.created)) / (1000 * 60 * 60 * 24) : 
-                        99999;
-                    aVal = aFixDuration;
-                    bVal = bFixDuration;
-                }
-
-                // Special handling for dates
-                if (currentSort.column === 'createdDate') {
-                    aVal = new Date(aVal);
-                    bVal = new Date(bVal);
-                }
-
-                let comparison = 0;
-                if (aVal < bVal) comparison = -1;
-                if (aVal > bVal) comparison = 1;
-
+                let aVal = a[currentSort.column];
+                let bVal = b[currentSort.column];
+                
+                if (aVal == null) aVal = '';
+                if (bVal == null) bVal = '';
+                
+                aVal = String(aVal);
+                bVal = String(bVal);
+                
+                const comparison = aVal.localeCompare(bVal, undefined, { numeric: true });
                 return currentSort.direction === 'asc' ? comparison : -comparison;
             });
         }
 
-        function handleSort(column) {
-            if (currentSort.column === column) {
-                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSort.column = column;
-                currentSort.direction = 'asc';
+        // Original table display function
+        function displayBugsTable() {
+            const tbody = document.getElementById('bugsTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px;">No bugs found matching current filters</td></tr>';
+                return;
             }
 
-            // Update sort indicators
-            document.querySelectorAll('.sort-indicator').forEach(indicator => {
-                indicator.classList.remove('active');
-                indicator.textContent = '↕';
+            // Show all results (original behavior)
+            filteredData.forEach(bug => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><a href="#" class="bug-key" onclick="showBugDetails('${bug.key}')">${bug.key}</a></td>
+                    <td>${escapeHtml(bug.summary || '')}</td>
+                    <td><span class="status-badge ${getStatusClass(bug.status)}">${bug.status}</span></td>
+                    <td><span class="priority-${bug.priority.toLowerCase()}">${bug.priority}</span></td>
+                    <td>${bug.assignee || 'Unassigned'}</td>
+                    <td>${bug.leadingTeam || 'No Data'}</td>
+                    <td>${bug.system || 'No Data'}</td>
+                    <td>${bug.sprint || 'No Data'}</td>
+                    <td>${bug.regression || 'No Data'}</td>
+                    <td>${bug.daysOpen || 0} days</td>
+                    <td>${bug.createdDate}</td>
+                `;
+                tbody.appendChild(row);
             });
 
-            const activeHeader = document.querySelector(`[data-column="${column}"] .sort-indicator`);
-            if (activeHeader) {
-                activeHeader.classList.add('active');
-                activeHeader.textContent = currentSort.direction === 'asc' ? '↑' : '↓';
-            }
-
-            applySorting();
-            displayBugsTable();
+            // Update sort indicators
+            updateSortIndicators();
         }
 
-        // Clear all filters function
+        // Update sort indicators
+        function updateSortIndicators() {
+            document.querySelectorAll('th[data-column]').forEach(th => {
+                th.classList.remove('sorted', 'asc', 'desc');
+            });
+            
+            if (currentSort.column) {
+                const th = document.querySelector(`th[data-column="${currentSort.column}"]`);
+                if (th) {
+                    th.classList.add('sorted', currentSort.direction);
+                }
+            }
+        }
+
+        // Helper functions
+        function getStatusClass(status) {
+            if (!status) return 'status-unknown';
+            return 'status-' + status.toLowerCase().replace(/\s+/g, '-');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Clear all filters (original function)
         function clearAllFilters() {
-            // Clear all filter selections
             Object.keys(filterSelections).forEach(filterType => {
                 filterSelections[filterType].clear();
             });
             
-            // Update all filter button texts
             Object.keys(filterSelections).forEach(filterType => {
                 updateFilterButtonText(filterType);
             });
             
-            // Uncheck all checkboxes in dropdowns
             document.querySelectorAll('.multiselect-option input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
-            
-            // Clear search input
+
             document.getElementById('searchFilter').value = '';
-            
-            // Apply filters to refresh table
             applyFilters();
-            
-            console.log('✅ All filters cleared');
+            saveFilterState(); // Save cleared state
         }
 
-        // Event listeners with HiBob's modern, supportive approach
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDashboardData(); // Load data from automated source, then initialize dashboard
+        // Save filter state to cache
+        function saveFilterState() {
+            if (!dataManager) return;
             
-            // Add search filter listener
+            const filterState = {};
+            Object.keys(filterSelections).forEach(key => {
+                filterState[key] = Array.from(filterSelections[key]);
+            });
+            filterState.search = document.getElementById('searchFilter').value;
+            
+            dataManager.cache.saveFilterState(filterState, currentSort);
+        }
+
+        // Restore filter state from cache
+        function restoreFilterState() {
+            if (!dataManager) return;
+            
+            const saved = dataManager.cache.restoreFilterState();
+            if (!saved || !saved.filters) return;
+
+            // Restore filter selections
+            Object.keys(saved.filters).forEach(key => {
+                if (key === 'search') {
+                    document.getElementById('searchFilter').value = saved.filters[key] || '';
+                } else {
+                    filterSelections[key] = new Set(saved.filters[key] || []);
+                }
+            });
+
+            // Restore sort state
+            if (saved.sort) {
+                currentSort = { ...currentSort, ...saved.sort };
+            }
+
+            // Update UI to reflect restored state
+            setTimeout(() => {
+                Object.keys(filterSelections).forEach(filterType => {
+                    updateFilterButtonText(filterType);
+                    
+                    // Update checkboxes
+                    filterSelections[filterType].forEach(value => {
+                        const checkbox = document.getElementById(`${filterType}_${value}`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                });
+            }, 100);
+        }
+
+        // Show bug details in modal
+        async function showBugDetails(bugKey) {
+            const modal = document.getElementById('bugModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            // Find the bug in our current data for basic info
+            const bug = bugsData.find(b => b.key === bugKey);
+            
+            modalContent.innerHTML = '<div style="text-align: center; padding: 40px; color: #3A3A37;">Loading bug details...</div>';
+            modal.style.display = 'block';
+            
+            try {
+                const details = await dataManager.getBugDetails(bugKey);
+                modalContent.innerHTML = `
+                    <div class="modal-field">
+                        <h3>Basic Information</h3>
+                        <div class="modal-field-content">
+                            <strong>Issue Key:</strong> ${bugKey}<br>
+                            <strong>Status:</strong> <span class="status-badge ${getStatusClass(bug?.status)}">${bug?.status || 'Unknown'}</span><br>
+                            <strong>Priority:</strong> <span class="priority-badge ${getPriorityClass(bug?.priority)}">${bug?.priority || 'Unknown'}</span><br>
+                            <strong>Assignee:</strong> ${bug?.assignee || 'Unassigned'}<br>
+                            <strong>Leading Team:</strong> ${bug?.leadingTeam || 'No Data'}<br>
+                            <strong>System:</strong> ${bug?.system || 'No Data'}<br>
+                            <strong>Sprint:</strong> ${bug?.sprint || 'No Data'}<br>
+                            <strong>Regression:</strong> ${bug?.regression || 'No Data'}
+                        </div>
+                    </div>
+                    
+                    <div class="modal-field">
+                        <h3>Summary</h3>
+                        <div class="modal-field-content">
+                            ${escapeHtml(bug?.summary || 'No summary available.')}
+                        </div>
+                    </div>
+                    
+                    <div class="modal-field">
+                        <h3>Description</h3>
+                        <div class="modal-field-content">
+                            ${escapeHtml(details.description || 'No description available.')}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                modalContent.innerHTML = `
+                    <div class="modal-field">
+                        <h3>Error</h3>
+                        <div style="color: #EE164F; padding: 24px; background: linear-gradient(135deg, #FEABB0 0%, #FFFFFF 100%); border-radius: 16px; border: 1px solid rgba(238, 22, 79, 0.2);">
+                            Failed to load bug details: ${error.message}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Close bug details modal
+        function closeBugDetails() {
+            document.getElementById('bugModal').style.display = 'none';
+        }
+
+        // Update cache info display
+        function updateCacheInfo() {
+            if (!dataManager) return;
+            
+            const info = dataManager.getCacheInfo();
+            const cacheInfo = document.getElementById('cacheInfo');
+            cacheInfo.textContent = `Cache: ${info.bugCount} bugs, ${info.cacheSize}, ${info.lastSync}`;
+        }
+
+        // Show cache details
+        function showCacheDetails() {
+            if (!dataManager) return;
+            
+            const info = dataManager.getCacheInfo();
+            alert(`Cache Information:\n\nBugs: ${info.bugCount}\nSize: ${info.cacheSize}\nLast Sync: ${info.lastSync}\nHas Filter State: ${info.hasFilterState ? 'Yes' : 'No'}`);
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Search filter
             document.getElementById('searchFilter').addEventListener('input', applyFilters);
             
-            // Add clear filters button listener
+            // Clear filters button
             document.getElementById('clearFiltersButton').addEventListener('click', clearAllFilters);
             
-            // Add sorting listeners
-            document.querySelectorAll('th[data-column]').forEach(header => {
-                header.addEventListener('click', () => {
-                    const column = header.getAttribute('data-column');
-                    handleSort(column);
+            // Table sorting
+            document.querySelectorAll('th[data-column]').forEach(th => {
+                th.addEventListener('click', () => {
+                    const column = th.getAttribute('data-column');
+                    if (currentSort.column === column) {
+                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.column = column;
+                        currentSort.direction = 'asc';
+                    }
+                    applySorting();
+                    displayBugsTable();
+                    saveFilterState(); // Save sort state
                 });
             });
-        });
+            
+            // Modal
+            document.getElementById('closeModalBtn').addEventListener('click', closeBugDetails);
+            document.getElementById('bugModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('bugModal')) {
+                    closeBugDetails();
+                }
+            });
+            
+            // Cache info
+            document.getElementById('cacheInfo').addEventListener('click', showCacheDetails);
+        }
+
+        // Initialize app when DOM is ready
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔍 Dashboard Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f8f9fa; }
+        .test-status { padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 4px; }
+        .logs { background: #f8f9fa; padding: 15px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; max-height: 300px; overflow-y: auto; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Dashboard Loading Test</h1>
+    
+    <div id="test-status" class="test-status info">
+        <strong>🔄 Testing Dashboard...</strong>
+        <p>Loading dashboard in iframe to check for errors</p>
+    </div>
+    
+    <div>
+        <button class="btn-primary" onclick="reloadDashboard()">🔄 Reload Dashboard</button>
+        <button class="btn-success" onclick="testProxy()">🌐 Test Proxy</button>
+        <button class="btn-danger" onclick="clearLogs()">🗑️ Clear Logs</button>
+    </div>
+    
+    <h2>📊 Dashboard Preview</h2>
+    <iframe id="dashboard-frame" src="bug-dashboard-embedded.html"></iframe>
+    
+    <h2>📋 Console Logs & Errors</h2>
+    <div id="console-logs" class="logs">Monitoring for errors...</div>
+    
+    <script>
+        let logCount = 0;
+        
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('console-logs');
+            const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logsDiv.textContent += logEntry;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            logCount++;
+        }
+        
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('test-status');
+            statusDiv.className = `test-status ${type}`;
+            statusDiv.innerHTML = `<strong>${message}</strong>`;
+        }
+        
+        function reloadDashboard() {
+            log('Reloading dashboard...', 'info');
+            const iframe = document.getElementById('dashboard-frame');
+            iframe.src = iframe.src; // Force reload
+            
+            setTimeout(() => {
+                checkDashboardStatus();
+            }, 2000);
+        }
+        
+        async function testProxy() {
+            log('Testing JIRA proxy server...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/jira/rest/api/2/issue/BT-737', {
+                    method: 'HEAD',
+                    timeout: 3000
+                });
+                
+                if (response.ok) {
+                    log('✅ Proxy server is running and responding', 'success');
+                    updateStatus('✅ Proxy Running - Dashboard should have complete data', 'success');
+                } else {
+                    log(`❌ Proxy responded with error: ${response.status}`, 'error');
+                    updateStatus('⚠️ Proxy Issues - Dashboard may have incomplete data', 'warning');
+                }
+            } catch (error) {
+                log(`❌ Proxy server not accessible: ${error.message}`, 'error');
+                updateStatus('❌ Proxy Down - Dashboard will show incomplete data', 'error');
+            }
+        }
+        
+        function checkDashboardStatus() {
+            try {
+                const iframe = document.getElementById('dashboard-frame');
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                log('Checking dashboard content...', 'info');
+                
+                // Check if basic elements exist
+                const dashboardContent = iframeDoc.getElementById('dashboard-content');
+                const statusElement = iframeDoc.getElementById('status');
+                const totalBugs = iframeDoc.getElementById('totalBugs');
+                
+                if (dashboardContent && dashboardContent.style.display !== 'none') {
+                    log('✅ Dashboard content is visible', 'success');
+                    
+                    if (totalBugs && totalBugs.textContent !== '-' && totalBugs.textContent !== '') {
+                        log(`✅ Bug data loaded: ${totalBugs.textContent} total bugs`, 'success');
+                        updateStatus('✅ Dashboard Loaded Successfully', 'success');
+                    } else {
+                        log('⚠️ Dashboard visible but no bug count shown', 'warning');
+                        updateStatus('⚠️ Dashboard Loading - Data may be loading', 'warning');
+                    }
+                } else if (statusElement) {
+                    const statusText = statusElement.textContent;
+                    log(`ℹ️ Dashboard status: ${statusText}`, 'info');
+                    
+                    if (statusText.includes('error') || statusText.includes('Error')) {
+                        log('❌ Dashboard shows error status', 'error');
+                        updateStatus('❌ Dashboard Error - Check console for details', 'error');
+                    } else if (statusText.includes('Loading')) {
+                        log('🔄 Dashboard is still loading...', 'info');
+                        updateStatus('🔄 Dashboard Loading...', 'info');
+                    }
+                } else {
+                    log('❌ Dashboard elements not found', 'error');
+                    updateStatus('❌ Dashboard Failed to Load', 'error');
+                }
+                
+                // Check for JavaScript errors in iframe console (if accessible)
+                try {
+                    if (iframe.contentWindow.console && iframe.contentWindow.console.error) {
+                        log('ℹ️ Monitoring iframe console for errors...', 'info');
+                    }
+                } catch (consoleError) {
+                    log('ℹ️ Cannot access iframe console (cross-origin)', 'info');
+                }
+                
+            } catch (error) {
+                log(`❌ Error checking dashboard status: ${error.message}`, 'error');
+                updateStatus('❌ Cannot Access Dashboard - Check file exists', 'error');
+            }
+        }
+        
+        function clearLogs() {
+            document.getElementById('console-logs').textContent = 'Console cleared...\n';
+            logCount = 0;
+        }
+        
+        // Monitor iframe loading
+        document.getElementById('dashboard-frame').addEventListener('load', function() {
+            log('📄 Dashboard iframe loaded', 'info');
+            
+            setTimeout(() => {
+                checkDashboardStatus();
+            }, 1000);
+            
+            // Check again after 3 seconds for dynamic content
+            setTimeout(() => {
+                checkDashboardStatus();
+            }, 3000);
+        });
+        
+        // Monitor iframe errors
+        document.getElementById('dashboard-frame').addEventListener('error', function() {
+            log('❌ Dashboard iframe failed to load', 'error');
+            updateStatus('❌ Dashboard File Not Found or Corrupted', 'error');
+        });
+        
+        // Test proxy immediately
+        window.addEventListener('load', function() {
+            testProxy();
+        });
+        
+        // Auto-refresh status every 10 seconds
+        setInterval(() => {
+            if (logCount < 50) { // Prevent log spam
+                checkDashboardStatus();
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Bug Analytics | HiBob</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Domine:wght@400;500;600;700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Embedded data architecture with pagination -->
+    <script>
+        // Embedded bug data from successful dashboard (1,302 bugs with all fields populated)
+        const EMBEDDED_BUGS_DATA = {
+  "metadata": {
+    "exported": "2026-04-19T08:27:12.947Z",
+    "totalBugs": 1302,
+    "projects": [
+      "BT"
+    ],
+    "jiraInstance": "hibob.atlassian.net"
+  },
+  "bugs": [
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            background: linear-gradient(135deg, #FDF6EB 0%, #FFFFFF 50%, #FAC7D1 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #3A3A37;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: #FFFFFF;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(238, 22, 79, 0.08);
+            margin-bottom: 32px;
+            text-align: center;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+        }
+        
+        .header h1 {
+            font-family: 'Archivo Black', sans-serif;
+            color: #EE164F;
+            font-size: 2.8em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        
+        .header .subtitle {
+            font-family: 'Domine', serif;
+            color: #83143D;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .header .description {
+            color: #3A3A37;
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+        
+        .header .meta {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #FDF6EB;
+            font-size: 0.9em;
+            color: #83143D;
+        }
+        
+        .success { 
+            color: #FAA32B; 
+            font-family: 'Domine', serif;
+            font-weight: 600; 
+        }
+        .error { 
+            color: #EE164F; 
+            font-family: 'Domine', serif;
+            font-weight: 600; 
+        }
+        .loading {
+            color: #3B82F6;
+            font-family: 'Domine', serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .loading::before {
+            content: "";
+            width: 16px;
+            height: 16px;
+            border: 2px solid #E5E7EB;
+            border-top-color: #3B82F6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .warning {
+            color: #F59E0B;
+            font-family: 'Domine', serif;
+            font-weight: 600;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: #FFFFFF;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(238, 22, 79, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #EE164F, #FAA32B);
+        }
+        
+        .stat-number {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 3.2em;
+            margin-bottom: 16px;
+        }
+        
+        .stat-number.total {
+            color: #EE164F;
+        }
+        
+        .stat-number.high-priority {
+            color: #FF6B6B;
+        }
+        
+        .stat-number.deployed {
+            color: #51CF66;
+        }
+        
+        .stat-number.avg-days {
+            color: #FAA32B;
+        }
+        
+        .stat-label {
+            font-family: 'Domine', serif;
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #83143D;
+            margin-bottom: 8px;
+        }
+        
+        .stat-detail {
+            font-size: 0.9em;
+            color: #6B7280;
+            opacity: 0.8;
+        }
+
+        /* Multi-select dropdown styles */
+        .multiselect-container {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+
+        .multiselect-button {
+            padding: 10px 16px;
+            border: 2px solid rgba(238, 22, 79, 0.2);
+            border-radius: 16px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9em;
+            background: white;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(238, 22, 79, 0.04);
+        }
+
+        .multiselect-button:hover {
+            border-color: #EE164F;
+            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .multiselect-button:focus {
+            outline: none;
+            border-color: #EE164F;
+            box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.1);
+        }
+
+        .multiselect-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid rgba(238, 22, 79, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.12);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .multiselect-dropdown.show {
+            display: block;
+        }
+
+        .multiselect-option {
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .multiselect-option:hover {
+            background-color: #FDF6EB;
+        }
+
+        .multiselect-option input[type="checkbox"] {
+            margin: 0;
+            accent-color: #EE164F;
+        }
+
+        /* Clear button styling */
+        .clear-button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #EE164F, #FAA32B);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-family: 'Domine', serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .clear-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+            transition: all 0.3s ease;
+            transform: scale(0);
+        }
+
+        .clear-button:hover::before {
+            transform: scale(1);
+        }
+
+        .clear-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.3);
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .chart-card {
+            background: #FFFFFF;
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+            border: 1px solid rgba(238, 22, 79, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #EE164F, #FAA32B);
+        }
+        
+        .chart-title {
+            font-family: 'Domine', serif;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #83143D;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(238, 22, 79, 0.1);
+        }
+        
+        .chart-label {
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .chart-value {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1.1em;
+            color: #EE164F;
+            margin-left: auto;
+        }
+        
+        /* Status-specific styling */
+        .chart-item.deployed {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+        }
+        
+        .chart-item.not-started {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+        }
+        
+        .chart-item.in-progress {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+        }
+        
+        .chart-item.canceled, .chart-item.cancelled {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+        }
+        
+        /* Priority-specific styling */
+        .chart-item.high {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+        }
+        
+        .chart-item.medium {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+        }
+        
+        .chart-item.low {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+        }
+        
+        .bugs-table {
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+            overflow: hidden;
+            border: 1px solid rgba(238, 22, 79, 0.05);
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #EE164F, #FAA32B);
+            padding: 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Add organic shapes to the header */
+        .table-header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+            opacity: 0.6;
+        }
+        
+        .table-header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: -15px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 48% 52% 68% 32% / 42% 58% 42% 58%;
+            opacity: 0.5;
+        }
+        
+        .table-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1.8em;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            color: white;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .table-subtitle {
+            font-family: 'Domine', serif;
+            font-size: 1.1em;
+            opacity: 0.9;
+            color: white;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .filters {
+            padding: 24px 32px;
+            background: #FDF6EB;
+            border-bottom: 1px solid rgba(238, 22, 79, 0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            align-items: flex-start;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-family: 'Domine', serif;
+            font-weight: 600;
+            color: #3A3A37;
+            font-size: 0.95em;
+        }
+        
+        .filter-group input[type="text"] {
+            padding: 10px 16px;
+            border: 2px solid rgba(238, 22, 79, 0.2);
+            border-radius: 16px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9em;
+            background: white;
+            color: #3A3A37;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(238, 22, 79, 0.04);
+        }
+        
+        .filter-group input[type="text"]:hover {
+            border-color: #EE164F;
+            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.08);
+            transform: translateY(-1px);
+        }
+        
+        .filter-group input[type="text"]:focus {
+            outline: none;
+            border-color: #EE164F;
+            box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.1);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .bugs-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0;
+        }
+        
+        .bugs-table th {
+            background: #F8FAFC;
+            padding: 16px 20px;
+            text-align: left;
+            font-family: 'Domine', serif;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #E2E8F0;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .bugs-table th:hover {
+            background: linear-gradient(135deg, #FDF6EB, #FFFFFF);
+            color: #EE164F;
+        }
+        
+        .bugs-table th.sorted::after {
+            position: absolute;
+            right: 8px;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .bugs-table th.sorted.asc::after {
+            content: '▲';
+            color: #EE164F;
+        }
+        
+        .bugs-table th.sorted.desc::after {
+            content: '▼';
+            color: #EE164F;
+        }
+        
+        .bugs-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #E2E8F0;
+            vertical-align: top;
+        }
+        
+        .bugs-table tr:hover {
+            background-color: #F9FAFB;
+        }
+        
+        .bug-key {
+            color: #EE164F;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .bug-key:hover {
+            text-decoration: underline;
+            color: #D91449;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-align: center;
+            min-width: 80px;
+            display: inline-block;
+        }
+        
+        .status-deployed {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+            color: #065F46;
+        }
+        
+        .status-not-started {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+        }
+        
+        .status-in-progress {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+            color: #1E40AF;
+        }
+        
+        .status-pending-verification {
+            background: linear-gradient(135deg, #E0E7FF, #C7D2FE);
+            color: #3730A3;
+        }
+        
+        .status-canceled, .status-cancelled {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            color: #991B1B;
+        }
+        
+        .status-rejected {
+            background: linear-gradient(135deg, #FDF2F8, #FCE7F3);
+            color: #BE185D;
+        }
+        
+        .status-on-hold {
+            background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+            color: #374151;
+        }
+        
+        .priority-high {
+            color: #EF4444;
+            font-weight: 700;
+        }
+        
+        .priority-medium {
+            color: #F59E0B;
+            font-weight: 600;
+        }
+        
+        .priority-low {
+            color: #10B981;
+            font-weight: 500;
+        }
+        
+        /* Pagination */
+        .pagination {
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            background: #F8FAFC;
+        }
+        
+        .pagination button {
+            padding: 8px 16px;
+            border: 2px solid #E2E8F0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Lato', sans-serif;
+            font-weight: 500;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background: #F1F5F9;
+            border-color: #EE164F;
+            color: #EE164F;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            color: #6B7280;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        
+        /* Bug details modal - HiBob branded */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(238, 22, 79, 0.15);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: relative;
+            margin: 3% auto;
+            width: 90%;
+            max-width: 900px;
+            background: #FFFFFF;
+            border-radius: 24px;
+            box-shadow: 0 24px 64px rgba(238, 22, 79, 0.2);
+            overflow: hidden;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #EE164F 0%, #FAA32B 100%);
+            padding: 40px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+            opacity: 0.3;
+        }
+        
+        .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: -15px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 48% 52% 68% 32% / 42% 58% 42% 58%;
+        }
+        
+        .modal-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 2.2em;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .modal-subtitle {
+            font-family: 'Domine', serif;
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 8px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
+        
+        .modal-body {
+            padding: 40px;
+            background: #FFFFFF;
+        }
+        
+        .modal-field {
+            margin-bottom: 32px;
+        }
+        
+        .modal-field h3 {
+            font-family: 'Domine', serif;
+            color: #3A3A37;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .modal-field h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #EE164F, #FAA32B);
+            border-radius: 2px;
+        }
+        
+        .modal-field-content {
+            background: linear-gradient(135deg, #FDF6EB 0%, #FFFFFF 100%);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+            white-space: pre-wrap;
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: #3A3A37;
+            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.04);
+        }
+
+        /* HiBob organic shapes */
+        .organic-shape {
+            position: absolute;
+            opacity: 0.05;
+            z-index: 0;
+        }
+        
+        .organic-shape-1 {
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: #EE164F;
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+        }
+        
+        .organic-shape-2 {
+            bottom: -15px;
+            left: -15px;
+            width: 60px;
+            height: 60px;
+            background: #FAA32B;
+            border-radius: 48% 52% 68% 32% / 42% 58% 42% 58%;
+        }
+        
+        /* Cache info */
+        .cache-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Production Bug Analytics</h1>
+            <div class="subtitle">Production Issue Tracking Dashboard</div>
+            <div class="description">Focused view of production bugs (971 total) - filtering only bug type = Production</div>
+            <div class="meta">
+                Last Updated: <span id="lastUpdate">Loading...</span> | 
+                Instance: <span id="jiraInstance">hibob.atlassian.net</span>
+            </div>
+        </header>
+
+        <div id="status">Loading bug data...</div>
+
+        <div id="dashboard-content" style="display: none;">
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-1"></div>
+                    <div class="stat-number total" id="totalBugs">-</div>
+                    <div class="stat-label">Total Issues</div>
+                    <div class="stat-detail">All projects tracked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-2"></div>
+                    <div class="stat-number high-priority" id="highPriorityBugs">-</div>
+                    <div class="stat-label">High Priority</div>
+                    <div class="stat-detail">Needs immediate attention</div>
+                </div>
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-1"></div>
+                    <div class="stat-number deployed" id="deployedBugs">-</div>
+                    <div class="stat-label">Resolved</div>
+                    <div class="stat-detail">Successfully deployed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-2"></div>
+                    <div class="stat-number avg-days" id="avgDaysOpen">-</div>
+                    <div class="stat-label">Avg Resolution</div>
+                    <div class="stat-detail">Days to fix</div>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div class="chart-title">Issue Status</div>
+                    <div id="statusChart"></div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-title">Priority Levels</div>
+                    <div id="priorityChart"></div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-title">Team Workload</div>
+                    <div id="assigneeChart"></div>
+                </div>
+            </div>
+
+            <div class="bugs-table">
+                <div class="table-header">
+                    <div class="table-title">Issue Details</div>
+                    <div class="table-subtitle">Complete tracking and status overview</div>
+                </div>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="statusFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="statusFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="severityFilter">Severity:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="severityFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="severityFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="assigneeFilter">Assignee:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="assigneeFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="assigneeFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="leadingTeamFilter">Leading Team:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="leadingTeamFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="leadingTeamFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="systemFilter">System:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="systemFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="systemFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="sprintFilter">Sprint:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="sprintFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="sprintFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="regressionFilter">Regression:</label>
+                        <div class="multiselect-container">
+                            <div class="multiselect-button" id="regressionFilterButton">
+                                <span>Choose a Value</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="multiselect-dropdown" id="regressionFilterDropdown"></div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label for="searchFilter">Search:</label>
+                        <input type="text" id="searchFilter" placeholder="Find issues...">
+                    </div>
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <button id="clearFiltersButton" class="clear-button">Clear</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th data-column="key">Issue Key</th>
+                                <th data-column="summary">Summary</th>
+                                <th data-column="status">Status</th>
+                                <th data-column="priority">Priority</th>
+                                <th data-column="assignee">Assignee</th>
+                                <th data-column="leadingTeam">Leading Team</th>
+                                <th data-column="system">System</th>
+                                <th data-column="sprint">Sprint</th>
+                                <th data-column="regression">Regression</th>
+                                <th data-column="daysOpen">Fix Duration</th>
+                                <th data-column="created">Created</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bugsTableBody">
+                            <tr>
+                                <td colspan="11" style="text-align: center; padding: 40px;">
+                                    Loading bugs...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button id="firstPageBtn">First</button>
+                    <button id="prevPageBtn">Previous</button>
+                    <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                    <button id="nextPageBtn">Next</button>
+                    <button id="lastPageBtn">Last</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bug Details Modal -->
+        <div id="bugModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">ISSUE DETAILS</h1>
+                    <div class="modal-subtitle">Complete tracking and status overview</div>
+                    <button class="close-btn" id="closeModalBtn">&times;</button>
+                </div>
+                <div class="modal-body" id="modalContent">
+                    <div style="text-align: center; padding: 40px; color: #3A3A37;">
+                        Loading bug details...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cache Info -->
+        <div class="cache-info" id="cacheInfo" title="Click for cache details">
+            Cache: Loading...
+        </div>
+    </div>
+
+    <script>
+        // Global state - keep original filter management but with new data manager
+        let dataManager;
+        let bugsData = [];
+        let filteredData = [];
+        let currentSort = { column: null, direction: 'asc' };
+        
+        // Global filter selections (same as original)
+        const filterSelections = {
+            status: new Set(),
+            severity: new Set(),
+            assignee: new Set(),
+            leadingTeam: new Set(),
+            system: new Set(),
+            sprint: new Set(),
+            regression: new Set()
+        };
+
+        // Initialize the application with refactored architecture
+        async function initializeApp() {
+            try {
+                console.log('🚀 Initializing refactored bug dashboard...');
+                
+                // Create data manager instance
+                dataManager = new BugDataManager({
+                    apiBaseUrl: 'http://localhost:3002',
+                    pageSize: 1000 // Load all for original UI behavior
+                });
+                
+                // Set up event listeners
+                dataManager.onDataChanged(handleDataChanged);
+                dataManager.onError(handleError);
+                
+                // Set up UI event listeners (original style)
+                setupEventListeners();
+                
+                // Initialize data (loads from cache first, syncs in background)
+                await dataManager.initialize();
+                
+            } catch (error) {
+                console.error('❌ Failed to initialize app:', error);
+                document.getElementById('status').innerHTML = '<span class="error">❌ Failed to initialize: ' + error.message + '</span>';
+            }
+        }
+
+        // Handle data changes from the data manager
+        function handleDataChanged(type, state) {
+            console.log(`📊 Data changed: ${type}`);
+            
+            switch (type) {
+                case 'cache-loaded':
+                    document.getElementById('status').innerHTML = '<span class="success">✅ Loaded from cache - syncing in background...</span>';
+                    updateUIWithNewData(state);
+                    break;
+                case 'syncing':
+                    document.getElementById('status').innerHTML = '<span class="loading">🔄 Syncing with Jira...</span>';
+                    break;
+                case 'sync-complete':
+                    document.getElementById('status').innerHTML = `<span class="success">✅ Loaded ${state.allBugs.length} bugs from Jira</span>`;
+                    updateUIWithNewData(state);
+                    break;
+                case 'background-sync-complete':
+                    document.getElementById('status').innerHTML = `<span class="success">✅ Updated with latest data (${state.allBugs.length} bugs)</span>`;
+                    updateUIWithNewData(state);
+                    break;
+                case 'ready':
+                    document.getElementById('status').innerHTML = `<span class="success">✅ Dashboard ready (${state.allBugs.length} bugs cached)</span>`;
+                    break;
+            }
+            
+            updateCacheInfo();
+        }
+
+        // Update UI with new data (convert to original format)
+        function updateUIWithNewData(state) {
+            console.log('📊 Raw data received from manager:', {
+                bugCount: state.allBugs.length,
+                firstBug: state.allBugs[0],
+                sampleFields: state.allBugs.slice(0,3).map(b => ({
+                    key: b.key,
+                    leadingTeam: b.leadingTeam,
+                    system: b.system,
+                    sprint: b.sprintName || b.sprint,
+                    regression: b.regression
+                }))
+            });
+            
+            // Convert new format to original bugsData format
+            bugsData = state.allBugs.map(bug => ({
+                key: bug.key,
+                project: bug.project || 'BT',
+                summary: bug.summary,
+                status: bug.status,
+                priority: bug.priority,
+                severity: bug.priority, // Use priority as severity
+                assignee: bug.assignee,
+                reporter: bug.reporter || 'Unknown',
+                created: bug.created,
+                updated: bug.updated,
+                createdDate: bug.createdDate,
+                updatedDate: bug.updatedDate,
+                daysOpen: bug.daysOpen,
+                // Use actual data first, then fallback to extraction methods
+                leadingTeam: bug.leadingTeam || bug.team || extractTeamFromLabels(bug) || 'No Data',
+                system: bug.system || bug.component || extractSystemFromLabels(bug) || 'No Data',
+                sprint: bug.sprintName || bug.sprint || extractSprintFromLabels(bug) || 'No Data',
+                regression: bug.regression || extractRegressionFromLabels(bug) || 'No Data',
+                involvedTeams: bug.involvedTeams || [],
+                sprintId: bug.sprintId,
+                bugType: bug.bugType,
+                labels: bug.labels || [],
+                components: bug.components || [],
+                isOpen: bug.isOpen
+            }));
+            
+            console.log('📊 Converted bugsData for UI:', {
+                bugCount: bugsData.length,
+                uniqueLeadingTeams: [...new Set(bugsData.map(b => b.leadingTeam).filter(t => t && t !== 'No Data'))],
+                uniqueSystems: [...new Set(bugsData.map(b => b.system).filter(s => s && s !== 'No Data'))],
+                uniqueSprints: [...new Set(bugsData.map(b => b.sprint).filter(s => s && s !== 'No Data'))],
+                uniqueRegression: [...new Set(bugsData.map(b => b.regression).filter(r => r && r !== 'No Data'))]
+            });
+            
+            // Now populate the UI
+            restoreFilterState(); // Restores filterSelections and currentSort
+            displayStats();
+            createCharts();
+            populateFilters(); // Populates multi-select dropdowns
+            applyFilters(); // Applies filters/sort, calls displayBugsTable()
+            document.getElementById('dashboard-content').style.display = 'block';
+        }
+
+        // Helper functions to extract data from bug labels or other fields
+        function extractTeamFromLabels(bug) {
+            if (bug.labels && Array.isArray(bug.labels)) {
+                const teamLabel = bug.labels.find(label => 
+                    label.toLowerCase().includes('team-') || 
+                    label.toLowerCase().includes('squad-') ||
+                    ['AI Dev', 'MIS - GTC', 'Dealhub', 'Workato', 'MIS - CORP', 'SFDC', 'ZIP', 'Netwise'].includes(label)
+                );
+                if (teamLabel) return teamLabel.replace('team-', '').replace('squad-', '');
+            }
+            
+            // Try to extract from component names
+            if (bug.components && Array.isArray(bug.components)) {
+                const component = bug.components[0];
+                if (component && component.name) {
+                    return component.name;
+                }
+            }
+            
+            return null;
+        }
+
+        function extractSystemFromLabels(bug) {
+            if (bug.labels && Array.isArray(bug.labels)) {
+                const systemLabel = bug.labels.find(label => 
+                    ['Other', 'Dealhub', 'Workato', 'Stripe', 'SFDC', 'ZIP', 'Netwise'].includes(label)
+                );
+                if (systemLabel) return systemLabel;
+            }
+            
+            // Try to extract from components
+            if (bug.components && Array.isArray(bug.components)) {
+                const component = bug.components[0];
+                if (component && component.name) {
+                    return component.name;
+                }
+            }
+            
+            return null;
+        }
+
+        function extractSprintFromLabels(bug) {
+            if (bug.labels && Array.isArray(bug.labels)) {
+                const sprintLabel = bug.labels.find(label => 
+                    label.toLowerCase().includes('sprint') || 
+                    label.toLowerCase().includes('pi3.2')
+                );
+                if (sprintLabel) return sprintLabel;
+            }
+            
+            // Try to extract from sprint field
+            if (bug.fields && bug.fields.sprint) {
+                return bug.fields.sprint.name || bug.fields.sprint;
+            }
+            
+            return null;
+        }
+
+        function extractRegressionFromLabels(bug) {
+            if (bug.labels && Array.isArray(bug.labels)) {
+                const hasRegression = bug.labels.some(label => 
+                    label.toLowerCase().includes('regression') || 
+                    label.toLowerCase().includes('regress')
+                );
+                return hasRegression ? 'Yes' : 'No';
+            }
+            
+            return null;
+        }
+
+        // Handle errors from the data manager
+        function handleError(message, error) {
+            console.error('❌ Data manager error:', message, error);
+            document.getElementById('status').innerHTML = '<span class="warning">⚠️ API unavailable, loading from local data...</span>';
+            // Try loading local data as fallback
+            loadLocalData();
+        }
+        
+        // Fallback function to load jira-bugs-data.json directly
+        async function loadLocalData() {
+            try {
+                console.log('📊 Loading local jira-bugs-data.json...');
+                const response = await fetch('./jira-bugs-data.json');
+                if (!response.ok) throw new Error('Failed to load local data file');
+                
+                const localBugs = await response.json();
+                console.log('📊 Loaded local bugs:', localBugs.length);
+                
+                // Simulate the data manager state format
+                const state = {
+                    allBugs: localBugs.map(bug => ({
+                        id: bug.key,
+                        key: bug.key,
+                        project: bug.project || 'BT',
+                        summary: bug.summary,
+                        status: bug.status,
+                        priority: bug.priority,
+                        assignee: bug.assignee,
+                        reporter: bug.reporter,
+                        created: bug.created,
+                        updated: bug.updated,
+                        createdDate: bug.createdDate,
+                        updatedDate: bug.updatedDate,
+                        daysOpen: bug.daysOpen,
+                        leadingTeam: bug.leadingTeam,
+                        system: bug.system,
+                        sprintName: bug.sprint,
+                        sprint: bug.sprint,
+                        sprintId: bug.sprintId,
+                        severity: bug.severity,
+                        bugType: bug.bugType,
+                        regression: bug.regression,
+                        labels: bug.labels || [],
+                        components: bug.components || [],
+                        involvedTeams: bug.involvedTeams || [],
+                        isOpen: bug.status !== 'Deployed' && bug.status !== 'Canceled'
+                    }))
+                };
+                
+                updateUIWithNewData(state);
+                document.getElementById('status').innerHTML = `<span class="success">✅ Loaded ${localBugs.length} bugs from local data</span>`;
+                
+            } catch (error) {
+                console.error('❌ Failed to load local data:', error);
+                document.getElementById('status').innerHTML = `<span class="error">❌ Failed to load data: ${error.message}</span>`;
+            }
+        }
+
+        // Original display stats function
+        function displayStats() {
+            const stats = calculateStats(bugsData);
+            document.getElementById('totalBugs').textContent = stats.totalBugs;
+            document.getElementById('highPriorityBugs').textContent = stats.highPriority || 0;
+            document.getElementById('deployedBugs').textContent = stats.deployed || 0;
+            document.getElementById('avgDaysOpen').textContent = stats.avgDaysOpen;
+        }
+
+        // Calculate statistics from data
+        function calculateStats(bugs) {
+            const totalBugs = bugs.length;
+            const highPriority = bugs.filter(b => b.priority === 'High').length;
+            const deployed = bugs.filter(b => b.status === 'Deployed').length;
+            const avgDaysOpen = Math.round(bugs.reduce((sum, b) => sum + (b.daysOpen || 0), 0) / totalBugs) || 0;
+            
+            return { totalBugs, highPriority, deployed, avgDaysOpen };
+        }
+
+        // Create charts (simplified version)
+        function createCharts() {
+            createStatusChart();
+            createPriorityChart();
+            createAssigneeChart();
+        }
+
+        function createStatusChart() {
+            const statusCounts = {};
+            bugsData.forEach(bug => {
+                statusCounts[bug.status] = (statusCounts[bug.status] || 0) + 1;
+            });
+            
+            const chartContainer = document.getElementById('statusChart');
+            chartContainer.innerHTML = '';
+            
+            Object.entries(statusCounts).forEach(([status, count]) => {
+                const item = document.createElement('div');
+                item.className = 'chart-item ' + getStatusClass(status);
+                item.innerHTML = `
+                    <span class="chart-label">${status}</span>
+                    <span class="chart-value">${count}</span>
+                `;
+                chartContainer.appendChild(item);
+            });
+        }
+
+        function createPriorityChart() {
+            const priorityCounts = {};
+            bugsData.forEach(bug => {
+                const priority = bug.priority || 'Unknown';
+                priorityCounts[priority] = (priorityCounts[priority] || 0) + 1;
+            });
+            
+            const chartContainer = document.getElementById('priorityChart');
+            chartContainer.innerHTML = '';
+            
+            Object.entries(priorityCounts).forEach(([priority, count]) => {
+                const item = document.createElement('div');
+                item.className = 'chart-item ' + priority.toLowerCase();
+                item.innerHTML = `
+                    <span class="chart-label">${priority} Priority</span>
+                    <span class="chart-value">${count}</span>
+                `;
+                chartContainer.appendChild(item);
+            });
+        }
+
+        function createAssigneeChart() {
+            const assigneeCounts = {};
+            bugsData.forEach(bug => {
+                const assignee = bug.assignee || 'Unassigned';
+                assigneeCounts[assignee] = (assigneeCounts[assignee] || 0) + 1;
+            });
+            
+            const chartContainer = document.getElementById('assigneeChart');
+            chartContainer.innerHTML = '';
+            
+            // Show top 5 assignees
+            const topAssignees = Object.entries(assigneeCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+            
+            topAssignees.forEach(([assignee, count]) => {
+                const item = document.createElement('div');
+                item.className = 'chart-item';
+                item.innerHTML = `
+                    <span class="chart-label">${assignee}</span>
+                    <span class="chart-value">${count}</span>
+                `;
+                chartContainer.appendChild(item);
+            });
+        }
+
+        // Original populate filters function (with multi-select)
+        function populateFilters() {
+            console.log('🔧 Populating filters...');
+            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression'];
+            
+            filterTypes.forEach(filterType => {
+                let values = [...new Set(bugsData.map(bug => bug[filterType]).filter(v => {
+                    // Filter out null, undefined, empty strings, and "No Data"
+                    return v && 
+                           v !== 'No Data' && 
+                           v !== 'Unassigned' && 
+                           v !== 'Other' && 
+                           v !== 'Backlog' && 
+                           v.toString().trim().length > 0;
+                }))].sort();
+                
+                // Add back some default values for certain filters if no data found
+                if (values.length === 0) {
+                    switch (filterType) {
+                        case 'leadingTeam':
+                            values = ['AI Dev', 'MIS - GTC', 'MIS - CORP', 'Dealhub', 'Workato', 'SFDC', 'ZIP'];
+                            break;
+                        case 'system':
+                            values = ['Dealhub', 'Workato', 'Stripe', 'SFDC', 'ZIP', 'Netwise', 'Other'];
+                            break;
+                        case 'sprint':
+                            values = ['PI3.2 Sprint 1', 'PI3.2 Sprint 2', 'PI3.2 Sprint 3', 'Backlog'];
+                            break;
+                        case 'regression':
+                            values = ['Yes', 'No'];
+                            break;
+                    }
+                }
+                
+                console.log(`📋 Filter ${filterType}: ${values.length} options:`, values.slice(0, 3));
+                populateMultiSelect(filterType, values);
+            });
+        }
+
+        // Original multi-select population (same as original)
+        function populateMultiSelect(filterType, options) {
+            const dropdown = document.getElementById(`${filterType}FilterDropdown`);
+            const button = document.getElementById(`${filterType}FilterButton`);
+            
+            dropdown.innerHTML = '';
+            
+            options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'multiselect-option';
+                optionDiv.innerHTML = `
+                    <input type="checkbox" id="${filterType}_${option}" value="${option}">
+                    <label for="${filterType}_${option}">${option}</label>
+                `;
+
+                const checkbox = optionDiv.querySelector('input');
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        filterSelections[filterType].add(option);
+                    } else {
+                        filterSelections[filterType].delete(option);
+                    }
+                    updateFilterButtonText(filterType);
+                    applyFilters();
+                    saveFilterState(); // Save state when filters change
+                });
+                
+                dropdown.appendChild(optionDiv);
+            });
+
+            // Add button click handler
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const isOpen = dropdown.classList.contains('show');
+
+                // Close all dropdowns first
+                document.querySelectorAll('.multiselect-dropdown').forEach(d => d.classList.remove('show'));
+
+                if (!isOpen) {
+                    dropdown.classList.add('show');
+                }
+            });
+        }
+
+        // Original filter button text update
+        function updateFilterButtonText(filterType) {
+            const button = document.getElementById(`${filterType}FilterButton`).querySelector('span');
+            const selections = filterSelections[filterType];
+
+            if (selections.size === 0) {
+                button.textContent = 'Choose a Value';
+            } else if (selections.size === 1) {
+                button.textContent = Array.from(selections)[0];
+            } else {
+                button.textContent = `${selections.size} selected`;
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.multiselect-dropdown').forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
+        });
+
+        // Original filtering function (same as original)
+        function applyFilters() {
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+
+            filteredData = bugsData.filter(bug => {
+                const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(bug.status);
+                const severityMatch = filterSelections.severity.size === 0 || filterSelections.severity.has(bug.severity);
+                const assigneeMatch = filterSelections.assignee.size === 0 || filterSelections.assignee.has(bug.assignee);
+                const leadingTeamMatch = filterSelections.leadingTeam.size === 0 || filterSelections.leadingTeam.has(bug.leadingTeam);
+                const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(bug.system);
+                const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(bug.sprint);
+                const regressionMatch = filterSelections.regression.size === 0 || filterSelections.regression.has(bug.regression);
+                const searchMatch = !searchFilter ||
+                                  (bug.summary && bug.summary.toLowerCase().includes(searchFilter)) ||
+                                  (bug.key && bug.key.toLowerCase().includes(searchFilter)) ||
+                                  (bug.assignee && bug.assignee.toLowerCase().includes(searchFilter));
+
+                return statusMatch && severityMatch && assigneeMatch &&
+                       leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch;
+            });
+
+            applySorting();
+            displayBugsTable();
+        }
+
+        // Original sorting function
+        function applySorting() {
+            if (!currentSort.column) return;
+            
+            filteredData.sort((a, b) => {
+                let aVal = a[currentSort.column];
+                let bVal = b[currentSort.column];
+                
+                if (aVal == null) aVal = '';
+                if (bVal == null) bVal = '';
+                
+                aVal = String(aVal);
+                bVal = String(bVal);
+                
+                const comparison = aVal.localeCompare(bVal, undefined, { numeric: true });
+                return currentSort.direction === 'asc' ? comparison : -comparison;
+            });
+        }
+
+        // Original table display function
+        function displayBugsTable() {
+            const tbody = document.getElementById('bugsTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px;">No bugs found matching current filters</td></tr>';
+                return;
+            }
+
+            // Show all results (original behavior)
+            filteredData.forEach(bug => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><a href="#" class="bug-key" onclick="showBugDetails('${bug.key}')">${bug.key}</a></td>
+                    <td>${escapeHtml(bug.summary || '')}</td>
+                    <td><span class="status-badge ${getStatusClass(bug.status)}">${bug.status}</span></td>
+                    <td><span class="priority-${bug.priority.toLowerCase()}">${bug.priority}</span></td>
+                    <td>${bug.assignee || 'Unassigned'}</td>
+                    <td>${bug.leadingTeam || 'No Data'}</td>
+                    <td>${bug.system || 'No Data'}</td>
+                    <td>${bug.sprint || 'No Data'}</td>
+                    <td>${bug.regression || 'No Data'}</td>
+                    <td>${bug.daysOpen || 0} days</td>
+                    <td>${bug.createdDate}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Update sort indicators
+            updateSortIndicators();
+        }
+
+        // Update sort indicators
+        function updateSortIndicators() {
+            document.querySelectorAll('th[data-column]').forEach(th => {
+                th.classList.remove('sorted', 'asc', 'desc');
+            });
+            
+            if (currentSort.column) {
+                const th = document.querySelector(`th[data-column="${currentSort.column}"]`);
+                if (th) {
+                    th.classList.add('sorted', currentSort.direction);
+                }
+            }
+        }
+
+        // Helper functions
+        function getStatusClass(status) {
+            if (!status) return 'status-unknown';
+            return 'status-' + status.toLowerCase().replace(/\s+/g, '-');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Clear all filters (original function)
+        function clearAllFilters() {
+            Object.keys(filterSelections).forEach(filterType => {
+                filterSelections[filterType].clear();
+            });
+            
+            Object.keys(filterSelections).forEach(filterType => {
+                updateFilterButtonText(filterType);
+            });
+            
+            document.querySelectorAll('.multiselect-option input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+
+            document.getElementById('searchFilter').value = '';
+            applyFilters();
+            saveFilterState(); // Save cleared state
+        }
+
+        // Save filter state to cache
+        function saveFilterState() {
+            if (!dataManager) return;
+            
+            const filterState = {};
+            Object.keys(filterSelections).forEach(key => {
+                filterState[key] = Array.from(filterSelections[key]);
+            });
+            filterState.search = document.getElementById('searchFilter').value;
+            
+            dataManager.cache.saveFilterState(filterState, currentSort);
+        }
+
+        // Restore filter state from cache
+        function restoreFilterState() {
+            if (!dataManager) return;
+            
+            const saved = dataManager.cache.restoreFilterState();
+            if (!saved || !saved.filters) return;
+
+            // Restore filter selections
+            Object.keys(saved.filters).forEach(key => {
+                if (key === 'search') {
+                    document.getElementById('searchFilter').value = saved.filters[key] || '';
+                } else {
+                    filterSelections[key] = new Set(saved.filters[key] || []);
+                }
+            });
+
+            // Restore sort state
+            if (saved.sort) {
+                currentSort = { ...currentSort, ...saved.sort };
+            }
+
+            // Update UI to reflect restored state
+            setTimeout(() => {
+                Object.keys(filterSelections).forEach(filterType => {
+                    updateFilterButtonText(filterType);
+                    
+                    // Update checkboxes
+                    filterSelections[filterType].forEach(value => {
+                        const checkbox = document.getElementById(`${filterType}_${value}`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                });
+            }, 100);
+        }
+
+        // Show bug details in modal
+        async function showBugDetails(bugKey) {
+            const modal = document.getElementById('bugModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            // Find the bug in our current data for basic info
+            const bug = bugsData.find(b => b.key === bugKey);
+            
+            modalContent.innerHTML = '<div style="text-align: center; padding: 40px; color: #3A3A37;">Loading bug details...</div>';
+            modal.style.display = 'block';
+            
+            try {
+                const details = await dataManager.getBugDetails(bugKey);
+                modalContent.innerHTML = `
+                    <div class="modal-field">
+                        <h3>Basic Information</h3>
+                        <div class="modal-field-content">
+                            <strong>Issue Key:</strong> ${bugKey}<br>
+                            <strong>Status:</strong> <span class="status-badge ${getStatusClass(bug?.status)}">${bug?.status || 'Unknown'}</span><br>
+                            <strong>Priority:</strong> <span class="priority-badge ${getPriorityClass(bug?.priority)}">${bug?.priority || 'Unknown'}</span><br>
+                            <strong>Assignee:</strong> ${bug?.assignee || 'Unassigned'}<br>
+                            <strong>Leading Team:</strong> ${bug?.leadingTeam || 'No Data'}<br>
+                            <strong>System:</strong> ${bug?.system || 'No Data'}<br>
+                            <strong>Sprint:</strong> ${bug?.sprint || 'No Data'}<br>
+                            <strong>Regression:</strong> ${bug?.regression || 'No Data'}
+                        </div>
+                    </div>
+                    
+                    <div class="modal-field">
+                        <h3>Summary</h3>
+                        <div class="modal-field-content">
+                            ${escapeHtml(bug?.summary || 'No summary available.')}
+                        </div>
+                    </div>
+                    
+                    <div class="modal-field">
+                        <h3>Description</h3>
+                        <div class="modal-field-content">
+                            ${escapeHtml(details.description || 'No description available.')}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                modalContent.innerHTML = `
+                    <div class="modal-field">
+                        <h3>Error</h3>
+                        <div style="color: #EE164F; padding: 24px; background: linear-gradient(135deg, #FEABB0 0%, #FFFFFF 100%); border-radius: 16px; border: 1px solid rgba(238, 22, 79, 0.2);">
+                            Failed to load bug details: ${error.message}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Close bug details modal
+        function closeBugDetails() {
+            document.getElementById('bugModal').style.display = 'none';
+        }
+
+        // Update cache info display
+        function updateCacheInfo() {
+            if (!dataManager) return;
+            
+            const info = dataManager.getCacheInfo();
+            const cacheInfo = document.getElementById('cacheInfo');
+            cacheInfo.textContent = `Cache: ${info.bugCount} bugs, ${info.cacheSize}, ${info.lastSync}`;
+        }
+
+        // Show cache details
+        function showCacheDetails() {
+            if (!dataManager) return;
+            
+            const info = dataManager.getCacheInfo();
+            alert(`Cache Information:\n\nBugs: ${info.bugCount}\nSize: ${info.cacheSize}\nLast Sync: ${info.lastSync}\nHas Filter State: ${info.hasFilterState ? 'Yes' : 'No'}`);
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Search filter
+            document.getElementById('searchFilter').addEventListener('input', applyFilters);
+            
+            // Clear filters button
+            document.getElementById('clearFiltersButton').addEventListener('click', clearAllFilters);
+            
+            // Table sorting
+            document.querySelectorAll('th[data-column]').forEach(th => {
+                th.addEventListener('click', () => {
+                    const column = th.getAttribute('data-column');
+                    if (currentSort.column === column) {
+                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.column = column;
+                        currentSort.direction = 'asc';
+                    }
+                    applySorting();
+                    displayBugsTable();
+                    saveFilterState(); // Save sort state
+                });
+            });
+            
+            // Modal
+            document.getElementById('closeModalBtn').addEventListener('click', closeBugDetails);
+            document.getElementById('bugModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('bugModal')) {
+                    closeBugDetails();
+                }
+            });
+            
+            // Cache info
+            document.getElementById('cacheInfo').addEventListener('click', showCacheDetails);
+        }
+
+        // Initialize app when DOM is ready
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
