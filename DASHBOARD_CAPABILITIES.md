@@ -190,7 +190,9 @@ Local Dashboard ← bug-api-server.js ← Local .env credentials
 #### Saved Charts Management
 - **Local Storage**: Persistent chart configurations across sessions
 - **Save/Load**: Named chart configurations with easy management
-- **Visual Cards**: Saved chart preview cards with type icons
+- **Filter State Preservation**: Charts save their complete filter context (table filters, date ranges, chart filters)
+- **Context Restoration**: Loading a chart restores all filters that were active during creation
+- **Visual Cards**: Saved chart preview cards with type icons and filter indicators
 - **Delete Function**: Easy removal of unwanted saved charts
 
 ### 4. Data Table & Visualization

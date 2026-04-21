@@ -27,7 +27,7 @@
             padding: 0 20px; /* Add side padding for better spacing */
         }
 
-        /* Ultra-wide screen optimization */
+        /* Ultra-wide screen optimization with enhanced modern effects */
         @media (min-width: 2400px) {
             .container {
                 max-width: 2400px; /* Even wider for ultra-wide monitors */
@@ -36,6 +36,41 @@
             
             .main-content-layout {
                 gap: 60px; /* More gap on very large screens */
+            }
+            
+            /* Enhanced effects for large screens */
+            .chart-preview-area {
+                backdrop-filter: blur(25px);
+                -webkit-backdrop-filter: blur(25px);
+                border-radius: 20px;
+                min-height: 500px;
+                padding: 40px;
+            }
+            
+            .chart-type-btn {
+                padding: 14px 20px;
+                font-size: 0.9em;
+                border-radius: 10px;
+            }
+            
+            .chart-field {
+                padding: 12px 16px;
+                font-size: 0.9em;
+                border-radius: 10px;
+            }
+            
+            .drop-zone {
+                min-height: 110px;
+                padding: 30px;
+                border-radius: 14px;
+            }
+            
+            .preview-icon {
+                font-size: 4em;
+            }
+            
+            .preview-text {
+                font-size: 1.3em;
             }
         }
         
@@ -1063,28 +1098,49 @@
         
         .chart-field {
             background: #FFFFFF;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 8px;
             cursor: grab;
             font-size: 0.85em;
             font-weight: 500;
             color: #3A3A37;
             border: 1px solid rgba(238, 22, 79, 0.1);
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-field::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(238, 22, 79, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .chart-field:hover::before {
+            left: 100%;
         }
         
         .chart-field:hover {
             background: rgba(238, 22, 79, 0.05);
             border-color: #EE164F;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(238, 22, 79, 0.15);
         }
         
         .chart-field:active,
         .chart-field.dragging {
             cursor: grabbing;
-            transform: rotate(2deg);
-            opacity: 0.8;
+            transform: rotate(3deg) scale(1.05);
+            opacity: 0.9;
+            box-shadow: 0 8px 25px rgba(238, 22, 79, 0.25);
+            z-index: 1000;
         }
         
         /* Chart Builder Canvas */
@@ -1104,7 +1160,7 @@
         
         .chart-type-btn {
             flex: 1;
-            padding: 10px 16px;
+            padding: 12px 16px;
             border: 2px solid rgba(238, 22, 79, 0.2);
             background: #FFFFFF;
             border-radius: 8px;
@@ -1112,18 +1168,52 @@
             font-size: 0.85em;
             font-weight: 500;
             color: #3A3A37;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-type-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(238, 22, 79, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .chart-type-btn:hover::before {
+            left: 100%;
         }
         
         .chart-type-btn:hover {
             border-color: #EE164F;
             background: rgba(238, 22, 79, 0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(238, 22, 79, 0.15);
         }
         
         .chart-type-btn.active {
-            background: #EE164F;
+            background: linear-gradient(135deg, #EE164F, #F36488);
             color: white;
             border-color: #EE164F;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(238, 22, 79, 0.3);
+        }
+
+        .chart-type-btn.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(238, 22, 79, 0.4);
+        }
+
+        .chart-type-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            vertical-align: middle;
+            object-fit: contain;
         }
         
         .chart-config-zones {
@@ -1141,27 +1231,66 @@
             background: #FFFFFF;
             border: 2px dashed #E5E7EB;
             border-radius: 12px;
-            padding: 24px; /* Increased padding */
+            padding: 24px;
             text-align: center;
-            transition: all 0.2s ease;
-            min-height: 90px; /* Slightly taller */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 90px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(238, 22, 79, 0.1), transparent);
+            transition: left 0.6s ease;
+            z-index: 0;
+        }
+
+        .drop-zone > * {
+            position: relative;
+            z-index: 1;
         }
         
         .drop-zone.optional {
             opacity: 0.7;
+            transform: scale(0.98);
+        }
+
+        .drop-zone.optional:hover {
+            opacity: 1;
+            transform: scale(1);
         }
         
         .drop-zone.drag-over {
             border-color: #EE164F;
-            background: rgba(238, 22, 79, 0.05);
+            background: rgba(238, 22, 79, 0.08);
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(238, 22, 79, 0.2);
+            animation: pulse-glow 1s ease-in-out infinite alternate;
+        }
+
+        .drop-zone.drag-over::before {
+            left: 100%;
+        }
+
+        @keyframes pulse-glow {
+            from { box-shadow: 0 4px 20px rgba(238, 22, 79, 0.2); }
+            to { box-shadow: 0 6px 30px rgba(238, 22, 79, 0.3); }
         }
         
         .drop-zone.has-field {
             border-color: #10B981;
             background: rgba(16, 185, 129, 0.05);
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
         }
         
         .drop-zone-header {
@@ -1211,14 +1340,163 @@
         
         .chart-preview-area {
             flex: 1;
-            background: #FFFFFF;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); /* Safari support */
+            border-radius: 16px;
             padding: 32px; /* Increased padding */
             border: 1px solid rgba(238, 22, 79, 0.1);
             display: grid;
             place-items: center;
             min-height: 400px; /* Much larger chart preview area */
             position: relative; /* For absolute positioned canvas */
+            box-shadow: 
+                0 8px 32px rgba(238, 22, 79, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .chart-preview-area:hover {
+            box-shadow: 
+                0 12px 40px rgba(238, 22, 79, 0.12),
+                0 4px 16px rgba(0, 0, 0, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            border-color: rgba(238, 22, 79, 0.15);
+        }
+
+        /* Modern canvas styling with subtle shadow */
+        #chart-preview-canvas {
+            filter: drop-shadow(0 2px 4px rgba(238, 22, 79, 0.1));
+            transition: filter 0.3s ease;
+        }
+
+        /* Enhanced effects for line charts */
+        #chart-preview-canvas.line-chart {
+            filter: 
+                drop-shadow(0 2px 6px rgba(238, 22, 79, 0.2))
+                drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+        }
+
+        .chart-preview-area:hover #chart-preview-canvas {
+            filter: drop-shadow(0 4px 8px rgba(238, 22, 79, 0.15));
+        }
+
+        .chart-preview-area:hover #chart-preview-canvas.line-chart {
+            filter: 
+                drop-shadow(0 4px 12px rgba(238, 22, 79, 0.3))
+                drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+        }
+
+        /* Enhanced styling for trend line elements */
+        .chart-preview-area .trend-line-indicator {
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        /* Custom styling for Chart.js legend with trend lines */
+        .chart-preview-area canvas + div {
+            font-family: 'Lato', sans-serif;
+        }
+
+        /* Chart Options Styling */
+        .chart-options {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-options-header {
+            font-weight: 600;
+            font-size: 0.95em;
+            color: #3A3A37;
+            margin-bottom: 16px;
+            font-family: 'Domine', serif;
+        }
+
+        .chart-option-item {
+            margin-bottom: 12px;
+        }
+
+        .chart-option-label {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            gap: 4px;
+        }
+
+        .chart-option-label:hover {
+            color: #EE164F;
+        }
+
+        .chart-option-checkbox {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            accent-color: #EE164F;
+            cursor: pointer;
+        }
+
+        .chart-option-text {
+            font-weight: 500;
+            font-size: 0.9em;
+            color: #3A3A37;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-option-description {
+            font-size: 0.8em;
+            color: #666666;
+            font-style: italic;
+            margin-left: 24px;
+        }
+
+        .chart-option-label:hover .chart-option-text {
+            color: #EE164F;
+        }
+
+        .chart-option-label:hover .chart-option-description {
+            color: #83143D;
+        }
+
+        .chart-sort-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid rgba(238, 22, 79, 0.15);
+            border-radius: 8px;
+            background: #FFFFFF;
+            color: #3A3A37;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9em;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .chart-sort-select:hover {
+            border-color: rgba(238, 22, 79, 0.3);
+            background-color: rgba(238, 22, 79, 0.02);
+        }
+
+        .chart-sort-select:focus {
+            border-color: #EE164F;
+            box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.1);
+            background-color: #FFFFFF;
         }
         
         .chart-preview-placeholder {
@@ -1229,23 +1507,60 @@
             align-items: center;
             justify-content: center;
             grid-area: 1 / 1; /* Occupy the full grid cell */
+            transition: all 0.3s ease;
+        }
+        
+        .chart-preview-area:hover .chart-preview-placeholder {
+            transform: translateY(-1px);
+            color: #4B5563;
         }
         
         .preview-icon {
-            font-size: 3em;
-            margin-bottom: 12px;
-            opacity: 0.3;
+            margin-bottom: 16px;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .graph-icon {
+            width: 80px;
+            height: 60px;
+            object-fit: contain;
+            transition: all 0.3s ease;
+        }
+
+        .chart-preview-area:hover .preview-icon {
+            opacity: 0.6;
+        }
+
+        .chart-preview-area:hover .graph-icon {
+            transform: scale(1.05);
         }
         
         .preview-text {
-            font-size: 1.1em;
+            font-size: 1.2em;
             font-weight: 600;
+            font-family: 'Domine', serif;
+            background: linear-gradient(135deg, #3A3A37, #666666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 4px;
         }
         
         .preview-subtext {
-            font-size: 0.85em;
-            opacity: 0.7;
+            font-size: 0.9em;
+            opacity: 0.6;
+            font-family: 'Lato', sans-serif;
+            font-weight: 400;
+            color: #83143D;
+            transition: all 0.3s ease;
+        }
+
+        .chart-preview-area:hover .preview-subtext {
+            opacity: 0.8;
         }
         
         .chart-actions {
@@ -1260,34 +1575,181 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.9em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .chart-action-btn:active::before {
+            width: 300px;
+            height: 300px;
         }
         
         .chart-action-btn.primary {
-            background: #EE164F;
+            background: linear-gradient(135deg, #EE164F, #F36488);
             color: white;
+            box-shadow: 0 4px 15px rgba(238, 22, 79, 0.3);
         }
         
         .chart-action-btn.primary:hover:not(:disabled) {
-            background: #d61446;
+            background: linear-gradient(135deg, #d61446, #EE164F);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(238, 22, 79, 0.4);
         }
         
         .chart-action-btn.secondary {
             background: #FFFFFF;
             color: #3A3A37;
             border: 2px solid rgba(238, 22, 79, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .chart-action-btn.secondary:hover {
             border-color: #EE164F;
             background: rgba(238, 22, 79, 0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(238, 22, 79, 0.15);
+        }
+        
+        /* Active Filters Section */
+        .active-filters-section {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(238, 22, 79, 0.1);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .active-filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .active-filters-label {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #3A3A37;
+        }
+
+        .clear-all-button {
+            background: #EE164F;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clear-all-button:hover {
+            background: #d61446;
+            transform: translateY(-1px);
+        }
+
+        .active-filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 16px;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .table-filter-chip {
+            background: rgba(238, 22, 79, 0.1);
+            border: 1px solid rgba(238, 22, 79, 0.2);
+            color: #3A3A37;
+        }
+
+        .chart-filter-chip {
+            background: linear-gradient(135deg, #FFB020 0%, #FF8C42 100%);
+            border: 1px solid #FF8C42;
+            color: #2D1810;
+        }
+
+        .chart-indicator {
+            font-size: 0.75em;
+            background: rgba(45, 24, 16, 0.15);
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .filter-chip-remove {
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip-remove:hover {
+            background: rgba(0, 0, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        .subtle-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(58, 58, 55, 0.95);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            z-index: 1000;
+            animation: slideInFade 3s ease;
+        }
+
+        @keyframes slideInFade {
+            0% { opacity: 0; transform: translateX(100%); }
+            10% { opacity: 1; transform: translateX(0); }
+            90% { opacity: 1; transform: translateX(0); }
+            100% { opacity: 0; transform: translateX(100%); }
         }
         
         .chart-action-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
+        
+        /* Chart Filter Indicator */
         
         /* Saved Charts Section */
         .saved-charts-section {
@@ -1380,6 +1842,14 @@
             font-style: italic;
         }
         
+        .chart-filters {
+            font-size: 0.75em;
+            color: #FFB020;
+            font-weight: 500;
+            margin-top: 4px;
+            padding: 2px 0;
+        }
+        
         .saved-chart-actions {
             display: flex;
             gap: 8px;
@@ -1413,6 +1883,31 @@
             .container {
                 max-width: 1400px; /* Reduce container width for smaller screens */
             }
+            
+            /* Optimize modern effects for tablet screens */
+            .chart-preview-area {
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                min-height: 350px;
+                padding: 28px;
+            }
+            
+            .chart-field:hover {
+                transform: translateY(-1px); /* Reduce hover animation */
+            }
+            
+            .drop-zone.drag-over {
+                transform: scale(1.01); /* Reduce scale animation */
+            }
+            
+            /* Line chart optimizations for tablet */
+            #chart-preview-canvas.line-chart {
+                filter: drop-shadow(0 2px 5px rgba(238, 22, 79, 0.18));
+            }
+            
+            .chart-preview-area:hover #chart-preview-canvas.line-chart {
+                filter: drop-shadow(0 3px 8px rgba(238, 22, 79, 0.25));
+            }
         }
         
         @media (max-width: 768px) {
@@ -1432,6 +1927,82 @@
             
             .chart-builder-container {
                 padding: 20px;
+            }
+            
+            /* Optimize modern effects for mobile */
+            .chart-preview-area {
+                backdrop-filter: blur(10px); /* Reduce blur for performance */
+                -webkit-backdrop-filter: blur(10px);
+                padding: 20px;
+                min-height: 300px;
+            }
+            
+            .chart-preview-area:hover {
+                transform: none; /* Disable hover transforms on touch devices */
+            }
+            
+            .chart-type-btn {
+                padding: 10px 12px;
+                font-size: 0.8em;
+            }
+
+            .chart-type-icon {
+                width: 16px;
+                height: 16px;
+                margin-right: 6px;
+            }
+            
+            .chart-type-btn:hover::before,
+            .chart-field:hover::before,
+            .drop-zone.drag-over::before {
+                display: none; /* Disable sweep animations on mobile */
+            }
+            
+            .chart-field {
+                padding: 8px 10px;
+            }
+            
+            .chart-field:hover {
+                transform: none; /* Simplify hover effects for touch */
+            }
+            
+            .drop-zone {
+                min-height: 70px;
+                padding: 16px;
+            }
+            
+            .chart-action-btn {
+                padding: 10px 20px;
+                font-size: 0.85em;
+            }
+            
+            /* Chart options mobile optimization */
+            .chart-options {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+            
+            .chart-options-header {
+                font-size: 0.9em;
+                margin-bottom: 12px;
+            }
+            
+            .chart-option-text {
+                font-size: 0.85em;
+            }
+            
+            .chart-option-description {
+                font-size: 0.75em;
+                margin-left: 20px;
+            }
+            
+            /* Line chart responsive optimizations for mobile */
+            #chart-preview-canvas.line-chart {
+                filter: drop-shadow(0 1px 3px rgba(238, 22, 79, 0.15)); /* Lighter shadow for mobile */
+            }
+            
+            .chart-preview-area:hover #chart-preview-canvas.line-chart {
+                filter: drop-shadow(0 2px 6px rgba(238, 22, 79, 0.2)); /* Reduced hover effect */
             }
             
             .chart-builder-palette {
@@ -1554,6 +2125,18 @@
                         <div class="table-title">Issue Details</div>
                         <div class="table-subtitle">Complete tracking and status overview</div>
                 </div>
+                
+                <!-- Active Filters Section -->
+                <div id="active-filters-section" class="active-filters-section" style="display: none;">
+                    <div class="active-filters-header">
+                        <span class="active-filters-label">Active Filters:</span>
+                        <button id="clearAllFiltersButton" class="clear-all-button">Clear all</button>
+                    </div>
+                    <div id="active-filters-container" class="active-filters-container">
+                        <!-- Filter chips will be dynamically added here -->
+                    </div>
+                </div>
+                
                 <div class="filters">
                     <!-- Group 1: Bug Characteristics & Assignment -->
                     <div class="filter-group-section characteristics">
@@ -1772,10 +2355,18 @@
                         <!-- Chart Builder Canvas -->
                         <div class="chart-builder-canvas">
                             <div class="chart-type-selector">
-                                <button class="chart-type-btn active" data-chart-type="bar">📊 Bar Chart</button>
-                                <button class="chart-type-btn" data-chart-type="line">📈 Line Chart</button>
-                                <button class="chart-type-btn" data-chart-type="pie">🥧 Pie Chart</button>
-                                <button class="chart-type-btn" data-chart-type="doughnut">🍩 Doughnut</button>
+                                <button class="chart-type-btn active" data-chart-type="bar">
+                                    <img src="./bar-chart-icon.png" alt="Bar Chart" class="chart-type-icon"> Bar Chart
+                                </button>
+                                <button class="chart-type-btn" data-chart-type="line">
+                                    <img src="./line-chart-icon.png" alt="Line Chart" class="chart-type-icon"> Line Chart
+                                </button>
+                                <button class="chart-type-btn" data-chart-type="pie">
+                                    <img src="./pie-chart-icon.png" alt="Pie Chart" class="chart-type-icon"> Pie Chart
+                                </button>
+                                <button class="chart-type-btn" data-chart-type="doughnut">
+                                    <img src="./doughnut-chart-icon.png" alt="Doughnut" class="chart-type-icon"> Doughnut
+                                </button>
                             </div>
                             
                             <div class="chart-config-zones">
@@ -1795,9 +2386,31 @@
                                 </div>
                             </div>
                             
+                            <!-- Chart Options -->
+                            <div class="chart-options" id="chart-options" style="display: none;">
+                                <div class="chart-options-header">Chart Options</div>
+                                <div class="chart-option-item">
+                                    <label class="chart-option-label">
+                                        <span class="chart-option-text">Sort X-Axis By:</span>
+                                    </label>
+                                    <select id="x-axis-sort" class="chart-sort-select">
+                                        <option value="default">Default Order</option>
+                                        <option value="alphabetical-asc">Alphabetical (A-Z)</option>
+                                        <option value="alphabetical-desc">Alphabetical (Z-A)</option>
+                                        <option value="value-asc">Value (Low to High)</option>
+                                        <option value="value-desc">Value (High to Low)</option>
+                                        <option value="date-asc">Date (Oldest First)</option>
+                                        <option value="date-desc">Date (Newest First)</option>
+                                        <option value="natural">Natural Order</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
                             <div class="chart-preview-area">
                                 <div class="chart-preview-placeholder">
-                                    <div class="preview-icon">📊</div>
+                                    <div class="preview-icon">
+                                        <img src="./graph-icon.png" alt="Graph icon" class="graph-icon">
+                                    </div>
                                     <div class="preview-text">Your chart will appear here</div>
                                     <div class="preview-subtext">Start by dragging fields from the left panel</div>
                                 </div>
@@ -3444,6 +4057,9 @@
             // Set up clear button event handlers
             setupClearButtonHandlers();
             
+            // Set up pagination event listeners
+            setupPaginationEventListeners();
+            
             // Update date clear button visibility
             updateDateClearButtons();
             
@@ -3567,6 +4183,16 @@
             dateTo: null
         };
 
+        // Chart-based filter state (separate from UI filters)
+        const chartFilter = {
+            active: false,
+            xAxisField: null,
+            xAxisValue: null,
+            groupByField: null,
+            groupByValue: null,
+            chartTitle: null
+        };
+
         // Pagination state
         const paginationState = {
             currentPage: 1,
@@ -3623,15 +4249,21 @@
         }
 
         function handlePageSizeChange(event) {
+            console.log(`📄 Page size change event triggered, new value: ${event.target.value}`);
             paginationState.pageSize = parseInt(event.target.value);
             paginationState.currentPage = 1; // Reset to first page
+            console.log(`📄 Updated pageSize to ${paginationState.pageSize}, reset currentPage to 1`);
             displayBugsTable();
         }
 
         function goToPage(pageNumber) {
+            console.log(`📄 goToPage called with pageNumber: ${pageNumber}, current: ${paginationState.currentPage}, total: ${paginationState.totalPages}`);
             if (pageNumber >= 1 && pageNumber <= paginationState.totalPages) {
+                console.log(`📄 Valid page number, changing from ${paginationState.currentPage} to ${pageNumber}`);
                 paginationState.currentPage = pageNumber;
                 displayBugsTable();
+            } else {
+                console.warn(`📄 Invalid page number: ${pageNumber} (must be between 1 and ${paginationState.totalPages})`);
             }
         }
 
@@ -3801,6 +4433,12 @@
                     console.warn(`Filter elements not found for: ${filterType} (button: ${!!button}, dropdown: ${!!dropdown})`);
                 }
             });
+            
+            // Setup Clear All button in Active Filters section
+            const clearAllButton = document.getElementById('clearAllFiltersButton');
+            if (clearAllButton) {
+                clearAllButton.addEventListener('click', clearAllFilters);
+            }
         }
 
         // Set up clear button event handlers
@@ -3981,6 +4619,7 @@
                 }
                 updateFilterButtonText(filterType);
                 applyFilters();
+                updateActiveFiltersDisplay();
             });
 
             // Make entire option div clickable (better UX)
@@ -4085,6 +4724,7 @@
             }
             
             applyFilters();
+            updateActiveFiltersDisplay();
         }
 
         // Update date clear button visibility
@@ -4269,6 +4909,9 @@
                 stateObject: dateRangeFilter
             });
 
+            // Check chart filter validity and auto-clear if needed
+            checkChartFilterValidity();
+
             filteredData = bugsData.filter(bug => {
                 // Preserve all existing filter logic exactly as before
                 const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(bug.status);
@@ -4285,9 +4928,12 @@
 
                 // Add date range filtering logic
                 const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
+                
+                // Add chart-based filtering logic
+                const chartMatch = checkChartFilter(bug);
 
                 return statusMatch && severityMatch && assigneeMatch &&
-                       leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch && dateMatch;
+                       leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch && dateMatch && chartMatch;
             });
 
             // Debug logging for filter results
@@ -4304,7 +4950,12 @@
             displayBugsTable();
             
             // AUTO-REFRESH CHARTS when filters change
-            refreshChartsWithFilteredData();
+            try {
+                refreshChartsWithFilteredData();
+            } catch (error) {
+                console.error('❌ Error refreshing charts after filter change:', error);
+                // Don't let chart errors break filtering functionality
+            }
             
             // Trigger enhancement for newly filtered/visible bugs
             onFiltersChanged('filter applied');
@@ -4400,6 +5051,7 @@
 
         // Clear all filters function
         function clearAllFilters() {
+            console.log('🧹 clearAllFilters function called');
             // Clear all filter selections
             Object.keys(filterSelections).forEach(filterType => {
                 filterSelections[filterType].clear();
@@ -4428,11 +5080,17 @@
             dateRangeFilter.dateFrom = null;
             dateRangeFilter.dateTo = null;
 
+            // Clear chart filter
+            clearChartFilter(false); // Don't refresh yet to avoid multiple calls
+            
             // Reset pagination to first page
             paginationState.currentPage = 1;
 
             // Apply filters to refresh table
             applyFilters();
+            
+            // Update active filters display
+            updateActiveFiltersDisplay();
             
             console.log('✅ All filters cleared');
         }
@@ -4455,6 +5113,7 @@
                     console.log('📅 [BACKUP] Date From changed:', e.target.value);
                     updateDateClearButtons();
                     applyFilters();
+                    updateActiveFiltersDisplay();
                 });
                 dateFromInput.setAttribute('data-listener-attached', 'true');
                 console.log('🔧 [BACKUP] Date From event listener attached');
@@ -4466,6 +5125,7 @@
                     console.log('📅 [BACKUP] Date To changed:', e.target.value);
                     updateDateClearButtons();
                     applyFilters();
+                    updateActiveFiltersDisplay();
                 });
                 dateToInput.setAttribute('data-listener-attached', 'true');
                 console.log('🔧 [BACKUP] Date To event listener attached');
@@ -4485,13 +5145,6 @@
                 // Remove existing listener to avoid duplicates
                 searchFilter.removeEventListener('input', applyFilters);
                 searchFilter.addEventListener('input', applyFilters);
-            }
-            
-            // Add clear filters button listener
-            const clearButton = document.getElementById('clearFiltersButton');
-            if (clearButton) {
-                clearButton.removeEventListener('click', clearAllFilters);
-                clearButton.addEventListener('click', clearAllFilters);
             }
             
             // Add sorting listeners
@@ -4526,6 +5179,7 @@
                     console.log('📅 Date From changed:', e.target.value);
                     updateDateClearButtons();
                     applyFilters();
+                    updateActiveFiltersDisplay();
                 });
                 dateFromInput.setAttribute('data-main-listener-attached', 'true');
                 console.log('🔧 Date From event listener attached');
@@ -4540,6 +5194,7 @@
                     console.log('📅 Date To changed:', e.target.value);
                     updateDateClearButtons();
                     applyFilters();
+                    updateActiveFiltersDisplay();
                 });
                 dateToInput.setAttribute('data-main-listener-attached', 'true');
                 console.log('🔧 Date To event listener attached');
@@ -4552,40 +5207,99 @@
                 syncButton.setAttribute('data-listener-added', 'true');
             }
 
+            console.log('✅ Date range listeners setup complete');
+        }
+
+        // Setup pagination event listeners
+        function setupPaginationEventListeners() {
+            console.log('📄 Setting up pagination event listeners...');
+            
             // Add pagination controls event listeners
             const pageSizeSelect = document.getElementById('pageSize');
             if (pageSizeSelect) {
                 pageSizeSelect.removeEventListener('change', handlePageSizeChange);
                 pageSizeSelect.addEventListener('change', handlePageSizeChange);
+                console.log('✅ Page size selector listener attached');
+            } else {
+                console.warn('❌ Page size selector not found');
             }
 
             const firstPageBtn = document.getElementById('firstPage');
             if (firstPageBtn) {
                 firstPageBtn.removeEventListener('click', firstPageBtn.clickHandler);
-                firstPageBtn.clickHandler = () => goToPage(1);
+                firstPageBtn.clickHandler = () => {
+                    console.log('📄 First page clicked');
+                    goToPage(1);
+                };
                 firstPageBtn.addEventListener('click', firstPageBtn.clickHandler);
+                console.log('✅ First page button listener attached');
+            } else {
+                console.warn('❌ First page button not found');
             }
 
             const prevPageBtn = document.getElementById('prevPage');
             if (prevPageBtn) {
                 prevPageBtn.removeEventListener('click', prevPageBtn.clickHandler);
-                prevPageBtn.clickHandler = () => goToPage(paginationState.currentPage - 1);
+                prevPageBtn.clickHandler = () => {
+                    console.log('📄 Previous page clicked, current:', paginationState.currentPage);
+                    goToPage(paginationState.currentPage - 1);
+                };
                 prevPageBtn.addEventListener('click', prevPageBtn.clickHandler);
+                console.log('✅ Previous page button listener attached');
+            } else {
+                console.warn('❌ Previous page button not found');
             }
 
             const nextPageBtn = document.getElementById('nextPage');
             if (nextPageBtn) {
                 nextPageBtn.removeEventListener('click', nextPageBtn.clickHandler);
-                nextPageBtn.clickHandler = () => goToPage(paginationState.currentPage + 1);
+                nextPageBtn.clickHandler = () => {
+                    console.log('📄 Next page clicked, current:', paginationState.currentPage);
+                    goToPage(paginationState.currentPage + 1);
+                };
                 nextPageBtn.addEventListener('click', nextPageBtn.clickHandler);
+                console.log('✅ Next page button listener attached');
+            } else {
+                console.warn('❌ Next page button not found');
             }
 
             const lastPageBtn = document.getElementById('lastPage');
             if (lastPageBtn) {
                 lastPageBtn.removeEventListener('click', lastPageBtn.clickHandler);
-                lastPageBtn.clickHandler = () => goToPage(paginationState.totalPages);
+                lastPageBtn.clickHandler = () => {
+                    console.log('📄 Last page clicked, total pages:', paginationState.totalPages);
+                    goToPage(paginationState.totalPages);
+                };
                 lastPageBtn.addEventListener('click', lastPageBtn.clickHandler);
+                console.log('✅ Last page button listener attached');
+            } else {
+                console.warn('❌ Last page button not found');
             }
+
+            // Add clear button listener
+            const clearButton = document.getElementById('clearFiltersButton');
+            if (clearButton) {
+                clearButton.removeEventListener('click', clearAllFilters);
+                clearButton.addEventListener('click', () => {
+                    console.log('🧹 Clear filters button clicked');
+                    clearAllFilters();
+                });
+                console.log('✅ Clear filters button listener attached');
+            } else {
+                console.warn('❌ Clear filters button not found');
+            }
+            
+            console.log('📄 Pagination event listeners setup complete');
+        }
+
+        // Ensure all event listeners are properly rebound
+        function reinitializeEventListeners() {
+            console.log('🔄 Reinitializing all event listeners...');
+            setupFilterButtonHandlers();
+            setupClearButtonHandlers();
+            setupDateRangeListeners();
+            setupPaginationEventListeners();
+            console.log('✅ All event listeners reinitialized');
         }
 
         // CHART BUILDER FUNCTIONALITY
@@ -4595,7 +5309,10 @@
             yAxisField: null,
             groupByField: null,
             currentChart: null,
-            savedCharts: []
+            savedCharts: [],
+            sortingOptions: {
+                xAxisSort: 'default'
+            }
         };
 
         // Initialize chart builder when DOM is ready
@@ -4613,6 +5330,15 @@
             
             // Initialize action buttons
             initializeActionButtons();
+            
+            // Setup trend line listener
+            setupTrendLineListener();
+            
+            // Setup sorting listener
+            setupSortingListener();
+            
+            // Update initial chart options visibility
+            updateChartOptionsVisibility();
             
             // Load saved charts
             loadSavedCharts();
@@ -4724,6 +5450,9 @@
                 </div>
             `;
             
+            // Update chart options visibility
+            updateChartOptionsVisibility();
+            
             // Update action buttons
             updateActionButtons();
         }
@@ -4761,6 +5490,9 @@
                     // Update state
                     chartBuilderState.selectedChartType = this.dataset.chartType;
                     
+                    // Update chart options visibility
+                    updateChartOptionsVisibility();
+                    
                     // Update chart preview
                     updateChartPreview();
                 });
@@ -4788,6 +5520,38 @@
             saveBtn.disabled = !chartBuilderState.currentChart;
         }
 
+        // Get data for chart display (excludes chart filters to keep full context)
+        function getDataForChartDisplay() {
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+            
+            // Get date range values from state object
+            const dateFromValue = dateRangeFilter.dateFrom;
+            const dateToValue = dateRangeFilter.dateTo;
+            
+            // Apply all filters EXCEPT chart filter for chart display
+            return bugsData.filter(bug => {
+                const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(bug.status);
+                const severityMatch = filterSelections.severity.size === 0 || filterSelections.severity.has(bug.severity);
+                const assigneeMatch = filterSelections.assignee.size === 0 || filterSelections.assignee.has(bug.assignee);
+                const leadingTeamMatch = filterSelections.leadingTeam.size === 0 || filterSelections.leadingTeam.has(bug.leadingTeam);
+                const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(bug.system);
+                const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(bug.sprint);
+                const regressionMatch = filterSelections.regression.size === 0 || filterSelections.regression.has(bug.regression);
+                const searchMatch = !searchFilter || 
+                                  (bug.summary && bug.summary.toLowerCase().includes(searchFilter)) || 
+                                  (bug.key && bug.key.toLowerCase().includes(searchFilter)) ||
+                                  (bug.assignee && bug.assignee.toLowerCase().includes(searchFilter));
+                
+                // Add date range filtering logic
+                const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
+                
+                // NOTE: Intentionally EXCLUDE chartFilter check here to maintain full chart context
+                return statusMatch && severityMatch && assigneeMatch &&
+                       leadingTeamMatch && systemMatch && sprintMatch && 
+                       regressionMatch && searchMatch && dateMatch;
+            });
+        }
+
         // Generate chart data from filtered bugs
         function generateChartData() {
             const { xAxisField, yAxisField, groupByField, selectedChartType } = chartBuilderState;
@@ -4797,24 +5561,25 @@
             // Determine if we should use complete dataset (no filtering)
             const useCompleteDataset = yAxisField.field === 'allBugs';
             
-            // Choose data source based on Y-axis field type
-            const data = useCompleteDataset ? bugsData : filteredData;
+            // For chart display: use UI filters but exclude chart filters to maintain full context
+            // This ensures charts show complete data context while table shows filtered results
+            const chartDisplayData = useCompleteDataset ? bugsData : getDataForChartDisplay();
+            const data = chartDisplayData;
+            
+            if (!data || data.length === 0) {
+                return null;
+            }
             
             // Handle different Y-axis field types
             if (yAxisField.field === 'count') {
-                // Simple count aggregation (filtered data)
                 return generateCountChartData(data, xAxisField, groupByField, selectedChartType, useCompleteDataset);
             } else if (yAxisField.field === 'allBugs') {
-                // All bugs count aggregation (complete dataset, no filtering)
                 return generateCountChartData(data, xAxisField, groupByField, selectedChartType, useCompleteDataset);
             } else if (yAxisField.field === 'filteredAllBugs') {
-                // Filtered context: use table-filtered data but show all X-axis categories
-                return generateCountChartData(filteredData, xAxisField, groupByField, selectedChartType, true);
+                return generateCountChartData(chartDisplayData, xAxisField, groupByField, selectedChartType, true);
             } else if (yAxisField.field === 'daysToFix') {
-                // Average days to fix (numeric aggregation) 
                 return generateAverageChartData(data, xAxisField, yAxisField, groupByField, selectedChartType, useCompleteDataset);
             } else {
-                // Any other field - count unique values or occurrences
                 return generateFieldCountChartData(data, xAxisField, yAxisField, groupByField, selectedChartType, useCompleteDataset);
             }
         }
@@ -4824,9 +5589,9 @@
             const counts = {};
 
             // Regression-specific filtering (only when NOT using complete dataset)
-            let filteredData = data;
+            let processedData = data;
             if (!useCompleteDataset && (xField.field === 'regression' || (groupField && groupField.field === 'regression'))) {
-                filteredData = data.filter(bug => bug.regression === 'Yes');
+                processedData = data.filter(bug => bug.regression === 'Yes');
             }
 
             // If using complete dataset, initialize with ALL possible categories from global data
@@ -4861,8 +5626,8 @@
                 });
             }
 
-            // Count occurrences from filtered data
-            filteredData.forEach(bug => {
+            // Count occurrences from processed data
+            processedData.forEach(bug => {
                 let xValue = bug[xField.field] || 'Unknown';
                 let groupValue = groupField ? (bug[groupField.field] || 'Unknown') : 'All';
 
@@ -4894,9 +5659,9 @@
         // Generate average-based chart data (for Days to Fix)
         function generateAverageChartData(data, xField, yField, groupField, chartType, useCompleteDataset = false) {
             // Regression-specific filtering (only when NOT using complete dataset)
-            let filteredData = data;
+            let processedData = data;
             if (!useCompleteDataset && (xField.field === 'regression' || (groupField && groupField.field === 'regression'))) {
-                filteredData = data.filter(bug => bug.regression === 'Yes');
+                processedData = data.filter(bug => bug.regression === 'Yes');
             }
 
             const sums = {};
@@ -4936,7 +5701,7 @@
                 });
             }
 
-            filteredData.forEach(bug => {
+            processedData.forEach(bug => {
                 let xValue = bug[xField.field] || 'Unknown';
                 let groupValue = groupField ? (bug[groupField.field] || 'Unknown') : 'All';
 
@@ -5020,9 +5785,9 @@
             const counts = {};
 
             // Regression-specific filtering (only when NOT using complete dataset)
-            let filteredData = data;
+            let processedData = data;
             if (!useCompleteDataset && (xField.field === 'regression' || yField.field === 'regression' || (groupField && groupField.field === 'regression'))) {
-                filteredData = data.filter(bug => bug.regression === 'Yes');
+                processedData = data.filter(bug => bug.regression === 'Yes');
             }
 
             // If using complete dataset, initialize with ALL possible categories from global data
@@ -5064,7 +5829,7 @@
             }
 
             // Count Y-field values for each X-field value
-            filteredData.forEach(bug => {
+            processedData.forEach(bug => {
                 let xValue = bug[xField.field] || 'Unknown';
                 let yValue = bug[yField.field] || 'Unknown';
                 let groupValue = groupField ? (bug[groupField.field] || 'Unknown') : 'All';
@@ -5103,15 +5868,107 @@
         }
 
 
+        // Natural sorting function for fields like Sprint that contain numbers
+        function naturalSort(a, b) {
+            return a.localeCompare(b, undefined, {
+                numeric: true,
+                sensitivity: 'base'
+            });
+        }
+
+        // Apply sorting to chart data based on user selection
+        function applySortingToChartData(chartData, sortType, fieldType, fieldName) {
+            if (sortType === 'default') return chartData;
+            
+            const indices = chartData.labels.map((_, i) => i);
+            
+            // Sort indices based on sorting criteria
+            indices.sort((a, b) => {
+                const labelA = chartData.labels[a];
+                const labelB = chartData.labels[b];
+                const valueA = chartData.datasets[0].data[a];
+                const valueB = chartData.datasets[0].data[b];
+                
+                switch(sortType) {
+                    case 'alphabetical-asc':
+                        return labelA.localeCompare(labelB);
+                    case 'alphabetical-desc': 
+                        return labelB.localeCompare(labelA);
+                    case 'value-asc':
+                        return valueA - valueB;
+                    case 'value-desc':
+                        return valueB - valueA;
+                    case 'date-asc':
+                        return new Date(labelA) - new Date(labelB);
+                    case 'date-desc':
+                        return new Date(labelB) - new Date(labelA);
+                    case 'natural':
+                        return naturalSort(labelA, labelB);
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Apply sorting to labels and all datasets
+            const sortedLabels = indices.map(i => chartData.labels[i]);
+            const sortedDatasets = chartData.datasets.map(dataset => ({
+                ...dataset,
+                data: indices.map(i => dataset.data[i])
+            }));
+            
+            return {
+                ...chartData,
+                labels: sortedLabels,
+                datasets: sortedDatasets
+            };
+        }
+
+        // Update sorting options based on field type
+        function updateSortingOptions() {
+            const xAxisField = chartBuilderState.xAxisField;
+            const sortSelect = document.getElementById('x-axis-sort');
+            
+            if (!sortSelect) return;
+            
+            // Clear existing options
+            sortSelect.innerHTML = '<option value="default">Default Order</option>';
+            
+            if (!xAxisField) return;
+            
+            // Add appropriate options based on field type
+            if (xAxisField.type === 'categorical') {
+                sortSelect.innerHTML += `
+                    <option value="alphabetical-asc">Alphabetical (A-Z)</option>
+                    <option value="alphabetical-desc">Alphabetical (Z-A)</option>
+                    <option value="value-asc">Value (Low to High)</option>
+                    <option value="value-desc">Value (High to Low)</option>
+                `;
+                
+                // Add natural sorting for Sprint-like fields
+                if (xAxisField.field === 'sprint') {
+                    sortSelect.innerHTML += '<option value="natural">Natural Order</option>';
+                }
+            } else if (xAxisField.type === 'temporal') {
+                sortSelect.innerHTML += `
+                    <option value="date-asc">Date (Oldest First)</option>
+                    <option value="date-desc">Date (Newest First)</option>
+                    <option value="value-asc">Value (Low to High)</option>
+                    <option value="value-desc">Value (High to Low)</option>
+                `;
+            }
+        }
+
         // Format data for Chart.js
         function formatChartData(counts, chartType, groupField) {
             const labels = Object.keys(counts);
+            
+            let chartData;
             
             if (!groupField) {
                 // Simple dataset
                 const data = labels.map(label => counts[label]['All'] || 0);
                 
-                return {
+                chartData = {
                     labels: labels,
                     datasets: [{
                         label: 'Count',
@@ -5135,13 +5992,21 @@
                     borderWidth: 2
                 }));
                 
-                return { labels, datasets };
+                chartData = { labels, datasets };
             }
+            
+            // Apply sorting if enabled
+            const sortType = chartBuilderState.sortingOptions?.xAxisSort || 'default';
+            const fieldType = chartBuilderState.xAxisField?.type || 'categorical';
+            const fieldName = chartBuilderState.xAxisField?.field || '';
+            
+            return applySortingToChartData(chartData, sortType, fieldType, fieldName);
         }
 
         // Format field count data for Chart.js (handles Y-field value distributions)
         function formatFieldCountChartData(counts, chartType, groupField, yFieldLabel) {
             const labels = Object.keys(counts);
+            let chartData;
             
             if (!groupField) {
                 // For field counts without grouping, we need to decide how to aggregate
@@ -5154,7 +6019,7 @@
                     return Object.values(allGroup).reduce((sum, count) => sum + count, 0);
                 });
                 
-                return {
+                chartData = {
                     labels: labels,
                     datasets: [{
                         label: `Total ${yFieldLabel}`,
@@ -5181,8 +6046,15 @@
                     borderWidth: 2
                 }));
                 
-                return { labels, datasets };
+                chartData = { labels, datasets };
             }
+            
+            // Apply sorting if enabled
+            const sortType = chartBuilderState.sortingOptions?.xAxisSort || 'default';
+            const fieldType = chartBuilderState.xAxisField?.type || 'categorical';
+            const fieldName = chartBuilderState.xAxisField?.field || '';
+            
+            return applySortingToChartData(chartData, sortType, fieldType, fieldName);
         }
 
         // Generate chart title based on field types
@@ -5234,7 +6106,7 @@
             }
         }
 
-        // Generate HiBob brand colors
+        // Generate HiBob brand colors (flat colors for fallback)
         function generateColors(count) {
             const colors = [
                 '#EE164F', '#FAA32B', '#83143D', '#3A3A37', 
@@ -5244,10 +6116,582 @@
             return Array(count).fill(null).map((_, i) => colors[i % colors.length]);
         }
 
+        // Generate modern gradient backgrounds using HiBob brand colors
+        function generateGradients(canvas, count) {
+            const ctx = canvas.getContext('2d');
+            const gradients = [];
+            
+            // HiBob brand gradient combinations for modern look
+            const gradientPairs = [
+                ['#EE164F', '#F36488'], // Primary coral to light coral
+                ['#FAA32B', '#FFD887'], // Orange to light orange  
+                ['#83143D', '#EE164F'], // Burgundy to coral
+                ['#3A3A37', '#666666'], // Charcoal to gray
+                ['#F36488', '#FEABB0'], // Light coral to blush
+                ['#FFD887', '#FAC7D1'], // Light orange to cream
+                ['#FEABB0', '#FDF6EB'], // Blush to cream
+                ['#FAC7D1', '#FFFFFF']  // Cream to white
+            ];
+            
+            const chartArea = canvas.getBoundingClientRect();
+            const height = chartArea.height || 400; // fallback height
+            
+            for (let i = 0; i < count; i++) {
+                const [start, end] = gradientPairs[i % gradientPairs.length];
+                const gradient = ctx.createLinearGradient(0, 0, 0, height * 0.8);
+                gradient.addColorStop(0, start);
+                gradient.addColorStop(0.6, end);
+                gradient.addColorStop(1, start + '40'); // Add transparency at bottom
+                gradients.push(gradient);
+            }
+            
+            return gradients;
+        }
+
+        // Generate colors with gradient support
+        function generateModernColors(count, canvas = null) {
+            if (canvas && canvas.getContext) {
+                try {
+                    return generateGradients(canvas, count);
+                } catch (error) {
+                    console.log('Gradients not available, using flat colors:', error);
+                }
+            }
+            // Fallback to flat colors
+            return generateColors(count);
+        }
+
+        // Generate high-contrast border colors specifically for line charts
+        function generateLineBorderColors(count) {
+            const borderColors = [
+                '#EE164F', // Primary coral (solid, no transparency)
+                '#FAA32B', // Orange
+                '#83143D', // Burgundy  
+                '#3A3A37', // Charcoal
+                '#F36488', // Light coral
+                '#FFD887', // Light orange
+                '#FEABB0', // Blush
+                '#FAC7D1'  // Cream
+            ];
+            
+            return Array(count).fill(null).map((_, i) => borderColors[i % borderColors.length]);
+        }
+
+        // Get responsive line thickness based on screen size
+        function getResponsiveLineThickness() {
+            const screenWidth = window.innerWidth;
+            
+            if (screenWidth <= 768) {
+                return 2.5; // Thinner for mobile (performance + readability)
+            } else if (screenWidth <= 1600) {
+                return 3; // Medium for tablets and small desktops
+            } else if (screenWidth >= 2400) {
+                return 4.5; // Thicker for ultra-wide screens
+            } else {
+                return 3.5; // Default for standard desktop
+            }
+        }
+
+        // Get responsive point size based on screen size
+        function getResponsivePointSize() {
+            const screenWidth = window.innerWidth;
+            
+            if (screenWidth <= 768) {
+                return { radius: 4, hoverRadius: 6, borderWidth: 2 };
+            } else if (screenWidth <= 1600) {
+                return { radius: 5, hoverRadius: 7, borderWidth: 2.5 };
+            } else if (screenWidth >= 2400) {
+                return { radius: 8, hoverRadius: 10, borderWidth: 4 };
+            } else {
+                return { radius: 6, hoverRadius: 8, borderWidth: 3 }; // Default
+            }
+        }
+
+        // Calculate linear regression trend line
+        function calculateTrendLine(dataPoints) {
+            if (!dataPoints || dataPoints.length < 2) return null;
+            
+            // Filter out null/undefined values and create valid data points
+            const validPoints = [];
+            dataPoints.forEach((point, index) => {
+                if (typeof point === 'number' && !isNaN(point)) {
+                    validPoints.push({ x: index, y: point });
+                }
+            });
+            
+            if (validPoints.length < 2) return null;
+            
+            const n = validPoints.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+            
+            validPoints.forEach(point => {
+                sumX += point.x;
+                sumY += point.y;
+                sumXY += point.x * point.y;
+                sumXX += point.x * point.x;
+            });
+            
+            // Linear regression formula: y = mx + b
+            const denominator = n * sumXX - sumX * sumX;
+            if (Math.abs(denominator) < 0.0001) return null; // Avoid division by zero
+            
+            const slope = (n * sumXY - sumX * sumY) / denominator;
+            const intercept = (sumY - slope * sumX) / n;
+            
+            // Generate trend line points for all original data indices
+            const trendPoints = dataPoints.map((_, index) => {
+                const trendValue = slope * index + intercept;
+                return isNaN(trendValue) ? null : Number(trendValue.toFixed(2));
+            });
+            
+            return trendPoints;
+        }
+
+        // Add trend line dataset to line and bar charts
+        function addTrendLineToChart(chartData) {
+            try {
+                if (chartBuilderState.selectedChartType !== 'line' && chartBuilderState.selectedChartType !== 'bar') return;
+                if (!chartData || !chartData.datasets || chartData.datasets.length === 0) return;
+                
+                // Ensure we have valid datasets
+                const validDatasets = chartData.datasets.filter(ds => ds && ds.data && Array.isArray(ds.data));
+                if (validDatasets.length === 0) return;
+                
+                // Add trend line for each main dataset
+                const trendDatasets = [];
+                const mainDatasets = validDatasets.filter(ds => !ds.label || !ds.label.includes('Trend'));
+            
+            mainDatasets.forEach((dataset, index) => {
+                if (dataset.data && dataset.data.length > 2) { // Need at least 3 points for meaningful trend
+                    try {
+                        const trendData = calculateTrendLine(dataset.data);
+                        
+                        if (trendData && trendData.some(val => val !== null)) {
+                            // Get the base color from the dataset with safe fallback
+                            let baseColor;
+                            try {
+                                baseColor = dataset.borderColor || generateLineBorderColors(1)[0];
+                            } catch (error) {
+                                console.error('Error getting border colors:', error);
+                                baseColor = '#EE164F';
+                            }
+                            const trendColor = typeof baseColor === 'string' ? baseColor : '#EE164F';
+                            
+                            const trendDataset = {
+                                label: `${dataset.label || 'Data'} Trend`,
+                                data: trendData,
+                                type: 'line', // Force line type for trend (works as overlay on bar charts)
+                                borderColor: trendColor + '80', // Add transparency (50% opacity)
+                                backgroundColor: 'transparent',
+                                borderWidth: Math.max(1, getResponsiveLineThickness() - 1),
+                                borderDash: [8, 4], // Dashed line pattern
+                                fill: false,
+                                pointRadius: 0, // No points on trend line
+                                pointHoverRadius: 2, // Small hover point
+                                pointBackgroundColor: trendColor + '60',
+                                pointBorderColor: trendColor + '80',
+                                tension: 0, // Straight line segments
+                                order: 10 + index, // Render behind main lines
+                                yAxisID: chartBuilderState.selectedChartType === 'bar' ? 'y' : undefined,
+                                // Enhanced hover effects
+                                hoverBorderWidth: getResponsiveLineThickness() - 0.5,
+                                hoverBorderColor: trendColor + 'CC', // Less transparent on hover
+                                // Animation
+                                animation: {
+                                    borderColor: {
+                                        duration: 300,
+                                        easing: 'easeInOutQuad'
+                                    }
+                                }
+                            };
+                            
+                            trendDatasets.push(trendDataset);
+                        }
+                    } catch (error) {
+                        console.log(`Could not calculate trend line for dataset ${index}:`, error);
+                    }
+                }
+            });
+            
+                // Add trend line datasets to the chart
+                if (trendDatasets.length > 0) {
+                    chartData.datasets.push(...trendDatasets);
+                }
+            } catch (error) {
+                console.error('Error in addTrendLineToChart:', error);
+                // Don't let trend line errors break the chart
+            }
+        }
+
+        // Apply modern gradients to existing chart data
+        function applyGradientsToChartData(chartData, canvas) {
+            try {
+                chartData.datasets.forEach((dataset, datasetIndex) => {
+                    // Skip styling for trend line datasets
+                    if (dataset.label && dataset.label.includes('Trend')) {
+                        return; // Trend lines already have their styling set
+                    }
+                    
+                    if (Array.isArray(dataset.backgroundColor)) {
+                        // Multiple colors (pie charts, bar charts with multiple categories)
+                        dataset.backgroundColor = generateGradients(canvas, dataset.backgroundColor.length);
+                    } else {
+                        // Single color (grouped datasets)
+                        const gradients = generateGradients(canvas, chartData.datasets.length);
+                        dataset.backgroundColor = gradients[datasetIndex % gradients.length];
+                    }
+                    
+                    // Enhanced border styling for modern look
+                    if (chartBuilderState.selectedChartType === 'line') {
+                        // High-contrast, responsive borders for line charts
+                        const lineBorderColors = generateLineBorderColors(chartData.datasets.length);
+                        dataset.borderColor = lineBorderColors[datasetIndex % lineBorderColors.length];
+                        dataset.borderWidth = getResponsiveLineThickness(); // Responsive thickness
+                    } else {
+                        // Standard styling for other chart types
+                        dataset.borderWidth = 1;
+                        dataset.borderColor = 'rgba(238, 22, 79, 0.3)';
+                    }
+                    
+                    // Add chart type specific enhancements
+                    if (chartBuilderState.selectedChartType === 'bar') {
+                        dataset.borderRadius = 4;
+                        dataset.borderSkipped = false;
+                    } else if (chartBuilderState.selectedChartType === 'line') {
+                        // Enhanced line chart styling for maximum visibility
+                        dataset.fill = 'origin'; // Fill from origin for better gradient effect
+                        dataset.tension = 0.4; // Smooth curves
+                        
+                        // Get responsive point sizing
+                        const pointSizes = getResponsivePointSize();
+                        
+                        // Enhanced point styling with responsive sizing
+                        dataset.pointBackgroundColor = dataset.borderColor; // Match line color
+                        dataset.pointBorderColor = '#FFFFFF';
+                        dataset.pointBorderWidth = pointSizes.borderWidth;
+                        dataset.pointRadius = pointSizes.radius;
+                        dataset.pointHoverRadius = pointSizes.hoverRadius;
+                        dataset.pointHoverBorderWidth = pointSizes.borderWidth + 1;
+                        
+                        // Add line shadow effect using Chart.js segment styling
+                        dataset.segment = {
+                            borderColor: ctx => ctx.p0.parsed.y !== null && ctx.p1.parsed.y !== null ? dataset.borderColor : 'transparent'
+                        };
+                        
+                        // Enhanced hover effects with responsive thickness
+                        dataset.hoverBorderWidth = getResponsiveLineThickness() + 0.5;
+                        dataset.hoverBorderColor = dataset.borderColor;
+                        
+                        // Add subtle glow effect for line charts
+                        dataset.shadowOffsetX = 0;
+                        dataset.shadowOffsetY = 1;
+                        dataset.shadowBlur = 3;
+                        dataset.shadowColor = dataset.borderColor + '40'; // Add transparency
+                    }
+                });
+            } catch (error) {
+                console.log('Could not apply gradients, using flat colors:', error);
+            }
+        }
+
+        // Filter Chip System Functions
+        
+        // Create filter chip element
+        function createFilterChip(type, value, label, isChartFilter = false) {
+            const chip = document.createElement('div');
+            chip.className = `filter-chip ${isChartFilter ? 'chart-filter-chip' : 'table-filter-chip'}`;
+            chip.dataset.filterType = type;
+            chip.dataset.filterValue = value;
+            
+            chip.innerHTML = `
+                <span class="filter-chip-label">${label}</span>
+                ${isChartFilter ? '<span class="chart-indicator">From chart</span>' : ''}
+                <button class="filter-chip-remove" onclick="removeFilterChip('${type}', '${value}', ${isChartFilter})">×</button>
+            `;
+            
+            return chip;
+        }
+
+        // Update active filters display
+        function updateActiveFiltersDisplay() {
+            const container = document.getElementById('active-filters-container');
+            const section = document.getElementById('active-filters-section');
+            
+            if (!container || !section) return;
+            
+            container.innerHTML = '';
+            let hasActiveFilters = false;
+            
+            // Add chart filter chip first (if active)
+            if (chartFilter.active) {
+                const chartFieldLabel = chartBuilderState.xAxisField ? chartBuilderState.xAxisField.label : 'Chart';
+                const chartChip = createFilterChip(
+                    chartFilter.xAxisField, 
+                    chartFilter.xAxisValue, 
+                    `${chartFieldLabel}: ${chartFilter.xAxisValue}`,
+                    true
+                );
+                container.appendChild(chartChip);
+                hasActiveFilters = true;
+            }
+            
+            // Add table filter chips
+            Object.keys(filterSelections).forEach(filterType => {
+                if (filterSelections[filterType].size > 0) {
+                    filterSelections[filterType].forEach(value => {
+                        const chip = createFilterChip(filterType, value, `${getFilterDisplayName(filterType)}: ${value}`);
+                        container.appendChild(chip);
+                        hasActiveFilters = true;
+                    });
+                }
+            });
+            
+            // Add date range chips
+            if (dateRangeFilter.dateFrom || dateRangeFilter.dateTo) {
+                const dateLabel = `Date: ${dateRangeFilter.dateFrom || '...'} to ${dateRangeFilter.dateTo || '...'}`;
+                const dateChip = createFilterChip('dateRange', '', dateLabel);
+                container.appendChild(dateChip);
+                hasActiveFilters = true;
+            }
+            
+            // Show/hide section
+            section.style.display = hasActiveFilters ? 'block' : 'none';
+        }
+
+        // Get display name for filter types
+        function getFilterDisplayName(filterType) {
+            const displayNames = {
+                'status': 'Status',
+                'priority': 'Priority',
+                'assignee': 'Assignee',
+                'creator': 'Creator',
+                'system': 'System',
+                'leadingTeam': 'Leading Team',
+                'regression': 'Regression',
+                'severity': 'Severity',
+                'sprint': 'Sprint'
+            };
+            return displayNames[filterType] || filterType;
+        }
+
+        // Remove filter chip
+        function removeFilterChip(type, value, isChartFilter) {
+            if (isChartFilter) {
+                clearChartFilter();
+            } else if (type === 'dateRange') {
+                // Clear date range filter
+                dateRangeFilter.dateFrom = '';
+                dateRangeFilter.dateTo = '';
+                const fromInput = document.getElementById('dateFromInput');
+                const toInput = document.getElementById('dateToInput');
+                if (fromInput) fromInput.value = '';
+                if (toInput) toInput.value = '';
+                updateDateClearButtons();
+            } else {
+                // Remove from filterSelections
+                if (filterSelections[type]) {
+                    filterSelections[type].delete(value);
+                    updateFilterButtonText(type);
+                }
+            }
+            applyFilters();
+            updateActiveFiltersDisplay();
+        }
+
+        // Check if chart filter should be auto-cleared
+        function checkChartFilterValidity() {
+            if (!chartFilter.active) return true;
+            
+            const xAxisFieldName = chartFilter.xAxisField;
+            
+            // Edge Case 1: X-Axis field changed
+            if (!chartBuilderState.xAxisField || chartBuilderState.xAxisField.field !== xAxisFieldName) {
+                console.log('Auto-clearing chart filter: X-axis field changed');
+                clearChartFilter(false); // Don't refresh to avoid loop
+                showSubtleMessage('Chart filter cleared: chart axis changed');
+                return false;
+            }
+            
+            // Edge Case 2: Conflicting table filter selection
+            if (filterSelections[xAxisFieldName] && filterSelections[xAxisFieldName].size > 0) {
+                if (!filterSelections[xAxisFieldName].has(chartFilter.xAxisValue)) {
+                    console.log('Auto-clearing chart filter: conflicting table filter');
+                    clearChartFilter(false);
+                    showSubtleMessage('Chart filter cleared: conflicting selection');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Show subtle notification message
+        function showSubtleMessage(message) {
+            const notification = document.createElement('div');
+            notification.className = 'subtle-notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Chart click handler for interactive filtering
+        function handleChartClick(event, elements) {
+            try {
+                console.log('🎯 Chart click handler called');
+                
+                if (elements.length === 0) return;
+                
+                const element = elements[0];
+                const chart = chartBuilderState.currentChart;
+                
+                if (!chart || !chart.data) {
+                    console.warn('⚠️ Chart or chart data not available');
+                    return;
+                }
+                
+                const chartData = chart.data;
+                
+                // Get clicked data information
+                const datasetIndex = element.datasetIndex;
+                const dataIndex = element.index;
+                
+                // Validate indices
+                if (dataIndex >= chartData.labels.length || datasetIndex >= chartData.datasets.length) {
+                    console.warn('⚠️ Invalid chart click indices');
+                    return;
+                }
+                
+                // Extract filter criteria based on chart configuration
+                const xAxisValue = chartData.labels[dataIndex];
+                const dataset = chartData.datasets[datasetIndex];
+                
+                // Check for conflicting filters and auto-clear if needed
+                const xAxisFieldName = chartBuilderState.xAxisField.field;
+                if (filterSelections[xAxisFieldName] && filterSelections[xAxisFieldName].has(xAxisValue)) {
+                    // Conflict detected - show subtle message and clear conflicting filter
+                    showSubtleMessage(`Cleared ${xAxisFieldName} filter to apply chart selection`);
+                    filterSelections[xAxisFieldName].delete(xAxisValue);
+                    updateFilterButtonText(xAxisFieldName);
+                }
+                
+                // Set chart filter state
+                chartFilter.active = true;
+                chartFilter.xAxisField = chartBuilderState.xAxisField.field;
+                chartFilter.xAxisValue = xAxisValue;
+                
+                // Handle grouped charts
+                if (chartBuilderState.groupByField && dataset.label !== 'Count') {
+                    chartFilter.groupByField = chartBuilderState.groupByField.field;
+                    chartFilter.groupByValue = dataset.label;
+                } else {
+                    chartFilter.groupByField = null;
+                    chartFilter.groupByValue = null;
+                }
+                
+                // Generate user-friendly filter description
+                chartFilter.chartTitle = generateChartFilterTitle();
+                
+                // Apply the new filter
+                applyFilters();
+                
+                // Update active filters display (replace showChartFilterIndicator)
+                updateActiveFiltersDisplay();
+                
+                console.log('✅ Chart filter applied:', chartFilter);
+            } catch (error) {
+                console.error('❌ Error in chart click handler:', error);
+                // Don't let click errors break the UI
+            }
+        }
+
+        // Generate user-friendly chart filter title
+        function generateChartFilterTitle() {
+            const xLabel = chartBuilderState.xAxisField.label;
+            const xValue = chartFilter.xAxisValue;
+            
+            if (chartFilter.groupByField) {
+                const groupLabel = chartBuilderState.groupByField.label;
+                const groupValue = chartFilter.groupByValue;
+                return `${xLabel}: "${xValue}" | ${groupLabel}: "${groupValue}"`;
+            } else {
+                return `${xLabel}: "${xValue}"`;
+            }
+        }
+
+        // Show chart filter indicator in UI
+        // Clear chart filter
+        function clearChartFilter(shouldRefresh = true) {
+            // Reset chart filter state
+            chartFilter.active = false;
+            chartFilter.xAxisField = null;
+            chartFilter.xAxisValue = null;
+            chartFilter.groupByField = null;
+            chartFilter.groupByValue = null;
+            chartFilter.chartTitle = null;
+            
+            // Update active filters display
+            if (shouldRefresh) {
+                applyFilters();
+                updateActiveFiltersDisplay();
+            }
+            
+            console.log('Chart filter cleared');
+        }
+
+        // Check if bug matches chart filter criteria
+        function checkChartFilter(bug) {
+            if (!chartFilter.active) return true;
+            
+            // Check X-axis field match
+            const xFieldValue = getFieldValue(bug, chartFilter.xAxisField);
+            const xMatch = xFieldValue === chartFilter.xAxisValue;
+            
+            // Check group-by field match (if applicable)
+            let groupMatch = true;
+            if (chartFilter.groupByField) {
+                const groupFieldValue = getFieldValue(bug, chartFilter.groupByField);
+                groupMatch = groupFieldValue === chartFilter.groupByValue;
+            }
+            
+            return xMatch && groupMatch;
+        }
+
+        // Get field value from bug object with special handling
+        function getFieldValue(bug, fieldName) {
+            // Handle special field mappings
+            switch(fieldName) {
+                case 'leadingTeam': return bug.leadingTeam;
+                case 'createdDate': return formatDateForChart(bug.createdDate);
+                case 'updatedDate': return formatDateForChart(bug.updatedDate);
+                default: return bug[fieldName];
+            }
+        }
+
+        // Format date for chart comparison
+        function formatDateForChart(dateStr) {
+            if (!dateStr) return null;
+            try {
+                const date = new Date(dateStr);
+                return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+            } catch (error) {
+                return dateStr; // Return original if parsing fails
+            }
+        }
+
         // Create chart
         function createChart() {
+            // Validate required fields
+            if (!chartBuilderState.xAxisField || !chartBuilderState.yAxisField) {
+                return;
+            }
+            
             const chartData = generateChartData();
-            if (!chartData) return;
+            if (!chartData) {
+                return;
+            }
             
             const canvas = document.getElementById('chart-preview-canvas');
             const placeholder = document.querySelector('.chart-preview-placeholder');
@@ -5256,45 +6700,96 @@
             canvas.style.display = 'block';
             placeholder.style.display = 'none';
             
-            // Destroy existing chart
-            if (chartBuilderState.currentChart) {
-                chartBuilderState.currentChart.destroy();
+            // Apply chart-type specific CSS classes for enhanced styling
+            canvas.className = ''; // Reset classes
+            if (chartBuilderState.selectedChartType === 'line') {
+                canvas.classList.add('line-chart');
             }
+            
+            // Destroy existing chart with error handling
+            if (chartBuilderState.currentChart) {
+                try {
+                    chartBuilderState.currentChart.destroy();
+                    chartBuilderState.currentChart = null;
+                } catch (error) {
+                    console.warn('⚠️ Error destroying chart in createChart:', error);
+                    chartBuilderState.currentChart = null;
+                }
+            }
+            
+            // Apply modern gradients to chart data
+            applyGradientsToChartData(chartData, canvas);
             
             // Create new chart
             const ctx = canvas.getContext('2d');
-            chartBuilderState.currentChart = new Chart(ctx, {
+            
+            try {
+                chartBuilderState.currentChart = new Chart(ctx, {
                 type: chartBuilderState.selectedChartType,
                 data: chartData,
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    onClick: handleChartClick,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    animation: {
+                        duration: 800,
+                        easing: 'easeInOutCubic'
+                    },
                     plugins: {
                         title: {
                             display: true,
                             text: generateChartTitle(),
                             font: {
                                 family: "'Domine', serif",
-                                size: 16,
+                                size: 18,
                                 weight: 600
                             },
-                            color: '#3A3A37'
+                            color: '#3A3A37',
+                            padding: { top: 20, bottom: 30 }
                         },
                         legend: {
                             display: !!chartBuilderState.groupByField,
-                            position: 'top'
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'rectRounded',
+                                padding: 20,
+                                font: {
+                                    family: "'Lato', sans-serif",
+                                    size: 12,
+                                    weight: 500
+                                },
+                                color: '#3A3A37'
+                            }
                         },
-                        // Add percentage labels for pie and doughnut charts
-                        ...(chartBuilderState.selectedChartType === 'pie' || chartBuilderState.selectedChartType === 'doughnut' ? {
-                            tooltip: {
-                                callbacks: {
+                        tooltip: {
+                            backgroundColor: 'rgba(58, 58, 55, 0.95)',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#FFFFFF',
+                            borderColor: '#EE164F',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            font: {
+                                family: "'Lato', sans-serif"
+                            },
+                            // Enhanced tooltips for different chart types
+                            callbacks: {
+                                ...(chartBuilderState.selectedChartType === 'pie' || chartBuilderState.selectedChartType === 'doughnut' ? {
                                     label: function(context) {
                                         const total = context.dataset.data.reduce((sum, value) => sum + value, 0);
                                         const percentage = ((context.parsed * 100) / total).toFixed(1);
                                         return `${context.label}: ${context.parsed} (${percentage}%)`;
                                     }
-                                }
-                            },
+                                } : {})
+                            }
+                        },
+                        // Enhanced datalabels for pie and doughnut charts
+                        ...(chartBuilderState.selectedChartType === 'pie' || chartBuilderState.selectedChartType === 'doughnut' ? {
                             datalabels: {
                                 display: function(context) {
                                     // Only show percentages for slices > 5%
@@ -5309,6 +6804,7 @@
                                 },
                                 color: '#FFFFFF',
                                 font: {
+                                    family: "'Lato', sans-serif",
                                     weight: 'bold',
                                     size: 12
                                 },
@@ -5318,22 +6814,71 @@
                         } : {})
                     },
                     scales: chartBuilderState.selectedChartType === 'pie' || chartBuilderState.selectedChartType === 'doughnut' ? {} : {
+                        x: {
+                            title: {
+                                display: true,
+                                text: chartBuilderState.xAxisField.label,
+                                font: {
+                                    family: "'Lato', sans-serif",
+                                    size: 14,
+                                    weight: 600
+                                },
+                                color: '#3A3A37'
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(238, 22, 79, 0.08)',
+                                lineWidth: 1,
+                                drawTicks: false
+                            },
+                            ticks: {
+                                color: '#666666',
+                                font: {
+                                    family: "'Lato', sans-serif",
+                                    size: 11
+                                },
+                                padding: 8
+                            }
+                        },
                         y: {
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: getYAxisTitle()
-                            }
-                        },
-                        x: {
-                            title: {
+                                text: getYAxisTitle(),
+                                font: {
+                                    family: "'Lato', sans-serif",
+                                    size: 14,
+                                    weight: 600
+                                },
+                                color: '#3A3A37'
+                            },
+                            grid: {
                                 display: true,
-                                text: chartBuilderState.xAxisField.label
+                                color: 'rgba(238, 22, 79, 0.08)',
+                                lineWidth: 1,
+                                drawTicks: false
+                            },
+                            ticks: {
+                                color: '#666666',
+                                font: {
+                                    family: "'Lato', sans-serif",
+                                    size: 11
+                                },
+                                padding: 8
                             }
                         }
                     }
                 }
             });
+            
+            } catch (error) {
+                console.error('Chart creation failed:', error);
+                
+                // Show placeholder again if chart creation fails
+                placeholder.style.display = 'flex';
+                canvas.style.display = 'none';
+                return;
+            }
             
             updateActionButtons();
         }
@@ -5345,12 +6890,91 @@
             }
         }
 
+        // Update chart options visibility based on chart type - DISABLED FOR NOW
+        function updateChartOptionsVisibility() {
+            const chartOptions = document.getElementById('chart-options');
+            
+            // Show options when both axes have fields
+            if (chartBuilderState.xAxisField && chartBuilderState.yAxisField) {
+                chartOptions.style.display = 'block';
+                updateSortingOptions();
+            } else {
+                chartOptions.style.display = 'none';
+            }
+        }
+
+        // Setup trend line checkbox event listener - DISABLED FOR NOW
+        function setupTrendLineListener() {
+            // Trend line functionality disabled
+            return;
+        }
+
+        // Setup sorting event listener
+        function setupSortingListener() {
+            const sortSelect = document.getElementById('x-axis-sort');
+            
+            if (!sortSelect) return;
+            
+            sortSelect.addEventListener('change', function() {
+                chartBuilderState.sortingOptions.xAxisSort = this.value;
+                
+                // Refresh chart with new sorting
+                if (chartBuilderState.xAxisField && chartBuilderState.yAxisField) {
+                    updateChartPreview();
+                }
+            });
+        }
+
         // AUTO-REFRESH charts when table filters change
         function refreshChartsWithFilteredData() {
             // Only refresh if there's an active chart
             if (chartBuilderState.currentChart && chartBuilderState.xAxisField && chartBuilderState.yAxisField) {
-                console.log('🔄 Auto-refreshing chart with filtered data...');
-                createChart(); // This will use the updated filteredData
+                // Preserve chart filter state during refresh
+                const preservedChartFilter = { ...chartFilter };
+                
+                // Ensure clean state before recreation with proper error handling
+                if (chartBuilderState.currentChart) {
+                    try {
+                        console.log('🔄 Safely destroying existing chart...');
+                        
+                        // Remove all event listeners first
+                        const canvas = document.getElementById('chart-preview-canvas');
+                        if (canvas) {
+                            // Clone and replace canvas to remove all event listeners
+                            const newCanvas = canvas.cloneNode(true);
+                            canvas.parentNode.replaceChild(newCanvas, canvas);
+                        }
+                        
+                        // Destroy the chart instance
+                        chartBuilderState.currentChart.destroy();
+                        chartBuilderState.currentChart = null;
+                        
+                        console.log('✅ Chart destroyed successfully');
+                    } catch (error) {
+                        console.warn('⚠️ Error during chart destruction:', error);
+                        // Force reset state even if destruction failed
+                        chartBuilderState.currentChart = null;
+                    }
+                }
+                
+                // Restore chart filter after refresh
+                Object.assign(chartFilter, preservedChartFilter);
+                
+                // Create chart with preserved state after a small delay to ensure cleanup
+                setTimeout(() => {
+                    try {
+                        console.log('🎨 Creating refreshed chart...');
+                        createChart(); // This will use UI-filtered data (excluding chart filters)
+                        
+                        // If chart filter was active, ensure it's still shown in active filters
+                        if (chartFilter.active) {
+                            updateActiveFiltersDisplay();
+                        }
+                        console.log('✅ Chart refresh completed successfully');
+                    } catch (error) {
+                        console.error('❌ Error during chart recreation:', error);
+                    }
+                }, 50); // Small delay to ensure complete cleanup
             }
         }
 
@@ -5377,10 +7001,16 @@
             
             console.log('🧹 Chart cleared - placeholder should be centered');
             
-            // Destroy chart
+            // Destroy chart with error handling
             if (chartBuilderState.currentChart) {
-                chartBuilderState.currentChart.destroy();
-                chartBuilderState.currentChart = null;
+                try {
+                    chartBuilderState.currentChart.destroy();
+                    chartBuilderState.currentChart = null;
+                    console.log('✅ Chart destroyed successfully in clearChart');
+                } catch (error) {
+                    console.warn('⚠️ Error destroying chart in clearChart:', error);
+                    chartBuilderState.currentChart = null;
+                }
             }
             
             updateActionButtons();
@@ -5393,6 +7023,28 @@
             const chartName = prompt('Enter a name for this chart:', `${chartBuilderState.xAxisField.label} by ${chartBuilderState.yAxisField.label}`);
             if (!chartName) return;
             
+            // Capture current filter state
+            const currentFilterState = {
+                filterSelections: {},
+                dateRangeFilter: {
+                    dateFrom: dateRangeFilter.dateFrom,
+                    dateTo: dateRangeFilter.dateTo
+                },
+                chartFilter: {
+                    active: chartFilter.active,
+                    xAxisField: chartFilter.xAxisField,
+                    xAxisValue: chartFilter.xAxisValue,
+                    groupByField: chartFilter.groupByField,
+                    groupByValue: chartFilter.groupByValue,
+                    chartTitle: chartFilter.chartTitle
+                }
+            };
+            
+            // Convert filterSelections Sets to Arrays for JSON serialization
+            Object.keys(filterSelections).forEach(filterType => {
+                currentFilterState.filterSelections[filterType] = Array.from(filterSelections[filterType]);
+            });
+            
             const chartConfig = {
                 id: Date.now().toString(),
                 name: chartName,
@@ -5400,6 +7052,8 @@
                 xAxisField: chartBuilderState.xAxisField,
                 yAxisField: chartBuilderState.yAxisField,
                 groupByField: chartBuilderState.groupByField,
+                sortingOptions: chartBuilderState.sortingOptions,
+                filterState: currentFilterState, // Save the filter state
                 createdAt: new Date().toISOString()
             };
             
@@ -5412,7 +7066,7 @@
             chartBuilderState.savedCharts = savedCharts;
             displaySavedCharts();
             
-            console.log('💾 Chart saved:', chartName);
+            console.log('💾 Chart saved with filter state:', chartName, currentFilterState);
         }
 
         // Load saved charts
@@ -5450,6 +7104,39 @@
         function createSavedChartCard(chartConfig) {
             const card = document.createElement('div');
             card.className = 'saved-chart-card';
+            
+            // Generate filter summary
+            let filterSummary = '';
+            if (chartConfig.filterState) {
+                const filters = [];
+                
+                // Count table filters
+                let tableFilterCount = 0;
+                Object.keys(chartConfig.filterState.filterSelections).forEach(filterType => {
+                    if (chartConfig.filterState.filterSelections[filterType].length > 0) {
+                        tableFilterCount += chartConfig.filterState.filterSelections[filterType].length;
+                    }
+                });
+                
+                if (tableFilterCount > 0) {
+                    filters.push(`${tableFilterCount} table filter${tableFilterCount > 1 ? 's' : ''}`);
+                }
+                
+                // Check date range filter
+                if (chartConfig.filterState.dateRangeFilter && (chartConfig.filterState.dateRangeFilter.dateFrom || chartConfig.filterState.dateRangeFilter.dateTo)) {
+                    filters.push('date range');
+                }
+                
+                // Check chart filter
+                if (chartConfig.filterState.chartFilter && chartConfig.filterState.chartFilter.active) {
+                    filters.push('chart filter');
+                }
+                
+                if (filters.length > 0) {
+                    filterSummary = `<div class="chart-filters">📋 Saved with: ${filters.join(', ')}</div>`;
+                }
+            }
+            
             card.innerHTML = `
                 <div class="saved-chart-header">
                     <div class="saved-chart-name">${chartConfig.name}</div>
@@ -5459,6 +7146,7 @@
                     <div class="chart-type-indicator">${getChartTypeIcon(chartConfig.type)} ${chartConfig.type.charAt(0).toUpperCase() + chartConfig.type.slice(1)}</div>
                     <div class="chart-fields">${chartConfig.xAxisField.label} vs ${chartConfig.yAxisField.label}</div>
                     ${chartConfig.groupByField ? `<div class="chart-group">Grouped by ${chartConfig.groupByField.label}</div>` : ''}
+                    ${filterSummary}
                 </div>
                 <div class="saved-chart-actions">
                     <button class="load-chart-btn" onclick="loadSavedChart('${chartConfig.id}')">Load Chart</button>
@@ -5483,14 +7171,65 @@
             const chartConfig = chartBuilderState.savedCharts.find(c => c.id === chartId);
             if (!chartConfig) return;
             
-            // Clear current chart
+            // Clear current chart and filters
             clearChart();
+            clearAllFilters();
             
             // Restore chart configuration
             chartBuilderState.selectedChartType = chartConfig.type;
             chartBuilderState.xAxisField = chartConfig.xAxisField;
             chartBuilderState.yAxisField = chartConfig.yAxisField;
             chartBuilderState.groupByField = chartConfig.groupByField;
+            chartBuilderState.sortingOptions = chartConfig.sortingOptions || { xAxisSort: 'default' };
+            
+            // Restore filter state if saved
+            if (chartConfig.filterState) {
+                const savedFilters = chartConfig.filterState;
+                
+                // Restore table filters
+                Object.keys(savedFilters.filterSelections).forEach(filterType => {
+                    if (filterSelections[filterType]) {
+                        filterSelections[filterType].clear();
+                        savedFilters.filterSelections[filterType].forEach(value => {
+                            filterSelections[filterType].add(value);
+                        });
+                        updateFilterButtonText(filterType);
+                        
+                        // Update checkboxes in dropdown
+                        const dropdown = document.getElementById(`${filterType}FilterDropdown`);
+                        if (dropdown) {
+                            const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+                            checkboxes.forEach(checkbox => {
+                                checkbox.checked = filterSelections[filterType].has(checkbox.value);
+                            });
+                        }
+                    }
+                });
+                
+                // Restore date range filter
+                if (savedFilters.dateRangeFilter) {
+                    dateRangeFilter.dateFrom = savedFilters.dateRangeFilter.dateFrom;
+                    dateRangeFilter.dateTo = savedFilters.dateRangeFilter.dateTo;
+                    
+                    const dateFromInput = document.getElementById('dateFrom');
+                    const dateToInput = document.getElementById('dateTo');
+                    if (dateFromInput) dateFromInput.value = dateRangeFilter.dateFrom || '';
+                    if (dateToInput) dateToInput.value = dateRangeFilter.dateTo || '';
+                    updateDateClearButtons();
+                }
+                
+                // Restore chart filter
+                if (savedFilters.chartFilter && savedFilters.chartFilter.active) {
+                    chartFilter.active = savedFilters.chartFilter.active;
+                    chartFilter.xAxisField = savedFilters.chartFilter.xAxisField;
+                    chartFilter.xAxisValue = savedFilters.chartFilter.xAxisValue;
+                    chartFilter.groupByField = savedFilters.chartFilter.groupByField;
+                    chartFilter.groupByValue = savedFilters.chartFilter.groupByValue;
+                    chartFilter.chartTitle = savedFilters.chartFilter.chartTitle;
+                }
+                
+                console.log('🔄 Restored filter state:', savedFilters);
+            }
             
             // Update UI
             // Set chart type
@@ -5509,10 +7248,25 @@
                 assignFieldToZone(chartConfig.groupByField, 'group-by', document.getElementById('group-by-zone'));
             }
             
-            // Create chart
+            // Update sorting UI
+            const sortSelect = document.getElementById('x-axis-sort');
+            if (sortSelect && chartBuilderState.sortingOptions) {
+                sortSelect.value = chartBuilderState.sortingOptions.xAxisSort;
+            }
+            
+            // Update chart options visibility
+            updateChartOptionsVisibility();
+            
+            // Apply restored filters
+            applyFilters();
+            
+            // Update active filters display
+            updateActiveFiltersDisplay();
+            
+            // Create chart with filtered data
             createChart();
             
-            console.log('📂 Loaded chart:', chartConfig.name);
+            console.log('📂 Loaded chart with filters:', chartConfig.name);
         }
         
         // Delete saved chart
@@ -5549,6 +7303,11 @@
             setTimeout(() => {
                 setupDateRangeListeners();
             }, 500);
+            
+            // Reinitialize event listeners after a short delay
+            setTimeout(() => {
+                reinitializeEventListeners();
+            }, 750);
             
             // Initialize chart builder after a short delay to ensure dashboard is loaded
             setTimeout(() => {
