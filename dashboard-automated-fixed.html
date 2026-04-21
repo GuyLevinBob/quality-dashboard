@@ -43,7 +43,7 @@
                 backdrop-filter: blur(25px);
                 -webkit-backdrop-filter: blur(25px);
                 border-radius: 20px;
-                min-height: 500px;
+                min-height: 520px; /* Increased to accommodate rotated labels */
                 padding: 40px;
             }
             
@@ -1371,6 +1371,14 @@
         #chart-preview-canvas {
             filter: drop-shadow(0 2px 4px rgba(238, 22, 79, 0.1));
             transition: filter 0.3s ease;
+            /* Ensure crisp rendering on all displays */
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            /* Additional text rendering optimizations */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
         /* Enhanced effects for line charts */
@@ -4916,12 +4924,20 @@
                 dateTo: dateToValue,
                 stateObject: dateRangeFilter
             });
-
-            // Check chart filter validity and auto-clear if needed
-            checkChartFilterValidity();
+            
+            // Check chart filter validity and auto-clear if needed (but not during chart click)
+            if (!window.chartClickInProgress) {
+                checkChartFilterValidity();
+            }
 
             filteredData = bugsData.filter(bug => {
-                // Preserve all existing filter logic exactly as before
+                // CRITICAL FIX: When chart filter is active, it should be the PRIMARY filter
+                // The chart filter already includes all the logic about which bugs should match
+                if (chartFilter.active) {
+                    return checkChartFilter(bug);
+                }
+                
+                // When chart filter is not active, use normal table filters
                 const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(bug.status);
                 const severityMatch = filterSelections.severity.size === 0 || filterSelections.severity.has(bug.severity);
                 const assigneeMatch = filterSelections.assignee.size === 0 || filterSelections.assignee.has(bug.assignee);
@@ -4936,12 +4952,9 @@
 
                 // Add date range filtering logic
                 const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
-                
-                // Add chart-based filtering logic
-                const chartMatch = checkChartFilter(bug);
 
                 return statusMatch && severityMatch && assigneeMatch &&
-                       leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch && dateMatch && chartMatch;
+                       leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch && dateMatch;
             });
 
             // Debug logging for filter results
@@ -4949,6 +4962,18 @@
                 const dateFilteredCount = bugsData.filter(bug => checkDateRange(bug, dateFromValue, dateToValue)).length;
                 console.log(`📅 Date filtering: ${dateFilteredCount}/${bugsData.length} bugs match date range`);
             }
+            
+            if (chartFilter.active) {
+                const chartFilteredCount = bugsData.filter(bug => checkChartFilter(bug)).length;
+                console.log(`🎯 Chart filtering: ${chartFilteredCount}/${bugsData.length} bugs match chart filter`);
+                console.log(`🔍 Chart filter details:`, {
+                    field: chartFilter.xAxisField,
+                    value: chartFilter.xAxisValue,
+                    groupBy: chartFilter.groupByField,
+                    groupValue: chartFilter.groupByValue
+                });
+            }
+            
             console.log(`📊 Total filtered results: ${filteredData.length}/${bugsData.length} bugs`);
 
             // Reset to first page when filters change
@@ -6594,26 +6619,40 @@
         function checkChartFilterValidity() {
             if (!chartFilter.active) return true;
             
+            console.log('🔍 Checking chart filter validity:', {
+                chartFilter: chartFilter,
+                xAxisField: chartBuilderState.xAxisField
+            });
+            
             const xAxisFieldName = chartFilter.xAxisField;
             
-            // Edge Case 1: X-Axis field changed
+            // Edge Case 1: X-Axis field changed (only clear if significantly different)
             if (!chartBuilderState.xAxisField || chartBuilderState.xAxisField.field !== xAxisFieldName) {
-                console.log('Auto-clearing chart filter: X-axis field changed');
+                console.log('⚠️ Auto-clearing chart filter: X-axis field changed', {
+                    currentField: chartBuilderState.xAxisField?.field,
+                    chartFilterField: xAxisFieldName
+                });
                 clearChartFilter(false); // Don't refresh to avoid loop
                 showSubtleMessage('Chart filter cleared: chart axis changed');
                 return false;
             }
             
-            // Edge Case 2: Conflicting table filter selection
+            // Edge Case 2: Conflicting table filter selection - BE LESS AGGRESSIVE
+            // Only clear if there's an active table filter that explicitly conflicts
             if (filterSelections[xAxisFieldName] && filterSelections[xAxisFieldName].size > 0) {
                 if (!filterSelections[xAxisFieldName].has(chartFilter.xAxisValue)) {
-                    console.log('Auto-clearing chart filter: conflicting table filter');
-                    clearChartFilter(false);
-                    showSubtleMessage('Chart filter cleared: conflicting selection');
-                    return false;
+                    console.log('ℹ️ Table filter conflicts with chart filter, but keeping chart filter active', {
+                        tableFilters: Array.from(filterSelections[xAxisFieldName]),
+                        chartFilterValue: chartFilter.xAxisValue
+                    });
+                    // Don't auto-clear - let user manage conflicts manually
+                    // clearChartFilter(false);
+                    // showSubtleMessage('Chart filter cleared: conflicting selection');
+                    // return false;
                 }
             }
             
+            console.log('✅ Chart filter is valid, keeping active');
             return true;
         }
 
@@ -6634,7 +6673,13 @@
             try {
                 console.log('🎯 Chart click handler called');
                 
-                if (elements.length === 0) return;
+                // Set flag to prevent validity check from clearing filter during this operation
+                window.chartClickInProgress = true;
+                
+                if (elements.length === 0) {
+                    window.chartClickInProgress = false;
+                    return;
+                }
                 
                 const element = elements[0];
                 const chart = chartBuilderState.currentChart;
@@ -6659,6 +6704,43 @@
                 // Extract filter criteria based on chart configuration
                 const xAxisValue = chartData.labels[dataIndex];
                 const dataset = chartData.datasets[datasetIndex];
+                
+                console.log('🎯 Chart click extracted values:', {
+                    clickedLabel: xAxisValue,
+                    datasetLabel: dataset.label,
+                    xAxisFieldName: chartBuilderState.xAxisField.field,
+                    labelType: typeof xAxisValue,
+                    datasetIndex: datasetIndex,
+                    dataIndex: dataIndex,
+                    yAxisFieldType: chartBuilderState.yAxisField?.field
+                });
+                
+                // CRITICAL DEBUG: Test exact chart logic
+                console.log('🧪 Testing EXACT chart field matching for clicked value:');
+                const sampleBugs = bugsData.filter(bug => {
+                    let xValue = bug[chartBuilderState.xAxisField.field] || 'Unknown';
+                    
+                    // Apply same transformations as chart
+                    const useCompleteDataset = chartBuilderState.yAxisField?.field === 'allBugs';
+                    if (chartBuilderState.xAxisField.field === 'regression') {
+                        if (useCompleteDataset) {
+                            xValue = (xValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                        } else {
+                            xValue = 'Regression';
+                        }
+                    }
+                    
+                    const matches = xValue === xAxisValue;
+                    if (matches) {
+                        console.log(`Raw: "${bug[chartBuilderState.xAxisField.field]}" -> Chart: "${xValue}" (matches clicked: ${matches})`);
+                    }
+                    return matches;
+                }).slice(0, 5);
+                
+                console.log('🎯 Sample bugs using EXACT chart logic:', sampleBugs.map(bug => ({
+                    key: bug.key,
+                    rawFieldValue: bug[chartBuilderState.xAxisField.field]
+                })));
                 
                 // Check for conflicting filters and auto-clear if needed
                 const xAxisFieldName = chartBuilderState.xAxisField.field;
@@ -6693,9 +6775,72 @@
                 updateActiveFiltersDisplay();
                 
                 console.log('✅ Chart filter applied:', chartFilter);
+                console.log('📊 Total bugs after filter:', filteredData.length);
+                
+                // DEBUG: SUPER CRITICAL - The chart shows 55 but I'm finding 189 
+                if (chartFilter.xAxisField === 'sprint') {
+                    console.log('🚨 EMERGENCY DEBUG - Chart shows 55, finding 189:');
+                    
+                    // Let's check what the chart's actual data contains
+                    const chart = chartBuilderState.currentChart;
+                    if (chart && chart.data) {
+                        const chartLabels = chart.data.labels;
+                        const chartDatasets = chart.data.datasets;
+                        
+                        console.log('📊 ACTUAL chart data:', {
+                            labels: chartLabels,
+                            datasets: chartDatasets.map(d => ({ label: d.label, data: d.data }))
+                        });
+                        
+                        // Find the specific data point that was clicked
+                        const clickedIndex = chartLabels.findIndex(label => label === chartFilter.xAxisValue);
+                        if (clickedIndex >= 0 && chartDatasets[0]) {
+                            const actualBarValue = chartDatasets[0].data[clickedIndex];
+                            console.log('🎯 ACTUAL clicked bar value:', actualBarValue, '(should be 55)');
+                        }
+                    }
+                    
+                    // Let's also verify what generateChartData() actually produces right now
+                    const regeneratedChartData = generateChartData();
+                    if (regeneratedChartData) {
+                        console.log('🔄 REGENERATED chart data:', {
+                            labels: regeneratedChartData.labels,
+                            datasets: regeneratedChartData.datasets.map(d => ({ label: d.label, data: d.data }))
+                        });
+                        
+                        const regenIndex = regeneratedChartData.labels.findIndex(label => label === chartFilter.xAxisValue);
+                        if (regenIndex >= 0 && regeneratedChartData.datasets[0]) {
+                            const regenBarValue = regeneratedChartData.datasets[0].data[regenIndex];
+                            console.log('🔄 REGENERATED bar value for clicked label:', regenBarValue);
+                        }
+                    }
+                    
+                    // Count manually with simple logic
+                    const simpleCount = bugsData.filter(bug => {
+                        const sprintValue = bug.sprint || 'Unknown';
+                        return sprintValue === chartFilter.xAxisValue;
+                    }).length;
+                    
+                    console.log('📊 Simple manual count (bug.sprint ===)', simpleCount);
+                    
+                    // Current logic count
+                    console.log('🎯 My current logic count:', filteredData.length);
+                }
+                
+                // Clear the flag after processing is complete
+                setTimeout(() => {
+                    window.chartClickInProgress = false;
+                    
+                    // Verify chart filter is still active after processing
+                    console.log('🔍 Chart filter state after 50ms:', chartFilter);
+                    if (!chartFilter.active) {
+                        console.error('🚨 Chart filter was deactivated! Something cleared it.');
+                    }
+                }, 50);
+                
             } catch (error) {
                 console.error('❌ Error in chart click handler:', error);
-                // Don't let click errors break the UI
+                window.chartClickInProgress = false; // Clear flag on error too
             }
         }
 
@@ -6733,32 +6878,95 @@
             console.log('Chart filter cleared');
         }
 
-        // Check if bug matches chart filter criteria
+        // Check if bug matches chart filter criteria using EXACT chart generation logic
         function checkChartFilter(bug) {
             if (!chartFilter.active) return true;
             
-            // Check X-axis field match
-            const xFieldValue = getFieldValue(bug, chartFilter.xAxisField);
-            const xMatch = xFieldValue === chartFilter.xAxisValue;
+            // CRITICAL: Use the EXACT same logic as generateCountChartData
+            const { xAxisField, yAxisField, groupByField } = chartBuilderState;
+            const useCompleteDataset = yAxisField.field === 'allBugs';
             
-            // Check group-by field match (if applicable)
+            // Step 1: Would this bug be in the chart's data source?
+            let isInChartDataSource = true;
+            if (!useCompleteDataset) {
+                // Bug must pass the table filters to be in chart data
+                const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+                const dateFromValue = dateRangeFilter.dateFrom;
+                const dateToValue = dateRangeFilter.dateTo;
+                
+                const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(bug.status);
+                const severityMatch = filterSelections.severity.size === 0 || filterSelections.severity.has(bug.severity);
+                const assigneeMatch = filterSelections.assignee.size === 0 || filterSelections.assignee.has(bug.assignee);
+                const leadingTeamMatch = filterSelections.leadingTeam.size === 0 || filterSelections.leadingTeam.has(bug.leadingTeam);
+                const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(bug.system);
+                const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(bug.sprint);
+                const regressionMatch = filterSelections.regression.size === 0 || filterSelections.regression.has(bug.regression);
+                const searchMatch = !searchFilter || 
+                                  (bug.summary && bug.summary.toLowerCase().includes(searchFilter)) || 
+                                  (bug.key && bug.key.toLowerCase().includes(searchFilter)) ||
+                                  (bug.assignee && bug.assignee.toLowerCase().includes(searchFilter));
+                const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
+                
+                isInChartDataSource = statusMatch && severityMatch && assigneeMatch &&
+                                    leadingTeamMatch && systemMatch && sprintMatch && 
+                                    regressionMatch && searchMatch && dateMatch;
+            }
+            
+            if (!isInChartDataSource) {
+                return false;
+            }
+            
+            // Step 2: Apply regression-specific filtering (same as generateCountChartData)
+            if (!useCompleteDataset && (xAxisField.field === 'regression' || (groupByField && groupByField.field === 'regression'))) {
+                if (bug.regression !== 'Yes') {
+                    return false;
+                }
+            }
+            
+            // Step 3: Check X-axis field match using EXACT chart logic
+            let xValue = bug[xAxisField.field] || 'Unknown';
+            
+            // Apply the same transformations as chart generation
+            if (xAxisField.field === 'regression') {
+                if (useCompleteDataset) {
+                    xValue = (xValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                } else {
+                    xValue = 'Regression'; // When filtered, all regression bugs show as "Regression"
+                }
+            }
+            
+            const xMatch = xValue === chartFilter.xAxisValue;
+            
+            // Step 4: Check group-by field match (if applicable)
             let groupMatch = true;
             if (chartFilter.groupByField) {
-                const groupFieldValue = getFieldValue(bug, chartFilter.groupByField);
-                groupMatch = groupFieldValue === chartFilter.groupByValue;
+                let groupValue = bug[chartFilter.groupByField] || 'Unknown';
+                
+                // Apply same transformations as chart generation
+                if (chartFilter.groupByField === 'regression') {
+                    if (useCompleteDataset) {
+                        groupValue = (groupValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                    } else {
+                        groupValue = 'Regression';
+                    }
+                }
+                
+                groupMatch = groupValue === chartFilter.groupByValue;
             }
             
             return xMatch && groupMatch;
         }
 
-        // Get field value from bug object with special handling
+        // Get field value from bug object with special handling for dates
         function getFieldValue(bug, fieldName) {
-            // Handle special field mappings
+            // Handle special field mappings for dates only (keep this simple)
             switch(fieldName) {
-                case 'leadingTeam': return bug.leadingTeam;
-                case 'createdDate': return formatDateForChart(bug.createdDate);
-                case 'updatedDate': return formatDateForChart(bug.updatedDate);
-                default: return bug[fieldName];
+                case 'createdDate': 
+                    return formatDateForChart(bug.createdDate);
+                case 'updatedDate': 
+                    return formatDateForChart(bug.updatedDate);
+                default: 
+                    return bug[fieldName];
             }
         }
 
@@ -6822,6 +7030,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    devicePixelRatio: window.devicePixelRatio || 2, // Improve sharpness on high-DPI displays
                     onClick: handleChartClick,
                     interaction: {
                         intersect: false,
@@ -6924,12 +7133,24 @@
                                 drawTicks: false
                             },
                             ticks: {
-                                color: '#666666',
+                                color: '#3A3A37',
                                 font: {
                                     family: "'Lato', sans-serif",
-                                    size: 11
+                                    size: 12,
+                                    weight: 500
                                 },
-                                padding: 8
+                                padding: 12,
+                                maxRotation: 45,
+                                minRotation: 0,
+                                maxTicksLimit: 12,
+                                callback: function(value, index, values) {
+                                    // Truncate very long labels and add ellipsis for better readability
+                                    const label = this.getLabelForValue(value);
+                                    if (label && label.length > 30) {
+                                        return label.substring(0, 27) + '...';
+                                    }
+                                    return label;
+                                }
                             }
                         },
                         y: {
