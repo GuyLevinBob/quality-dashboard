@@ -3169,21 +3169,29 @@
         const API_BASE = 'http://localhost:3002';
 
         async function handleSyncData() {
-            if (syncInProgress) return;
+            console.log('🔄 handleSyncData function called');
             
+            if (syncInProgress) {
+                console.log('⏳ Sync already in progress, ignoring click');
+                return;
+            }
+            
+            console.log('🚀 Starting sync process...');
             syncInProgress = true;
             updateSyncButton('syncing');
             
             try {
                 // Step 1: Trigger fresh JIRA fetch
                 console.log('🔄 Starting sync with local API server...');
+                console.log(`📡 API endpoint: ${API_BASE}/api/sync`);
+                
                 const syncResponse = await fetch(`${API_BASE}/api/sync`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
                 
                 if (!syncResponse.ok) {
-                    throw new Error(`Sync failed: ${syncResponse.status}`);
+                    throw new Error(`Sync failed: ${syncResponse.status} - ${syncResponse.statusText}`);
                 }
                 
                 console.log('✅ JIRA sync completed, fetching processed data...');
@@ -5200,12 +5208,7 @@
                 console.log('🔧 Date To event listener attached');
             }
 
-            // Add sync button listener (only once)
-            const syncButton = document.getElementById('syncButton');
-            if (syncButton && !syncButton.hasAttribute('data-listener-added')) {
-                syncButton.addEventListener('click', handleSyncData);
-                syncButton.setAttribute('data-listener-added', 'true');
-            }
+            // Note: Sync button listener now handled by dedicated setupSyncButtonListener() function
 
             console.log('✅ Date range listeners setup complete');
         }
@@ -5293,12 +5296,101 @@
         }
 
         // Ensure all event listeners are properly rebound
+        // Global flag to prevent multiple listener setups
+        let syncButtonListenerSet = false;
+
+        // Setup sync button event listener with robust error handling
+        function setupSyncButtonListener() {
+            console.log('🔄 Setting up sync button listener...');
+            
+            // Prevent multiple attempts if already successfully set up
+            if (syncButtonListenerSet) {
+                console.log('ℹ️ Sync button listener already set up, skipping...');
+                return;
+            }
+            
+            const syncButton = document.getElementById('syncButton');
+            if (!syncButton) {
+                console.warn('⚠️ Sync button not found in DOM');
+                // Try alternative selectors
+                const altButton = document.querySelector('.sync-btn');
+                if (altButton) {
+                    console.log('🔍 Found sync button using alternative selector');
+                    altButton.id = 'syncButton'; // Ensure it has the right ID
+                    setupSyncButtonListener(); // Retry
+                    return;
+                }
+                console.error('❌ Could not find sync button with any selector');
+                return;
+            }
+            
+            console.log('🎯 Found sync button:', syncButton);
+            
+            // Check if button is in a usable state
+            const styles = window.getComputedStyle(syncButton);
+            console.log('🔍 Button state check:');
+            console.log('  - Disabled:', syncButton.disabled);
+            console.log('  - Display:', styles.display);
+            console.log('  - Visibility:', styles.visibility);
+            console.log('  - Pointer events:', styles.pointerEvents);
+            
+            // Force-enable the button if it's disabled for no reason
+            if (syncButton.disabled && !syncInProgress) {
+                console.log('🔧 Force-enabling sync button');
+                syncButton.disabled = false;
+            }
+            
+            // Remove any existing listeners and add fresh ones
+            const newSyncButton = syncButton.cloneNode(true);
+            syncButton.parentNode.replaceChild(newSyncButton, syncButton);
+            
+            // Add comprehensive event listeners
+            newSyncButton.addEventListener('click', function(event) {
+                console.log('🖱️ Sync button clicked!', event);
+                event.preventDefault();
+                event.stopPropagation();
+                handleSyncData();
+            });
+            
+            // Add additional event listeners for debugging
+            newSyncButton.addEventListener('mousedown', function() {
+                console.log('👆 Sync button mousedown detected');
+            });
+            
+            newSyncButton.addEventListener('mouseup', function() {
+                console.log('👆 Sync button mouseup detected');
+            });
+            
+            // Mark as set up
+            syncButtonListenerSet = true;
+            newSyncButton.setAttribute('data-listener-setup', 'true');
+            console.log('✅ Sync button listener attached successfully');
+            
+            // Add direct onclick as backup (in case event listeners fail)
+            newSyncButton.onclick = function(event) {
+                console.log('📎 Backup onclick handler triggered');
+                event.preventDefault();
+                handleSyncData();
+            };
+            
+            // Verify the button works by testing it
+            console.log('🧪 Testing button responsiveness...');
+            setTimeout(() => {
+                if (newSyncButton.parentNode) {
+                    console.log('✅ Button is still in DOM and should be working');
+                } else {
+                    console.error('❌ Button was removed from DOM - this is the problem!');
+                }
+            }, 100);
+        }
+
         function reinitializeEventListeners() {
             console.log('🔄 Reinitializing all event listeners...');
             setupFilterButtonHandlers();
             setupClearButtonHandlers();
             setupDateRangeListeners();
             setupPaginationEventListeners();
+            setupSyncButtonListener(); // Dedicated sync button setup
             console.log('✅ All event listeners reinitialized');
         }
 
@@ -7297,6 +7389,9 @@
                 console.log('✅ Chart.js datalabels plugin registered');
             }
             
+            // Setup sync button listener immediately
+            setupSyncButtonListener();
+            
             loadDashboardDataFromSource(); // Load from automated source, then initialize all functionality
             
             // BACKUP: Attach date range listeners directly in DOMContentLoaded as fallback
@@ -7313,6 +7408,56 @@
             setTimeout(() => {
                 initializeChartBuilder();
             }, 1000);
+            
+            // Additional backup for sync button (in case DOM wasn't fully ready)
+            setTimeout(() => {
+                setupSyncButtonListener();
+            }, 1500);
+            
+            // Add debugging functions to window for manual testing
+            window.testSyncButton = function() {
+                console.log('🧪 Manual sync test initiated...');
+                handleSyncData();
+            };
+            
+            window.debugSyncButton = function() {
+                console.log('🔍 Debug sync button state...');
+                const btn = document.getElementById('syncButton');
+                if (btn) {
+                    console.log('Button found:', btn);
+                    console.log('Disabled:', btn.disabled);
+                    console.log('Onclick:', btn.onclick);
+                    console.log('Event listeners:', getEventListeners ? getEventListeners(btn) : 'DevTools required');
+                    console.log('Parent:', btn.parentNode);
+                    console.log('Styles:', window.getComputedStyle(btn));
+                } else {
+                    console.log('Button not found!');
+                }
+            };
+            
+            window.forceSyncButtonSetup = function() {
+                console.log('🔧 Force sync button setup...');
+                syncButtonListenerSet = false; // Reset flag
+                setupSyncButtonListener();
+            };
+            
+            console.log('🧪 Debug functions available:');
+            console.log('  - window.testSyncButton() - Test sync functionality');
+            console.log('  - window.debugSyncButton() - Debug button state');  
+            console.log('  - window.forceSyncButtonSetup() - Force button setup');
+            
+            // Final fallback: Set up sync button using different approach after full page load
+            window.addEventListener('load', function() {
+                console.log('🌍 Window fully loaded, final sync button setup attempt...');
+                setTimeout(() => {
+                    const syncBtn = document.getElementById('syncButton');
+                    if (syncBtn && !syncBtn.onclick) {
+                        console.log('🚨 Final emergency sync button setup');
+                        syncBtn.onclick = handleSyncData;
+                        syncBtn.addEventListener('click', handleSyncData);
+                    }
+                }, 100);
+            });
         });
     </script>
 </body>
