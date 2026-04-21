@@ -195,6 +195,52 @@ Local Dashboard ← bug-api-server.js ← Local .env credentials
 - **Visual Cards**: Saved chart preview cards with type icons and filter indicators
 - **Delete Function**: Easy removal of unwanted saved charts
 
+#### Interactive Chart Filtering (Click-to-Filter)
+**Overview**: Click any chart element (bar, pie slice, data point) to filter the main data table to show only the bugs represented by that element.
+
+**Core Functionality**:
+- **Chart Bar Clicks**: Click any bar in bar/line charts to filter table
+- **Pie Slice Clicks**: Click pie/doughnut slices to filter by category
+- **Multi-Filter Support**: Chart filters work **alongside** table filters (not replacing them)
+- **Visual Indicators**: Active chart filters shown as filter chips with "From chart" indicator
+- **Auto-Clear Logic**: Conflicting table filters automatically cleared when chart filter applied
+
+**Filter Logic & Behavior**:
+- **Combined Filtering**: Table filters applied **first**, then chart filter applied **on top**
+- **Y-Axis Field Constraints**: Chart filters respect Y-axis field requirements
+  - **"Regression Count by Sprint"**: Filters to regression=Yes bugs in clicked sprint
+  - **"System Count by Sprint"**: Filters to bugs with system values in clicked sprint  
+  - **"All Bugs by Sprint"**: Filters to all bugs in clicked sprint (no Y-axis constraint)
+- **Field-Based Logic**: Uses same filtering logic as chart generation functions
+- **Transformation Handling**: Applies same field transformations (e.g., 'Yes' → 'Regression')
+
+**Technical Implementation**:
+- **Consistent Logic**: `checkChartFilter()` replicates exact chart generation filtering
+- **Data Source Matching**: Ensures filtered bugs match chart's data constraints
+- **Dynamic Field Support**: Works with any field combination (not hardcoded)
+- **Regression Handling**: Automatically filters to regression=Yes when regression field used
+- **Debug Support**: Comprehensive logging for troubleshooting filter mismatches
+
+**User Experience**:
+- **Filter Chips**: Chart selections appear as distinct filter chips in "Active Filters" bar
+- **Clear Integration**: "Clear all" button clears both table and chart filters
+- **Conflict Resolution**: Automatic handling of conflicting filter selections
+- **Visual Feedback**: Chart filter chips visually distinct with special indicator
+- **Persistent State**: Chart filters preserved in saved chart configurations
+
+**Common Use Cases**:
+1. **Sprint Deep Dive**: Click sprint bar → See all bugs in that sprint
+2. **Regression Analysis**: Click regression bar → Filter to regression bugs only
+3. **System Investigation**: Click system slice → Focus on specific system issues
+4. **Status Distribution**: Click status segment → Analyze bugs in that status
+5. **Combined Analysis**: Use table filters + chart clicks for precise data slicing
+
+**Error Handling & Debugging**:
+- **Step-by-Step Logging**: Detailed console output for each filter step
+- **Count Verification**: Manual count checks to validate filter accuracy  
+- **Data Source Tracking**: Logs show which bugs pass/fail each filter criteria
+- **Chart Data Debugging**: Emergency debugging shows actual chart data structure
+
 ### 4. Data Table & Visualization
 
 #### Bug List Table
@@ -532,6 +578,28 @@ npm run start-api          # API server only
 - **Root Cause**: SortableJS not properly initialized
 - **Solution**: Check CDN loading and `initializeChartBuilder()` execution
 - **Debug**: Verify SortableJS library loaded and drop zone configuration
+
+#### Chart Filtering Issues (Critical - Recently Fixed)
+- **Problem**: Clicking chart bars doesn't filter table correctly or shows wrong counts
+- **Root Causes & Solutions**:
+  1. **Hardcoded Regression Logic**: Fixed by removing string-based checks and using field-based logic
+  2. **Filter Combination Issues**: Fixed by applying table filters first, then chart filters on top
+  3. **Inconsistent Data Transformation**: Fixed by replicating exact chart generation logic in filter
+  4. **Y-Axis Constraints Missing**: Fixed by adding Y-axis field filtering (regression=Yes, etc.)
+
+- **Debug Steps**:
+  1. **Check Console Logs**: Look for `🎯`, `🔍`, `✅`, `🚫` debug messages
+  2. **Verify Filter Logic**: Compare "Chart filter alone" vs "COMBINED filters result" counts
+  3. **Check Chart Data**: Look for "DEBUGGING CHART DATA" showing actual chart values
+  4. **Manual Verification**: Compare manual count with filtered count in debug output
+
+- **Common Symptoms & Fixes**:
+  - **"Clicked 55 but shows 189"**: Fixed - was applying only chart filter, ignoring table filters
+  - **"Regression charts broken"**: Fixed - removed hardcoded regression checks
+  - **"Wrong field filtering"**: Fixed - now uses dynamic field-based logic
+  - **"Numbers don't match"**: Fixed - exact same logic as chart generation
+
+- **Prevention**: Always use `checkChartFilter()` function instead of custom filtering logic
 
 ### Debug Console Outputs
 - Comprehensive logging for all major operations
