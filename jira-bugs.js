@@ -132,9 +132,10 @@ class JiraClient {
     const payload = {
       jql: jql,
       maxResults: maxResults,
+      expand: 'changelog',
       fields: [
         'key', 'summary', 'status', 'priority', 'assignee', 'reporter', 
-        'created', 'updated', 'description', 'components', 'labels',
+        'created', 'updated', 'resolution', 'description', 'components', 'labels',
         'customfield_10578', // Bug Type
         'customfield_10574', // Leading Team
         'customfield_10107', // System
@@ -164,9 +165,10 @@ class JiraClient {
     const payload = {
       jql: jql,
       maxResults: maxResults,
+      expand: 'changelog',
       fields: [
         'key', 'summary', 'status', 'priority', 'assignee', 'reporter', 
-        'created', 'updated', 'description', 'components', 'labels',
+        'created', 'updated', 'resolution', 'description', 'components', 'labels',
         'customfield_10578', // Bug Type
         'customfield_10574', // Leading Team
         'customfield_10107', // System

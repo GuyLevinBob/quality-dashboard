@@ -22,8 +22,21 @@
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 2200px; /* Significantly increased for much more space */
             margin: 0 auto;
+            padding: 0 20px; /* Add side padding for better spacing */
+        }
+
+        /* Ultra-wide screen optimization */
+        @media (min-width: 2400px) {
+            .container {
+                max-width: 2400px; /* Even wider for ultra-wide monitors */
+                padding: 0 40px;
+            }
+            
+            .main-content-layout {
+                gap: 60px; /* More gap on very large screens */
+            }
         }
         
         .header {
@@ -137,6 +150,11 @@
         .deployed { color: #FAA32B; }
         .avg-days { color: #EE164F; }
         
+        /* New Strategic KPI Colors */
+        .regression-rate { color: #EF4444; }  /* Red for regression rate (attention needed) */
+        .sla-compliance { color: #10B981; }  /* Green for SLA compliance (positive metric) */
+        .bug-velocity { color: #3B82F6; }    /* Blue for bug velocity (productivity) */
+        
         
         .bugs-table {
             background: #FFFFFF;
@@ -148,15 +166,16 @@
         
         .table-header {
             background: linear-gradient(135deg, #EE164F, #FAA32B);
-            padding: 32px;
+            padding: 32px; /* Increased back for wider dashboard */
             color: white;
         }
         
         .table-title {
             font-family: 'Archivo Black', sans-serif;
-            font-size: 1.8em;
+            font-size: 2em; /* Increased to match section-title */
             text-transform: uppercase;
-            letter-spacing: -0.01em;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
         }
         
         .table-subtitle {
@@ -188,10 +207,12 @@
 
         .filter-group-section.characteristics {
             /* Group 1: Status, Severity, Leading Team, Assignee, System, Clear */
+            order: 1;
         }
 
         .filter-group-section.timeline {
             /* Group 2: Sprint, Regression, Date Range, Search */
+            order: 2;
         }
         
         .filter-group {
@@ -279,25 +300,107 @@
         }
 
         .multiselect-option {
-            padding: 8px 16px;
+            padding: 12px 16px; /* Increased padding */
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: background-color 0.2s ease;
+            gap: 10px; /* Slightly larger gap */
+            transition: all 0.2s ease;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9em;
+            font-weight: 400;
+            color: #2d2d2d; /* Slightly darker for better contrast */
+            border-bottom: 1px solid rgba(238, 22, 79, 0.05);
         }
 
         .multiselect-option:hover {
-            background-color: rgba(238, 22, 79, 0.05);
+            background: linear-gradient(90deg, rgba(238, 22, 79, 0.05) 0%, rgba(250, 163, 43, 0.05) 100%);
+            color: #1a1a1a;
+            transform: translateX(2px); /* Subtle slide effect */
         }
 
-        .multiselect-option:hover {
-            background-color: #FDF6EB;
+        .multiselect-option label {
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            letter-spacing: 0.01em;
         }
 
         .multiselect-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
             margin: 0;
-            accent-color: #EE164F;
+            accent-color: #EE164F; /* Modern checkbox styling */
+        }
+
+        /* Filter with clear button container */
+        .filter-with-clear {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .filter-with-clear .multiselect-button {
+            flex: 1; /* Make button take most of the space */
+        }
+
+        /* Individual filter clear button */
+        .filter-clear-btn {
+            width: 28px;
+            height: 28px;
+            border: 2px solid rgba(238, 22, 79, 0.3);
+            background: white;
+            color: #EE164F;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: none; /* Hidden by default, shown when filter has selections */
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .filter-clear-btn:hover {
+            background: #EE164F;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .filter-clear-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.2);
+        }
+
+        /* Filter search container */
+        .filter-search-container {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(238, 22, 79, 0.1);
+            background: #fafafa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .filter-search-input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid rgba(238, 22, 79, 0.2);
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-family: 'Lato', sans-serif;
+            color: #3A3A37;
+            background: white;
+        }
+
+        .filter-search-input:focus {
+            outline: none;
+            border-color: #EE164F;
+            box-shadow: 0 0 0 2px rgba(238, 22, 79, 0.1);
+        }
+
+        .filter-search-input::placeholder {
+            color: #999;
+            font-style: italic;
         }
         
         /* Clear button styling */
@@ -719,6 +822,12 @@
             flex-wrap: wrap;
         }
 
+        .date-inputs .filter-with-clear {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         .date-inputs input[type="date"] {
             border: 2px solid rgba(238, 22, 79, 0.2);
             border-radius: 8px;
@@ -735,6 +844,13 @@
             outline: none;
             border-color: #EE164F;
             box-shadow: 0 0 0 3px rgba(238, 22, 79, 0.1);
+        }
+
+        /* Date range clear buttons - smaller for date inputs */
+        .date-inputs .filter-clear-btn {
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
         }
 
         .date-inputs input[type="date"]::-webkit-calendar-picker-indicator {
@@ -842,7 +958,522 @@
                 gap: 12px;
             }
         }
+
+        /* MAIN CONTENT LAYOUT - Side by Side */
+        .main-content-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr; /* Give Quality Analysis MORE space (43/57 split) */
+            gap: 48px; /* Increased gap even more */
+            align-items: start;
+            margin-top: 32px;
+        }
+
+        /* Adjust bugs-table for side-by-side layout */
+        .bugs-table {
+            margin: 0; /* Remove any default margins since it's now in a grid */
+        }
+
+        /* QUALITY ANALYSIS SECTION STYLES */
+        .quality-analysis-section {
+            margin: 0; /* No margin since it's in grid layout */
+            padding: 40px; /* Much more padding for spacious feel */
+            background: linear-gradient(135deg, #FFFFFF 0%, #FDF6EB 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+            border: 1px solid rgba(238, 22, 79, 0.1);
+            min-height: fit-content;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 36px; /* More space for the larger layout */
+        }
+        
+        .section-title {
+            font-family: 'Archivo Black', sans-serif;
+            color: #EE164F;
+            font-size: 2.2em; /* Even larger for the spacious layout */
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+        
+        .section-subtitle {
+            font-family: 'Domine', serif;
+            color: #83143D;
+            font-size: 1.2em; /* Increased for wider dashboard */
+            font-weight: 500;
+        }
+        
+        .chart-builder-container {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 36px; /* Even more padding for spacious feel */
+            box-shadow: 0 8px 24px rgba(238, 22, 79, 0.06);
+        }
+        
+        .chart-builder-workspace {
+            display: grid;
+            grid-template-columns: 320px 1fr; /* Even wider left panel for data fields */
+            gap: 32px; /* More gap between palette and canvas */
+            min-height: 500px; /* Taller workspace */
+        }
+        
+        /* Data Fields Palette */
+        .chart-builder-palette {
+            background: #FDF6EB;
+            border-radius: 16px;
+            padding: 28px; /* Increased padding */
+            border: 2px dashed rgba(238, 22, 79, 0.2);
+        }
+        
+        .palette-title {
+            font-family: 'Archivo Black', sans-serif;
+            color: #EE164F;
+            font-size: 1.1em;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        
+        .palette-subtitle {
+            color: #83143D;
+            font-size: 0.85em;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        
+        .field-category {
+            margin-bottom: 20px;
+        }
+        
+        .field-category-header {
+            font-weight: 600;
+            color: #3A3A37;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(238, 22, 79, 0.1);
+        }
+        
+        .field-items {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .chart-field {
+            background: #FFFFFF;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: grab;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #3A3A37;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        
+        .chart-field:hover {
+            background: rgba(238, 22, 79, 0.05);
+            border-color: #EE164F;
+            transform: translateY(-1px);
+        }
+        
+        .chart-field:active,
+        .chart-field.dragging {
+            cursor: grabbing;
+            transform: rotate(2deg);
+            opacity: 0.8;
+        }
+        
+        /* Chart Builder Canvas */
+        .chart-builder-canvas {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .chart-type-selector {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            background: #FDF6EB;
+            border-radius: 12px;
+        }
+        
+        .chart-type-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid rgba(238, 22, 79, 0.2);
+            background: #FFFFFF;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #3A3A37;
+            transition: all 0.2s ease;
+        }
+        
+        .chart-type-btn:hover {
+            border-color: #EE164F;
+            background: rgba(238, 22, 79, 0.05);
+        }
+        
+        .chart-type-btn.active {
+            background: #EE164F;
+            color: white;
+            border-color: #EE164F;
+        }
+        
+        .chart-config-zones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 20px; /* Increased gap between drop zones */
+        }
+        
+        .chart-config-zones .drop-zone:last-child {
+            grid-column: span 2;
+        }
+        
+        .drop-zone {
+            background: #FFFFFF;
+            border: 2px dashed #E5E7EB;
+            border-radius: 12px;
+            padding: 24px; /* Increased padding */
+            text-align: center;
+            transition: all 0.2s ease;
+            min-height: 90px; /* Slightly taller */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .drop-zone.optional {
+            opacity: 0.7;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #EE164F;
+            background: rgba(238, 22, 79, 0.05);
+        }
+        
+        .drop-zone.has-field {
+            border-color: #10B981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+        
+        .drop-zone-header {
+            font-weight: 600;
+            color: #3A3A37;
+            font-size: 0.85em;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        
+        .drop-zone-content {
+            color: #6B7280;
+            font-size: 0.8em;
+        }
+        
+        .field-tag {
+            background: #EE164F;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .field-remove {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .field-remove:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+        
+        .chart-preview-area {
+            flex: 1;
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 32px; /* Increased padding */
+            border: 1px solid rgba(238, 22, 79, 0.1);
+            display: grid;
+            place-items: center;
+            min-height: 400px; /* Much larger chart preview area */
+            position: relative; /* For absolute positioned canvas */
+        }
+        
+        .chart-preview-placeholder {
+            text-align: center;
+            color: #6B7280;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            grid-area: 1 / 1; /* Occupy the full grid cell */
+        }
+        
+        .preview-icon {
+            font-size: 3em;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+        
+        .preview-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .preview-subtext {
+            font-size: 0.85em;
+            opacity: 0.7;
+        }
+        
+        .chart-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .chart-action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+        }
+        
+        .chart-action-btn.primary {
+            background: #EE164F;
+            color: white;
+        }
+        
+        .chart-action-btn.primary:hover:not(:disabled) {
+            background: #d61446;
+        }
+        
+        .chart-action-btn.secondary {
+            background: #FFFFFF;
+            color: #3A3A37;
+            border: 2px solid rgba(238, 22, 79, 0.2);
+        }
+        
+        .chart-action-btn.secondary:hover {
+            border-color: #EE164F;
+            background: rgba(238, 22, 79, 0.05);
+        }
+        
+        .chart-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Saved Charts Section */
+        .saved-charts-section {
+            margin-top: 32px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+        }
+        
+        .saved-charts-title {
+            font-family: 'Domine', serif;
+            color: #3A3A37;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .saved-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .saved-chart-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(238, 22, 79, 0.1);
+            box-shadow: 0 4px 12px rgba(238, 22, 79, 0.05);
+            transition: all 0.2s ease;
+        }
+        
+        .saved-chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(238, 22, 79, 0.1);
+        }
+        
+        .saved-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .saved-chart-name {
+            font-family: 'Domine', serif;
+            font-weight: 600;
+            color: #3A3A37;
+            font-size: 1em;
+            flex: 1;
+            margin-right: 8px;
+        }
+        
+        .delete-chart-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            line-height: 1;
+            transition: background-color 0.2s ease;
+        }
+        
+        .delete-chart-btn:hover {
+            background: rgba(220, 53, 69, 0.1);
+        }
+        
+        .saved-chart-details {
+            margin-bottom: 16px;
+        }
+        
+        .chart-type-indicator {
+            font-size: 0.85em;
+            color: #EE164F;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .chart-fields {
+            font-size: 0.85em;
+            color: #3A3A37;
+            margin-bottom: 2px;
+        }
+        
+        .chart-group {
+            font-size: 0.8em;
+            color: #6B7280;
+            font-style: italic;
+        }
+        
+        .saved-chart-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .load-chart-btn {
+            flex: 1;
+            padding: 8px 16px;
+            background: #EE164F;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .load-chart-btn:hover {
+            background: #d61446;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1600px) {
+            /* Stack vertically on tablets and smaller laptops */
+            .main-content-layout {
+                grid-template-columns: 1fr;
+                gap: 36px;
+            }
+            
+            .container {
+                max-width: 1400px; /* Reduce container width for smaller screens */
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                margin-top: 24px;
+            }
+            
+            .container {
+                padding: 0 16px; /* Reduce side padding on mobile */
+            }
+            
+            .quality-analysis-section {
+                padding: 24px;
+            }
+            
+            .chart-builder-container {
+                padding: 20px;
+            }
+            
+            .chart-builder-palette {
+                padding: 20px;
+            }
+            
+            .table-header {
+                padding: 20px; /* Reduce table header padding on mobile */
+            }
+            
+            .chart-builder-workspace {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                min-height: 350px; /* Reduce height on mobile */
+            }
+            
+            .chart-builder-palette {
+                order: 2;
+            }
+            
+            .chart-config-zones {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-config-zones .drop-zone:last-child {
+                grid-column: span 1;
+            }
+            
+            .chart-type-selector {
+                flex-wrap: wrap;
+            }
+            
+            .chart-type-btn {
+                flex: 1 1 45%;
+            }
+        }
     </style>
+    
+    <!-- Chart Builder Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -889,16 +1520,39 @@
                 <div class="stat-card">
                     <div class="organic-shape organic-shape-2"></div>
                     <div class="stat-number avg-days" id="avgDaysOpen">-</div>
-                    <div class="stat-label">Avg Resolution</div>
+                    <div class="stat-label">Median Resolution</div>
                     <div class="stat-detail">Days to fix</div>
+                </div>
+                
+                <!-- New Strategic KPIs -->
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-1"></div>
+                    <div class="stat-number regression-rate" id="regressionRateKpi">-</div>
+                    <div class="stat-label">Regression Rate</div>
+                    <div class="stat-detail">Overall percentage</div>
+                </div>
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-2"></div>
+                    <div class="stat-number sla-compliance" id="slaComplianceKpi">-</div>
+                    <div class="stat-label">SLA Compliance</div>
+                    <div class="stat-detail">Critical/High deployed bugs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="organic-shape organic-shape-1"></div>
+                    <div class="stat-number bug-velocity" id="bugVelocityKpi">-</div>
+                    <div class="stat-trend" id="velocityTrend"></div>
+                    <div class="stat-label">Bug Velocity</div>
+                    <div class="stat-detail">Resolved per month</div>
                 </div>
             </div>
 
 
-            <div class="bugs-table">
-                <div class="table-header">
-                    <div class="table-title">Issue Details</div>
-                    <div class="table-subtitle">Complete tracking and status overview</div>
+            <!-- Main Content Layout: Table + Charts Side by Side -->
+            <div class="main-content-layout">
+                <div class="bugs-table">
+                    <div class="table-header">
+                        <div class="table-title">Issue Details</div>
+                        <div class="table-subtitle">Complete tracking and status overview</div>
                 </div>
                 <div class="filters">
                     <!-- Group 1: Bug Characteristics & Assignment -->
@@ -906,9 +1560,12 @@
                         <div class="filter-group">
                             <label for="statusFilter">Status:</label>
                             <div class="multiselect-container">
-                                <div class="multiselect-button" id="statusFilterButton">
-                                    <span>Choose a Value</span>
-                                    <span>▼</span>
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="statusFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="status" title="Clear Status Filter">×</button>
                                 </div>
                                 <div class="multiselect-dropdown" id="statusFilterDropdown"></div>
                             </div>
@@ -916,9 +1573,12 @@
                         <div class="filter-group">
                             <label for="severityFilter">Severity:</label>
                             <div class="multiselect-container">
-                                <div class="multiselect-button" id="severityFilterButton">
-                                    <span>Choose a Value</span>
-                                    <span>▼</span>
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="severityFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="severity" title="Clear Severity Filter">×</button>
                                 </div>
                                 <div class="multiselect-dropdown" id="severityFilterDropdown"></div>
                             </div>
@@ -926,9 +1586,12 @@
                         <div class="filter-group">
                             <label for="leadingTeamFilter">Leading Team:</label>
                             <div class="multiselect-container">
-                                <div class="multiselect-button" id="leadingTeamFilterButton">
-                                    <span>Choose a Value</span>
-                                    <span>▼</span>
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="leadingTeamFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="leadingTeam" title="Clear Leading Team Filter">×</button>
                                 </div>
                                 <div class="multiselect-dropdown" id="leadingTeamFilterDropdown"></div>
                             </div>
@@ -936,9 +1599,12 @@
                         <div class="filter-group">
                             <label for="assigneeFilter">Assignee:</label>
                             <div class="multiselect-container">
-                                <div class="multiselect-button" id="assigneeFilterButton">
-                                    <span>Choose a Value</span>
-                                    <span>▼</span>
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="assigneeFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="assignee" title="Clear Assignee Filter">×</button>
                                 </div>
                                 <div class="multiselect-dropdown" id="assigneeFilterDropdown"></div>
                             </div>
@@ -946,9 +1612,12 @@
                         <div class="filter-group">
                             <label for="systemFilter">System:</label>
                             <div class="multiselect-container">
-                                <div class="multiselect-button" id="systemFilterButton">
-                                    <span>Choose a Value</span>
-                                    <span>▼</span>
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="systemFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="system" title="Clear System Filter">×</button>
                                 </div>
                                 <div class="multiselect-dropdown" id="systemFilterDropdown"></div>
                             </div>
@@ -964,9 +1633,12 @@
                         <div class="filter-group">
                             <label for="sprintFilter">Sprint:</label>
                             <div class="multiselect-container">
-                                <div class="multiselect-button" id="sprintFilterButton">
-                                    <span>Choose a Value</span>
-                                    <span>▼</span>
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="sprintFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="sprint" title="Clear Sprint Filter">×</button>
                                 </div>
                                 <div class="multiselect-dropdown" id="sprintFilterDropdown"></div>
                             </div>
@@ -974,9 +1646,12 @@
                         <div class="filter-group">
                             <label for="regressionFilter">Regression:</label>
                             <div class="multiselect-container">
-                                <div class="multiselect-button" id="regressionFilterButton">
-                                    <span>Choose a Value</span>
-                                    <span>▼</span>
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="regressionFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="regression" title="Clear Regression Filter">×</button>
                                 </div>
                                 <div class="multiselect-dropdown" id="regressionFilterDropdown"></div>
                             </div>
@@ -984,9 +1659,15 @@
                         <div class="filter-group date-range-container">
                             <label for="dateRange">Date Range:</label>
                             <div class="date-inputs">
-                                <input type="date" id="dateFrom" placeholder="From" title="From Date">
+                                <div class="filter-with-clear">
+                                    <input type="date" id="dateFrom" placeholder="From" title="From Date">
+                                    <button class="filter-clear-btn" data-filter="dateFrom" title="Clear From Date">×</button>
+                                </div>
                                 <span class="date-separator">to</span>
-                                <input type="date" id="dateTo" placeholder="To" title="To Date">
+                                <div class="filter-with-clear">
+                                    <input type="date" id="dateTo" placeholder="To" title="To Date">
+                                    <button class="filter-clear-btn" data-filter="dateTo" title="Clear To Date">×</button>
+                                </div>
                             </div>
                         </div>
                         <div class="filter-group">
@@ -1040,7 +1721,105 @@
                         </div>
                     </div>
                 </div>
+                </div>
+                
+                <!-- Quality Analysis Section -->
+                <div class="quality-analysis-section">
+                <div class="section-header">
+                    <h2 class="section-title">Quality Analysis</h2>
+                    <div class="section-subtitle">Create custom visualizations from your filtered data</div>
+                </div>
+                
+                <div class="chart-builder-container">
+                    <div class="chart-builder-workspace">
+                        <!-- Data Fields Palette -->
+                        <div class="chart-builder-palette">
+                            <h3 class="palette-title">Data Fields</h3>
+                            <div class="palette-subtitle">Drag fields to create charts</div>
+                            
+                            <div class="field-category">
+                                <div class="field-category-header">📊 Categorical</div>
+                                <div class="field-items">
+                                    <div class="chart-field" data-field="status" data-type="categorical" draggable="true">Status</div>
+                                    <div class="chart-field" data-field="severity" data-type="categorical" draggable="true">Severity</div>
+                                    <div class="chart-field" data-field="leadingTeam" data-type="categorical" draggable="true">Leading Team</div>
+                                    <div class="chart-field" data-field="system" data-type="categorical" draggable="true">System</div>
+                                    <div class="chart-field" data-field="assignee" data-type="categorical" draggable="true">Assignee</div>
+                                    <div class="chart-field" data-field="sprint" data-type="categorical" draggable="true">Sprint</div>
+                                    <div class="chart-field" data-field="regression" data-type="categorical" draggable="true">Regression</div>
+                                </div>
+                            </div>
+                            
+                            <div class="field-category">
+                                <div class="field-category-header">📅 Temporal</div>
+                                <div class="field-items">
+                                    <div class="chart-field" data-field="createdDate" data-type="temporal" draggable="true">Created Date</div>
+                                    <div class="chart-field" data-field="updatedDate" data-type="temporal" draggable="true">Updated Date</div>
+                                </div>
+                            </div>
+                            
+                            <div class="field-category">
+                                <div class="field-category-header">🔢 Metrics</div>
+                                <div class="field-items">
+                                    <div class="chart-field" data-field="count" data-type="numeric" draggable="true">Bug Count</div>
+                                    <div class="chart-field" data-field="allBugs" data-type="numeric" draggable="true">All Bugs</div>
+                                    <div class="chart-field" data-field="filteredAllBugs" data-type="numeric" draggable="true">Filtered All Bugs</div>
+                                    <div class="chart-field" data-field="daysToFix" data-type="numeric" draggable="true">Days to Fix</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Chart Builder Canvas -->
+                        <div class="chart-builder-canvas">
+                            <div class="chart-type-selector">
+                                <button class="chart-type-btn active" data-chart-type="bar">📊 Bar Chart</button>
+                                <button class="chart-type-btn" data-chart-type="line">📈 Line Chart</button>
+                                <button class="chart-type-btn" data-chart-type="pie">🥧 Pie Chart</button>
+                                <button class="chart-type-btn" data-chart-type="doughnut">🍩 Doughnut</button>
+                            </div>
+                            
+                            <div class="chart-config-zones">
+                                <div class="drop-zone" id="x-axis-zone" data-zone="x-axis">
+                                    <div class="drop-zone-header">X-Axis</div>
+                                    <div class="drop-zone-content">Drop a field here</div>
+                                </div>
+                                
+                                <div class="drop-zone" id="y-axis-zone" data-zone="y-axis">
+                                    <div class="drop-zone-header">Y-Axis</div>
+                                    <div class="drop-zone-content">Drop a field here</div>
+                                </div>
+                                
+                                <div class="drop-zone optional" id="group-by-zone" data-zone="group-by">
+                                    <div class="drop-zone-header">Group By (Optional)</div>
+                                    <div class="drop-zone-content">Drop a field to split data</div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-preview-area">
+                                <div class="chart-preview-placeholder">
+                                    <div class="preview-icon">📊</div>
+                                    <div class="preview-text">Your chart will appear here</div>
+                                    <div class="preview-subtext">Start by dragging fields from the left panel</div>
+                                </div>
+                                <canvas id="chart-preview-canvas" style="display: none; grid-area: 1 / 1; width: 100%; height: 100%;"></canvas>
+                            </div>
+                            
+                            <div class="chart-actions">
+                                <button class="chart-action-btn primary" id="create-chart-btn" disabled>Create Chart</button>
+                                <button class="chart-action-btn secondary" id="clear-chart-btn">Clear</button>
+                                <button class="chart-action-btn secondary" id="save-chart-btn" disabled>Save Chart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Saved Charts Section -->
+                <div class="saved-charts-section" style="display: none;">
+                    <h3 class="saved-charts-title">Saved Charts</h3>
+                    <div class="saved-charts-grid" id="saved-charts-container"></div>
+                </div>
             </div>
+            </div> <!-- End main-content-layout -->
         </div>
     </div>
 
@@ -1053,16 +1832,107 @@
         
         async function loadDashboardDataFromSource() {
             try {
-                console.log('🔄 Loading dashboard data from automated source...');
-                const response = await fetch('./dashboard-data.json');
+                // First, check if we have more recent synced data in localStorage
+                try {
+                    const storedData = localStorage.getItem('hibob-dashboard-synced-data');
+                    if (storedData) {
+                        const parsed = JSON.parse(storedData);
+                        const syncAge = new Date().getTime() - new Date(parsed.syncTimestamp).getTime();
+                        const hoursOld = Math.floor(syncAge / (1000 * 60 * 60));
+                        
+                        console.log(`💾 Found synced data from ${hoursOld} hours ago`);
+                        
+                        // Use synced data if it's less than 7 days old
+                        if (syncAge < 7 * 24 * 60 * 60 * 1000) {
+                            console.log('✅ Using recent synced data from localStorage');
+                            console.log('📊 Synced KPIs:', {
+                                medianResolution: parsed.data.stats.averageResolutionDays + ' days',
+                                slaCompliance: parsed.data.stats.slaCompliance + '%',
+                                regressionRate: parsed.data.stats.regressionRate + '%'
+                            });
+                            data = parsed.data;
+                            loadData();
+                            return;
+                        } else {
+                            console.log('📅 Synced data is too old, falling back to static file');
+                            localStorage.removeItem('hibob-dashboard-synced-data');
+                        }
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Could not load synced data from localStorage:', e);
+                }
                 
+                console.log('🔄 Loading dashboard data from static source...');
+                const response = await fetch(`./dashboard-data.json?_=${Date.now()}`);
+
                 if (!response.ok) {
                     throw new Error(`Failed to load dashboard data: ${response.status}`);
                 }
-                
-                data = await response.json();
-                console.log(`✅ Loaded ${data.bugs.length} bugs from automated data source`);
-                
+
+                const rawData = await response.json();
+                console.log(`✅ Loaded ${rawData.bugs.length} bugs from automated data source`);
+                console.log('📊 Static data keys:', Object.keys(rawData));
+                console.log('📊 Has stats field:', !!rawData.stats);
+                console.log('📊 Stats value:', rawData.stats);
+
+                // Check if this is API format (needs transformation) or already transformed
+                if (rawData.bugs && (!rawData.stats || rawData.stats === 'WILL_BE_CALCULATED')) {
+                    console.log('🔄 TRANSFORMATION BRANCH TRIGGERED - transforming API data');
+                    console.log('🔄 Transforming API format data to dashboard format...');
+                    
+                    // Apply same transformation as handleSyncData
+                    const transformedBugs = rawData.bugs.map(bug => ({
+                        key: bug.key,
+                        project: bug.project,
+                        summary: bug.summary,
+                        status: bug.status,
+                        priority: bug.priority,
+                        severity: bug.severity || 'Unknown',
+                        assignee: bug.assignee || 'Unassigned',
+                        reporter: bug.reporter,
+                        created: bug.created,
+                        updated: bug.updated,
+                        createdDate: bug.createdDate,
+                        updatedDate: bug.updatedDate,
+                        resolutionDate: bug.resolutionDate,
+                        resolutionDateFormatted: bug.resolutionDateFormatted,
+                        daysOpen: bug.daysOpen,
+                        leadingTeam: bug.leadingTeam || 'Unknown',
+                        system: bug.system || 'Unknown',
+                        sprint: bug.sprintName || bug.sprint || 'No Sprint',
+                        regression: bug.regression || 'Unknown',
+                        fixDuration: 'CALCULATED', // Let calculateFixDuration function handle this
+                        bugType: bug.bugType,
+                        components: bug.components || [],
+                        labels: bug.labels || []
+                    }));
+
+                    data = {
+                        bugs: transformedBugs,
+                        metadata: {
+                            exported: new Date().toISOString(),
+                            totalBugs: rawData.metadata?.totalBugs || transformedBugs.length,
+                            projects: ["BT"],
+                            jiraInstance: rawData.metadata?.jiraInstance || 'hibob.atlassian.net'
+                        },
+                        stats: generateStatsFromBugs(transformedBugs)
+                    };
+                    
+                    console.log('✅ Data transformed with stats:', {
+                        medianResolution: data.stats.averageResolutionDays,
+                        slaCompliance: data.stats.slaCompliance,
+                        regressionRate: data.stats.regressionRate,
+                        totalBugs: data.bugs.length,
+                        deployedBugs: data.bugs.filter(b => b.status === 'Deployed').length,
+                        bugsWithResolutionDate: data.bugs.filter(b => b.status === 'Deployed' && b.resolutionDate).length
+                    });
+                } else {
+                    // Data is already in the right format
+                    console.log('📊 USING DATA AS-IS - already transformed format');
+                    console.log('📊 Existing stats:', rawData.stats);
+                    data = rawData;
+                }
+
                 // Initialize dashboard with loaded data (preserves ALL existing functionality)
                 loadData();
                 
@@ -1078,6 +1948,9 @@
         // Generate stats object from bugs array (for API sync)
         function generateStatsFromBugs(bugs) {
             console.log('🔄 generateStatsFromBugs called with', bugs.length, 'bugs');
+            console.log('📊 Sample bug for debugging:', bugs.find(b => b.status === 'Deployed'));
+            const deployedWithResolution = bugs.filter(b => b.status === 'Deployed' && b.resolutionDate);
+            console.log(`📊 Found ${deployedWithResolution.length} deployed bugs with resolutionDate`);
             
             const stats = {
                 totalBugs: bugs.length,
@@ -1097,14 +1970,22 @@
             console.log('📊 Calculating new metrics...');
             stats.monthlyBugsWithTrend = calculateMonthlyBugsWithTrend(bugs);
             stats.inProgressHighPriority = calculateInProgressHighPriority(bugs);
-            stats.averageResolutionDays = calculateAverageResolution(bugs);
+            stats.averageResolutionDays = calculateAverageResolution(bugs); // Now returns median
             stats.resolvedThisMonth = calculateResolvedThisMonth(bugs);
             
-            console.log('📈 New metrics calculated:', {
+            // NEW STRATEGIC KPIs (always use full dataset)
+            stats.regressionRate = calculateRegressionRate(bugs);
+            stats.slaCompliance = calculateSLACompliance(bugs);
+            stats.bugVelocity = calculateBugVelocity(bugs);
+            
+            console.log('📈 All metrics calculated from generateStatsFromBugs:', {
                 monthlyBugs: stats.monthlyBugsWithTrend,
                 highPriority: stats.inProgressHighPriority,
                 avgResolution: stats.averageResolutionDays,
-                resolvedThisMonth: stats.resolvedThisMonth
+                resolvedThisMonth: stats.resolvedThisMonth,
+                regressionRate: stats.regressionRate,
+                slaCompliance: stats.slaCompliance,
+                bugVelocity: stats.bugVelocity
             });
 
             let totalDaysOpen = 0;
@@ -1381,26 +2262,77 @@
             return highPriorityBugs.length;
         }
 
-        // Calculate average resolution time for deployed bugs only
+        // Calculate median resolution time for deployed bugs only
         function calculateAverageResolution(bugs) {
-            console.log('🔍 calculateAverageResolution: Processing', bugs.length, 'bugs');
+            console.log('🔍 calculateMedianResolution: Processing', bugs.length, 'bugs using PRECISE changelog resolution dates');
             
-            let resolvedBugs = 0;
-            let totalResolutionDays = 0;
+            const deployedBugs = bugs.filter(b => b.status === 'Deployed');
+            const deployedBugsWithResolution = deployedBugs.filter(b => b.resolutionDate);
+            console.log(`   • Deployed bugs: ${deployedBugs.length}`);
+            console.log(`   • Deployed bugs with resolutionDate: ${deployedBugsWithResolution.length}`);
+            if (deployedBugsWithResolution.length > 0) {
+                console.log(`   • Sample resolutionDate: ${deployedBugsWithResolution[0].resolutionDate}`);
+            }
+            
+            const resolutionDays = [];
 
             bugs.forEach(bug => {
-                if (bug.status === 'Deployed' && bug.daysOpen && !isNaN(bug.daysOpen)) {
-                    totalResolutionDays += bug.daysOpen;
-                    resolvedBugs++;
-                    if (resolvedBugs <= 3) {
-                        console.log('📊 Sample deployed bug:', bug.key, bug.daysOpen, 'days');
+                if (bug.status === 'Deployed') {
+                    // Use PRECISE resolution date from changelog, not approximations
+                    const createdDateStr = bug.createdDate || bug.created;
+                    
+                    if (!createdDateStr || !bug.resolutionDate) return;
+
+                    let createdDate, resolutionDate;
+                    
+                    // Parse creation date
+                    if (createdDateStr.includes('/')) {
+                        const parts = createdDateStr.split('/');
+                        createdDate = new Date(parts[2], parts[0] - 1, parts[1]);
+                    } else {
+                        createdDate = new Date(createdDateStr);
+                    }
+                    
+                    // Parse precise resolution date from changelog
+                    resolutionDate = new Date(bug.resolutionDate);
+                    
+                    if (!isNaN(createdDate.getTime()) && !isNaN(resolutionDate.getTime())) {
+                        const diffTime = Math.abs(resolutionDate - createdDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        resolutionDays.push(diffDays);
                     }
                 }
             });
 
-            const average = resolvedBugs > 0 ? Math.round(totalResolutionDays / resolvedBugs) : 0;
-            console.log('✅ Average resolution:', average, 'days from', resolvedBugs, 'deployed bugs');
-            return average;
+            if (resolutionDays.length === 0) {
+                console.log('❌ No deployed bugs found with precise resolution dates from changelog');
+                console.log('💡 Tip: Click "Sync Data" to get precise resolution dates from Jira changelog');
+                return 0;
+            }
+
+            // Sort the array to find median
+            resolutionDays.sort((a, b) => a - b);
+            
+            let median;
+            const length = resolutionDays.length;
+            if (length % 2 === 0) {
+                // Even number of values - average of two middle values
+                median = Math.round((resolutionDays[length / 2 - 1] + resolutionDays[length / 2]) / 2);
+            } else {
+                // Odd number of values - middle value
+                median = resolutionDays[Math.floor(length / 2)];
+            }
+
+            // Log some useful statistics
+            const average = Math.round(resolutionDays.reduce((sum, days) => sum + days, 0) / length);
+            console.log('📊 Resolution statistics for', length, 'deployed bugs:');
+            console.log('   • Median (displayed):', median, 'days');
+            console.log('   • Average:', average, 'days'); 
+            console.log('   • Range:', resolutionDays[0], '-', resolutionDays[length - 1], 'days');
+            console.log('   • Sample fast bugs:', resolutionDays.slice(0, 3), 'days');
+            console.log('   • Sample slow bugs:', resolutionDays.slice(-3), 'days');
+
+            return median;
         }
 
         // Calculate bugs resolved this month (April 2026)
@@ -1464,6 +2396,161 @@
             return resolvedThisMonth.length;
         }
 
+        // NEW STRATEGIC KPI CALCULATION FUNCTIONS
+        
+        // Calculate regression rate (overall percentage, excluding cancelled/rejected)
+        function calculateRegressionRate(bugs) {
+            console.log('🔍 calculateRegressionRate: Processing', bugs.length, 'bugs');
+            
+            // Filter out cancelled and rejected bugs
+            const validBugs = bugs.filter(bug => 
+                bug.status !== 'Canceled' && bug.status !== 'Rejected'
+            );
+            
+            const regressionBugs = validBugs.filter(bug => 
+                bug.regression === 'Yes'
+            );
+            
+            const regressionRate = validBugs.length > 0 ? 
+                Math.round((regressionBugs.length / validBugs.length) * 100) : 0;
+                
+            console.log('✅ Regression analysis:');
+            console.log(`   • Total valid bugs: ${validBugs.length}`);
+            console.log(`   • Regression bugs: ${regressionBugs.length}`);
+            console.log(`   • Regression rate: ${regressionRate}%`);
+            
+            return regressionRate;
+        }
+
+        // Calculate SLA compliance for Critical/High deployed bugs
+        function calculateSLACompliance(bugs) {
+            console.log('🔍 calculateSLACompliance: Processing', bugs.length, 'bugs');
+            
+            // Only consider Critical/High deployed bugs
+            const criticalHighDeployedBugs = bugs.filter(bug => 
+                bug.status === 'Deployed' && 
+                (bug.severity === 'Critical' || bug.severity === 'High')
+            );
+            
+            let slaCompliantBugs = 0;
+            
+            criticalHighDeployedBugs.forEach(bug => {
+                const createdDateStr = bug.createdDate || bug.created;
+
+                if (!createdDateStr || !bug.resolutionDate) return;
+
+                // Calculate PRECISE resolution time using changelog deployment date
+                let createdDate, resolutionDate;
+
+                if (createdDateStr.includes('/')) {
+                    const parts = createdDateStr.split('/');
+                    createdDate = new Date(parts[2], parts[0] - 1, parts[1]);
+                } else {
+                    createdDate = new Date(createdDateStr);
+                }
+
+                // Use precise resolution date from changelog
+                resolutionDate = new Date(bug.resolutionDate);
+                
+                if (!isNaN(createdDate.getTime()) && !isNaN(resolutionDate.getTime())) {
+                    const diffTime = Math.abs(resolutionDate - createdDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    // SLA thresholds: Critical ≤ 1 day, High ≤ 3 days
+                    const slaThreshold = bug.severity === 'Critical' ? 1 : 3;
+                    
+                    if (diffDays <= slaThreshold) {
+                        slaCompliantBugs++;
+                    }
+                }
+            });
+            
+            const complianceRate = criticalHighDeployedBugs.length > 0 ? 
+                Math.round((slaCompliantBugs / criticalHighDeployedBugs.length) * 100) : 0;
+                
+            // Add helpful messaging when no data is available
+            const bugsWithResolutionData = criticalHighDeployedBugs.filter(bug => bug.resolutionDate).length;
+            if (bugsWithResolutionData === 0 && criticalHighDeployedBugs.length > 0) {
+                console.log('⚠️ SLA compliance: Found Critical/High deployed bugs but no resolution dates');
+                console.log('💡 Tip: Click "Sync Data" to get precise resolution dates from Jira changelog');
+            }
+                
+            console.log('✅ SLA Compliance analysis (using PRECISE changelog resolution dates):');
+            console.log(`   • Critical/High deployed bugs: ${criticalHighDeployedBugs.length}`);
+            console.log(`   • Bugs with resolution dates: ${bugsWithResolutionData}`);
+            console.log(`   • SLA compliant bugs: ${slaCompliantBugs}`);
+            console.log(`   • Compliance rate: ${complianceRate}%`);
+            
+            return complianceRate;
+        }
+
+        // Calculate bug velocity (resolved per month, excluding cancelled/rejected)
+        function calculateBugVelocity(bugs) {
+            console.log('🔍 calculateBugVelocity: Processing', bugs.length, 'bugs');
+            
+            // Filter to deployed bugs (resolved), excluding cancelled/rejected
+            const resolvedBugs = bugs.filter(bug => bug.status === 'Deployed');
+            
+            // Group by month based on updatedDate (when they were resolved)
+            const monthlyResolutions = {};
+            
+            resolvedBugs.forEach(bug => {
+                const dateStr = bug.updatedDate || bug.updated;
+                if (!dateStr) return;
+                
+                let bugDate;
+                if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        bugDate = new Date(parts[2], parts[0] - 1, parts[1]);
+                    }
+                } else {
+                    bugDate = new Date(dateStr);
+                }
+                
+                if (!isNaN(bugDate.getTime())) {
+                    const monthKey = `${bugDate.getFullYear()}-${bugDate.getMonth() + 1}`;
+                    monthlyResolutions[monthKey] = (monthlyResolutions[monthKey] || 0) + 1;
+                }
+            });
+            
+            const months = Object.keys(monthlyResolutions);
+            const currentMonth = '2026-4'; // April 2026
+            const previousMonth = '2026-3'; // March 2026
+            
+            const currentMonthCount = monthlyResolutions[currentMonth] || 0;
+            const previousMonthCount = monthlyResolutions[previousMonth] || 0;
+            
+            // Calculate trend
+            let trend = '';
+            let trendClass = 'trend-neutral';
+            
+            if (previousMonthCount > 0) {
+                const changePercent = Math.round(((currentMonthCount - previousMonthCount) / previousMonthCount) * 100);
+                if (changePercent > 5) {
+                    trend = `+${changePercent}%`;
+                    trendClass = 'trend-up';
+                } else if (changePercent < -5) {
+                    trend = `${changePercent}%`;
+                    trendClass = 'trend-down';
+                } else {
+                    trend = 'Stable';
+                    trendClass = 'trend-neutral';
+                }
+            }
+            
+            console.log('✅ Bug Velocity analysis:');
+            console.log(`   • Current month (April): ${currentMonthCount} bugs`);
+            console.log(`   • Previous month (March): ${previousMonthCount} bugs`);
+            console.log(`   • Trend: ${trend}`);
+            
+            return {
+                count: currentMonthCount,
+                trend: trend,
+                trendClass: trendClass
+            };
+        }
+
         // Sync button functionality
         let syncInProgress = false;
         const API_BASE = 'http://localhost:3002';
@@ -1510,12 +2597,14 @@
                     updated: bug.updated,
                     createdDate: bug.createdDate,
                     updatedDate: bug.updatedDate,
+                    resolutionDate: bug.resolutionDate,
+                    resolutionDateFormatted: bug.resolutionDateFormatted,
                     daysOpen: bug.daysOpen,
                     leadingTeam: bug.leadingTeam || 'Unknown',
                     system: bug.system || 'Unknown',
                     sprint: bug.sprintName || bug.sprint || 'No Sprint', // Map sprintName to sprint
                     regression: bug.regression || 'Unknown',
-                    fixDuration: bug.daysOpen ? bug.daysOpen + ' days' : 'N/A',
+                    fixDuration: 'CALCULATED', // Let calculateFixDuration function handle this using precise resolution dates
                     bugType: bug.bugType,
                     components: bug.components || [],
                     labels: bug.labels || []
@@ -1534,11 +2623,30 @@
                 
                 data = freshData;
                 console.log(`✅ Loaded ${data.bugs.length} fresh bugs from local API`);
+                
+                // Save synced data to localStorage so it persists across refreshes
+                try {
+                    localStorage.setItem('hibob-dashboard-synced-data', JSON.stringify({
+                        data: freshData,
+                        syncTimestamp: new Date().toISOString()
+                    }));
+                    console.log('💾 Synced data saved to localStorage for persistence');
+                } catch (e) {
+                    console.warn('⚠️ Could not save synced data to localStorage:', e);
+                }
+                
                 loadData(); // Re-initialize dashboard with fresh data
                 
                 // Re-initialize event listeners after sync
                 initializeEventListeners();
                 
+                // Log the updated KPIs for confirmation
+                console.log('🎯 UPDATED KPIs after sync:', {
+                    medianResolution: freshData.stats.averageResolutionDays + ' days',
+                    slaCompliance: freshData.stats.slaCompliance + '%',
+                    regressionRate: freshData.stats.regressionRate + '%'
+                });
+
                 updateSyncButton('success');
                 updateLastSyncTime();
                 
@@ -2249,7 +3357,33 @@
             const avgDaysElement = document.getElementById('avgDaysOpen');
             if (avgDaysElement) {
                 avgDaysElement.textContent = stats.averageResolutionDays || 0;
-                console.log('Avg resolution set to:', stats.averageResolutionDays);
+                console.log('Median resolution set to:', stats.averageResolutionDays);
+            }
+            
+            // NEW STRATEGIC KPI DISPLAY
+            const regressionRateElement = document.getElementById('regressionRateKpi');
+            if (regressionRateElement && stats.regressionRate !== undefined) {
+                regressionRateElement.textContent = `${stats.regressionRate}%`;
+                console.log('Regression rate set to:', stats.regressionRate + '%');
+            }
+            
+            const slaComplianceElement = document.getElementById('slaComplianceKpi');
+            if (slaComplianceElement && stats.slaCompliance !== undefined) {
+                slaComplianceElement.textContent = `${stats.slaCompliance}%`;
+                console.log('SLA compliance set to:', stats.slaCompliance + '%');
+            }
+            
+            const bugVelocityElement = document.getElementById('bugVelocityKpi');
+            const velocityTrendElement = document.getElementById('velocityTrend');
+            if (bugVelocityElement && stats.bugVelocity) {
+                bugVelocityElement.textContent = stats.bugVelocity.count;
+                console.log('Bug velocity set to:', stats.bugVelocity.count);
+            }
+            
+            if (velocityTrendElement && stats.bugVelocity) {
+                velocityTrendElement.textContent = stats.bugVelocity.trend;
+                velocityTrendElement.className = `stat-trend ${stats.bugVelocity.trendClass}`;
+                console.log('Velocity trend set to:', stats.bugVelocity.trend);
             }
         }
 
@@ -2306,6 +3440,12 @@
             
             // Set up button click handlers for all filter dropdowns
             setupFilterButtonHandlers();
+            
+            // Set up clear button event handlers
+            setupClearButtonHandlers();
+            
+            // Update date clear button visibility
+            updateDateClearButtons();
             
             // COMPREHENSIVE SPRINT VERIFICATION - Test 50+ records as requested
             function verifySprints(bugs) {
@@ -2547,6 +3687,9 @@
             
             dropdown.innerHTML = '';
             
+            // Add search functionality to dropdown
+            addSearchToDropdown(dropdown, filterType);
+            
             // Special handling for sprint filter with year dividers
             if (filterType === 'sprint') {
                 // Group sprints by year based on actual bug creation dates
@@ -2646,15 +3789,56 @@
                         e.stopPropagation();
                         const isOpen = dropdown.classList.contains('show');
                         
-                        // Close all dropdowns first
-                        document.querySelectorAll('.multiselect-dropdown').forEach(d => d.classList.remove('show'));
+                        // Close all OTHER dropdowns first
+                        document.querySelectorAll('.multiselect-dropdown').forEach(d => {
+                            if (d !== dropdown) d.classList.remove('show');
+                        });
                         
-                        if (!isOpen) {
-                            dropdown.classList.add('show');
-                        }
+                        // Toggle current dropdown
+                        dropdown.classList.toggle('show');
                     });
                 } else {
                     console.warn(`Filter elements not found for: ${filterType} (button: ${!!button}, dropdown: ${!!dropdown})`);
+                }
+            });
+        }
+
+        // Set up clear button event handlers
+        function setupClearButtonHandlers() {
+            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression'];
+            
+            // Handle regular filter clear buttons
+            filterTypes.forEach(filterType => {
+                const clearBtn = document.querySelector(`[data-filter="${filterType}"]`);
+                
+                if (clearBtn) {
+                    // Remove existing listeners to avoid duplicates
+                    const newClearBtn = clearBtn.cloneNode(true);
+                    clearBtn.parentNode.replaceChild(newClearBtn, clearBtn);
+                    
+                    newClearBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        clearIndividualFilter(filterType);
+                    });
+                } else {
+                    console.warn(`Clear button not found for: ${filterType}`);
+                }
+            });
+            
+            // Handle date clear buttons
+            const dateTypes = ['dateFrom', 'dateTo'];
+            dateTypes.forEach(dateType => {
+                const clearBtn = document.querySelector(`[data-filter="${dateType}"]`);
+                
+                if (clearBtn && !clearBtn.hasAttribute('data-date-listener-attached')) {
+                    clearBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        clearIndividualDateFilter(dateType);
+                    });
+                    clearBtn.setAttribute('data-date-listener-attached', 'true');
+                    console.log(`🔧 Date clear button attached: ${dateType}`);
+                } else if (!clearBtn) {
+                    console.warn(`Date clear button not found for: ${dateType}`);
                 }
             });
         }
@@ -2824,6 +4008,101 @@
             dropdown.appendChild(optionDiv);
         }
 
+        // Add search functionality to dropdowns
+        function addSearchToDropdown(dropdown, filterType) {
+            // Check if search container already exists
+            if (dropdown.querySelector('.filter-search-container')) {
+                return;
+            }
+            
+            const searchContainer = document.createElement('div');
+            searchContainer.className = 'filter-search-container';
+            searchContainer.innerHTML = `
+                <input type="text" class="filter-search-input" 
+                       placeholder="Search ${filterType}..." 
+                       data-filter="${filterType}">
+            `;
+            
+            dropdown.insertBefore(searchContainer, dropdown.firstChild);
+            
+            const searchInput = searchContainer.querySelector('.filter-search-input');
+            searchInput.addEventListener('input', (e) => {
+                filterDropdownOptions(dropdown, e.target.value.toLowerCase());
+            });
+            
+            // Prevent search input from closing dropdown when clicked
+            searchInput.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        // Filter dropdown options based on search term
+        function filterDropdownOptions(dropdown, searchTerm) {
+            const options = dropdown.querySelectorAll('.multiselect-option');
+            options.forEach(option => {
+                const label = option.querySelector('label');
+                const text = label ? label.textContent.toLowerCase() : '';
+                option.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+            });
+        }
+
+        // Clear individual filter
+        function clearIndividualFilter(filterType) {
+            filterSelections[filterType].clear();
+            updateFilterButtonText(filterType);
+            
+            // Uncheck checkboxes for this filter
+            document.querySelectorAll(`#${filterType}FilterDropdown input[type="checkbox"]`)
+                .forEach(checkbox => checkbox.checked = false);
+            
+            // Hide clear button
+            const clearBtn = document.querySelector(`[data-filter="${filterType}"]`);
+            if (clearBtn) clearBtn.style.display = 'none';
+            
+            applyFilters();
+        }
+
+        // Clear individual date input
+        function clearIndividualDateFilter(dateType) {
+            console.log('🗑️ Clearing date filter:', dateType);
+            
+            if (dateType === 'dateFrom') {
+                const dateFromInput = document.getElementById('dateFrom');
+                if (dateFromInput) {
+                    dateFromInput.value = '';
+                    dateRangeFilter.dateFrom = null;
+                }
+                const clearBtn = document.querySelector(`[data-filter="dateFrom"]`);
+                if (clearBtn) clearBtn.style.display = 'none';
+            } else if (dateType === 'dateTo') {
+                const dateToInput = document.getElementById('dateTo');
+                if (dateToInput) {
+                    dateToInput.value = '';
+                    dateRangeFilter.dateTo = null;
+                }
+                const clearBtn = document.querySelector(`[data-filter="dateTo"]`);
+                if (clearBtn) clearBtn.style.display = 'none';
+            }
+            
+            applyFilters();
+        }
+
+        // Update date clear button visibility
+        function updateDateClearButtons() {
+            const dateFromInput = document.getElementById('dateFrom');
+            const dateToInput = document.getElementById('dateTo');
+            const dateFromClearBtn = document.querySelector(`[data-filter="dateFrom"]`);
+            const dateToClearBtn = document.querySelector(`[data-filter="dateTo"]`);
+            
+            if (dateFromInput && dateFromClearBtn) {
+                dateFromClearBtn.style.display = dateFromInput.value ? 'block' : 'none';
+            }
+            
+            if (dateToInput && dateToClearBtn) {
+                dateToClearBtn.style.display = dateToInput.value ? 'block' : 'none';
+            }
+        }
+
         function updateFilterButtonText(filterType) {
             const buttonElement = document.getElementById(`${filterType}FilterButton`);
             if (!buttonElement) {
@@ -2843,6 +4122,7 @@
                 return;
             }
             
+            // Update button text
             if (selections.size === 0) {
                 const labels = {
                     status: 'Choose a Value',
@@ -2859,10 +4139,23 @@
             } else {
                 button.textContent = `${selections.size} selected`;
             }
+            
+            // Show/hide clear button based on selections
+            const clearBtn = document.querySelector(`[data-filter="${filterType}"]`);
+            if (clearBtn) {
+                clearBtn.style.display = selections.size > 0 ? 'block' : 'none';
+            }
         }
 
         // Close dropdowns when clicking outside
-        document.addEventListener('click', () => {
+        document.addEventListener('click', (e) => {
+            // Don't close if clicking inside a dropdown or on a checkbox/label or clear button
+            if (e.target.closest('.multiselect-dropdown') || 
+                e.target.closest('.filter-clear-btn') ||
+                e.target.type === 'checkbox') {
+                return;
+            }
+            
             document.querySelectorAll('.multiselect-dropdown').forEach(dropdown => {
                 dropdown.classList.remove('show');
             });
@@ -2883,17 +4176,14 @@
                 return 'N/A';
             }
 
-            // Use the correct field names from the data structure
             const createdDateStr = bug.createdDate || bug.created;
-            const updatedDateStr = bug.updatedDate || bug.updated || bug.resolutionDate;
             
-            if (!createdDateStr || !updatedDateStr) {
+            if (!createdDateStr) {
                 return 'N/A';
             }
 
-            let createdDate, updatedDate;
-            
-            // Handle different date formats
+            // Parse creation date
+            let createdDate;
             if (createdDateStr.includes('/')) {
                 const parts = createdDateStr.split('/');
                 createdDate = new Date(parts[2], parts[0] - 1, parts[1]);
@@ -2901,21 +4191,32 @@
                 createdDate = new Date(createdDateStr);
             }
             
-            if (updatedDateStr.includes('/')) {
-                const parts = updatedDateStr.split('/');
-                updatedDate = new Date(parts[2], parts[0] - 1, parts[1]);
-            } else {
-                updatedDate = new Date(updatedDateStr);
-            }
-            
-            if (isNaN(createdDate.getTime()) || isNaN(updatedDate.getTime())) {
+            if (isNaN(createdDate.getTime())) {
                 return 'N/A';
             }
 
-            const diffTime = Math.abs(updatedDate - createdDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            return `${diffDays} days`;
+            // PRECISE CALCULATION: Use actual resolution date from Jira when available
+            let resolutionDate = null;
+            
+            // Method 1: Use precise Jira resolution date (preferred)
+            if (bug.resolutionDate) {
+                resolutionDate = new Date(bug.resolutionDate);
+            } 
+            // Method 2: Use formatted resolution date as fallback
+            else if (bug.resolutionDateFormatted) {
+                const parts = bug.resolutionDateFormatted.split('/');
+                resolutionDate = new Date(parts[2], parts[0] - 1, parts[1]);
+            }
+            
+            // ONLY use precise resolution date - no fallback to incorrect data
+            if (resolutionDate && !isNaN(resolutionDate.getTime())) {
+                const diffTime = Math.abs(resolutionDate - createdDate);
+                const calculatedDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return `${calculatedDays} days`;
+            }
+            
+            // No resolution date available - return N/A instead of incorrect approximation
+            return 'N/A';
         }
 
         function displayBugsTable() {
@@ -2957,11 +4258,16 @@
         function applyFilters() {
             const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
 
-            // Get date range values
-            const dateFromElement = document.getElementById('dateFrom');
-            const dateToElement = document.getElementById('dateTo');
-            const dateFromValue = dateFromElement ? dateFromElement.value : null;
-            const dateToValue = dateToElement ? dateToElement.value : null;
+            // Get date range values from state object
+            const dateFromValue = dateRangeFilter.dateFrom;
+            const dateToValue = dateRangeFilter.dateTo;
+            
+            // Debug logging for date filter state
+            console.log('📅 ApplyFilters called with date range:', {
+                dateFrom: dateFromValue,
+                dateTo: dateToValue,
+                stateObject: dateRangeFilter
+            });
 
             filteredData = bugsData.filter(bug => {
                 // Preserve all existing filter logic exactly as before
@@ -2984,11 +4290,21 @@
                        leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch && dateMatch;
             });
 
+            // Debug logging for filter results
+            if (dateFromValue || dateToValue) {
+                const dateFilteredCount = bugsData.filter(bug => checkDateRange(bug, dateFromValue, dateToValue)).length;
+                console.log(`📅 Date filtering: ${dateFilteredCount}/${bugsData.length} bugs match date range`);
+            }
+            console.log(`📊 Total filtered results: ${filteredData.length}/${bugsData.length} bugs`);
+
             // Reset to first page when filters change
             paginationState.currentPage = 1;
 
             applySorting();
             displayBugsTable();
+            
+            // AUTO-REFRESH CHARTS when filters change
+            refreshChartsWithFilteredData();
             
             // Trigger enhancement for newly filtered/visible bugs
             onFiltersChanged('filter applied');
@@ -3121,8 +4437,48 @@
             console.log('✅ All filters cleared');
         }
 
+        // Backup function to setup date range listeners
+        function setupDateRangeListeners() {
+            console.log('🔧 SetupDateRangeListeners called as backup');
+            
+            const dateFromInput = document.getElementById('dateFrom');
+            const dateToInput = document.getElementById('dateTo');
+            
+            console.log('🔧 Backup - Date inputs found:', {
+                dateFromInput: !!dateFromInput,
+                dateToInput: !!dateToInput
+            });
+            
+            if (dateFromInput && !dateFromInput.hasAttribute('data-listener-attached')) {
+                dateFromInput.addEventListener('change', (e) => {
+                    dateRangeFilter.dateFrom = e.target.value;
+                    console.log('📅 [BACKUP] Date From changed:', e.target.value);
+                    updateDateClearButtons();
+                    applyFilters();
+                });
+                dateFromInput.setAttribute('data-listener-attached', 'true');
+                console.log('🔧 [BACKUP] Date From event listener attached');
+            }
+            
+            if (dateToInput && !dateToInput.hasAttribute('data-listener-attached')) {
+                dateToInput.addEventListener('change', (e) => {
+                    dateRangeFilter.dateTo = e.target.value;
+                    console.log('📅 [BACKUP] Date To changed:', e.target.value);
+                    updateDateClearButtons();
+                    applyFilters();
+                });
+                dateToInput.setAttribute('data-listener-attached', 'true');
+                console.log('🔧 [BACKUP] Date To event listener attached');
+            }
+            
+            // Update date clear button visibility
+            updateDateClearButtons();
+        }
+
         // Initialize all event listeners (called on load and after sync)
         function initializeEventListeners() {
+            console.log('🔧 InitializeEventListeners called');
+            
             // Add search filter listener
             const searchFilter = document.getElementById('searchFilter');
             if (searchFilter) {
@@ -3154,14 +4510,39 @@
             const dateFromInput = document.getElementById('dateFrom');
             const dateToInput = document.getElementById('dateTo');
             
-            if (dateFromInput) {
-                dateFromInput.removeEventListener('change', applyFilters);
-                dateFromInput.addEventListener('change', applyFilters);
+            console.log('🔧 Date inputs found:', {
+                dateFromInput: !!dateFromInput,
+                dateToInput: !!dateToInput,
+                dateFromId: dateFromInput?.id,
+                dateToId: dateToInput?.id
+            });
+            
+            if (dateFromInput && !dateFromInput.hasAttribute('data-main-listener-attached')) {
+                // Initialize date range state from current DOM value
+                dateRangeFilter.dateFrom = dateFromInput.value || null;
+                
+                dateFromInput.addEventListener('change', (e) => {
+                    dateRangeFilter.dateFrom = e.target.value;
+                    console.log('📅 Date From changed:', e.target.value);
+                    updateDateClearButtons();
+                    applyFilters();
+                });
+                dateFromInput.setAttribute('data-main-listener-attached', 'true');
+                console.log('🔧 Date From event listener attached');
             }
             
-            if (dateToInput) {
-                dateToInput.removeEventListener('change', applyFilters);
-                dateToInput.addEventListener('change', applyFilters);
+            if (dateToInput && !dateToInput.hasAttribute('data-main-listener-attached')) {
+                // Initialize date range state from current DOM value  
+                dateRangeFilter.dateTo = dateToInput.value || null;
+                
+                dateToInput.addEventListener('change', (e) => {
+                    dateRangeFilter.dateTo = e.target.value;
+                    console.log('📅 Date To changed:', e.target.value);
+                    updateDateClearButtons();
+                    applyFilters();
+                });
+                dateToInput.setAttribute('data-main-listener-attached', 'true');
+                console.log('🔧 Date To event listener attached');
             }
 
             // Add sync button listener (only once)
@@ -3207,9 +4588,972 @@
             }
         }
 
+        // CHART BUILDER FUNCTIONALITY
+        let chartBuilderState = {
+            selectedChartType: 'bar',
+            xAxisField: null,
+            yAxisField: null,
+            groupByField: null,
+            currentChart: null,
+            savedCharts: []
+        };
+
+        // Initialize chart builder when DOM is ready
+        function initializeChartBuilder() {
+            console.log('🎨 Initializing chart builder...');
+            
+            // Initialize drag and drop for data fields
+            initializeDragAndDrop();
+            
+            // Initialize chart type selector
+            initializeChartTypeSelector();
+            
+            // Initialize drop zones
+            initializeDropZones();
+            
+            // Initialize action buttons
+            initializeActionButtons();
+            
+            // Load saved charts
+            loadSavedCharts();
+            
+            console.log('✅ Chart builder initialized');
+        }
+
+        // Initialize drag and drop functionality
+        function initializeDragAndDrop() {
+            const chartFields = document.querySelectorAll('.chart-field');
+            
+            chartFields.forEach(field => {
+                field.addEventListener('dragstart', handleDragStart);
+                field.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        // Handle drag start
+        function handleDragStart(e) {
+            const field = e.target;
+            field.classList.add('dragging');
+            
+            // Store field data for drop
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                field: field.dataset.field,
+                type: field.dataset.type,
+                label: field.textContent
+            }));
+            
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        // Handle drag end
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        // Initialize drop zones
+        function initializeDropZones() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('drop', handleDrop);
+                zone.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        // Handle drag over
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        // Handle drag leave
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        // Handle drop
+        function handleDrop(e) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            zone.classList.remove('drag-over');
+            
+            try {
+                const fieldData = JSON.parse(e.dataTransfer.getData('text/plain'));
+                const zoneType = zone.dataset.zone;
+                
+                // Validate drop based on zone and field type
+                if (validateFieldDrop(fieldData, zoneType)) {
+                    assignFieldToZone(fieldData, zoneType, zone);
+                    updateChartPreview();
+                } else {
+                    showDropValidationError(fieldData, zoneType);
+                }
+            } catch (error) {
+                console.error('Error handling drop:', error);
+            }
+        }
+
+        // Validate field drop
+        function validateFieldDrop(fieldData, zoneType) {
+            // Allow any field in any zone - we'll aggregate appropriately
+            if (zoneType === 'x-axis') return true;
+            if (zoneType === 'y-axis') return true; // ANY field can be Y-axis (we'll count/aggregate)
+            if (zoneType === 'group-by') return fieldData.type === 'categorical';
+            return false;
+        }
+
+        // Assign field to zone
+        function assignFieldToZone(fieldData, zoneType, zoneElement) {
+            // Update state
+            if (zoneType === 'x-axis') {
+                chartBuilderState.xAxisField = fieldData;
+            } else if (zoneType === 'y-axis') {
+                chartBuilderState.yAxisField = fieldData;
+            } else if (zoneType === 'group-by') {
+                chartBuilderState.groupByField = fieldData;
+            }
+            
+            // Update UI
+            zoneElement.classList.add('has-field');
+            const content = zoneElement.querySelector('.drop-zone-content');
+            content.innerHTML = `
+                <div class="field-tag">
+                    ${fieldData.label}
+                    <button class="field-remove" onclick="removeFieldFromZone('${zoneType}')">×</button>
+                </div>
+            `;
+            
+            // Update action buttons
+            updateActionButtons();
+        }
+
+        // Remove field from zone
+        function removeFieldFromZone(zoneType) {
+            // Update state
+            if (zoneType === 'x-axis') chartBuilderState.xAxisField = null;
+            else if (zoneType === 'y-axis') chartBuilderState.yAxisField = null;
+            else if (zoneType === 'group-by') chartBuilderState.groupByField = null;
+            
+            // Update UI
+            const zone = document.getElementById(`${zoneType}-zone`);
+            zone.classList.remove('has-field');
+            
+            const content = zone.querySelector('.drop-zone-content');
+            const defaultText = zoneType === 'group-by' ? 'Drop a field to split data' : 'Drop a field here';
+            content.textContent = defaultText;
+            
+            // Update chart and buttons
+            updateChartPreview();
+            updateActionButtons();
+        }
+
+        // Initialize chart type selector
+        function initializeChartTypeSelector() {
+            const chartTypeBtns = document.querySelectorAll('.chart-type-btn');
+            
+            chartTypeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update active state
+                    chartTypeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update state
+                    chartBuilderState.selectedChartType = this.dataset.chartType;
+                    
+                    // Update chart preview
+                    updateChartPreview();
+                });
+            });
+        }
+
+        // Initialize action buttons
+        function initializeActionButtons() {
+            const createBtn = document.getElementById('create-chart-btn');
+            const clearBtn = document.getElementById('clear-chart-btn');
+            const saveBtn = document.getElementById('save-chart-btn');
+            
+            createBtn.addEventListener('click', createChart);
+            clearBtn.addEventListener('click', clearChart);
+            saveBtn.addEventListener('click', saveChart);
+        }
+
+        // Update action buttons state
+        function updateActionButtons() {
+            const createBtn = document.getElementById('create-chart-btn');
+            const saveBtn = document.getElementById('save-chart-btn');
+            
+            const canCreate = chartBuilderState.xAxisField && chartBuilderState.yAxisField;
+            createBtn.disabled = !canCreate;
+            saveBtn.disabled = !chartBuilderState.currentChart;
+        }
+
+        // Generate chart data from filtered bugs
+        function generateChartData() {
+            const { xAxisField, yAxisField, groupByField, selectedChartType } = chartBuilderState;
+            
+            if (!xAxisField || !yAxisField) return null;
+            
+            // Determine if we should use complete dataset (no filtering)
+            const useCompleteDataset = yAxisField.field === 'allBugs';
+            
+            // Choose data source based on Y-axis field type
+            const data = useCompleteDataset ? bugsData : filteredData;
+            
+            // Handle different Y-axis field types
+            if (yAxisField.field === 'count') {
+                // Simple count aggregation (filtered data)
+                return generateCountChartData(data, xAxisField, groupByField, selectedChartType, useCompleteDataset);
+            } else if (yAxisField.field === 'allBugs') {
+                // All bugs count aggregation (complete dataset, no filtering)
+                return generateCountChartData(data, xAxisField, groupByField, selectedChartType, useCompleteDataset);
+            } else if (yAxisField.field === 'filteredAllBugs') {
+                // Filtered context: use table-filtered data but show all X-axis categories
+                return generateCountChartData(filteredData, xAxisField, groupByField, selectedChartType, true);
+            } else if (yAxisField.field === 'daysToFix') {
+                // Average days to fix (numeric aggregation) 
+                return generateAverageChartData(data, xAxisField, yAxisField, groupByField, selectedChartType, useCompleteDataset);
+            } else {
+                // Any other field - count unique values or occurrences
+                return generateFieldCountChartData(data, xAxisField, yAxisField, groupByField, selectedChartType, useCompleteDataset);
+            }
+        }
+
+        // Generate count-based chart data
+        function generateCountChartData(data, xField, groupField, chartType, useCompleteDataset = false) {
+            const counts = {};
+
+            // Regression-specific filtering (only when NOT using complete dataset)
+            let filteredData = data;
+            if (!useCompleteDataset && (xField.field === 'regression' || (groupField && groupField.field === 'regression'))) {
+                filteredData = data.filter(bug => bug.regression === 'Yes');
+            }
+
+            // If using complete dataset, initialize with ALL possible categories from global data
+            if (useCompleteDataset && bugsData) {
+                // Get all possible X-axis values from global dataset
+                let allXValues = [...new Set(bugsData.map(bug => bug[xField.field] || 'Unknown'))];
+                
+                // Transform regression values for display
+                if (xField.field === 'regression') {
+                    allXValues = allXValues.map(val => (val === 'Yes') ? 'Regression' : 'Non-Regression');
+                    allXValues = [...new Set(allXValues)]; // Remove duplicates after transformation
+                }
+
+                // Get all possible Group-by values from global dataset
+                let allGroupValues = ['All'];
+                if (groupField) {
+                    allGroupValues = [...new Set(bugsData.map(bug => bug[groupField.field] || 'Unknown'))];
+                    
+                    // Transform regression values for display
+                    if (groupField.field === 'regression') {
+                        allGroupValues = allGroupValues.map(val => (val === 'Yes') ? 'Regression' : 'Non-Regression');
+                        allGroupValues = [...new Set(allGroupValues)]; // Remove duplicates after transformation
+                    }
+                }
+
+                // Initialize counts with all possible combinations (starting with 0 counts)
+                allXValues.forEach(xValue => {
+                    counts[xValue] = {};
+                    allGroupValues.forEach(groupValue => {
+                        counts[xValue][groupValue] = 0;
+                    });
+                });
+            }
+
+            // Count occurrences from filtered data
+            filteredData.forEach(bug => {
+                let xValue = bug[xField.field] || 'Unknown';
+                let groupValue = groupField ? (bug[groupField.field] || 'Unknown') : 'All';
+
+                // Transform regression field values for display consistency
+                if (xField.field === 'regression') {
+                    if (useCompleteDataset) {
+                        xValue = (xValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                    } else {
+                        // When not using complete dataset and regression is filtered, show as "Regression"
+                        xValue = 'Regression';
+                    }
+                }
+                if (groupField && groupField.field === 'regression') {
+                    if (useCompleteDataset) {
+                        groupValue = (groupValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                    } else {
+                        groupValue = 'Regression';
+                    }
+                }
+
+                // Initialize if not using complete dataset (for backward compatibility)
+                if (!counts[xValue]) counts[xValue] = {};
+                counts[xValue][groupValue] = (counts[xValue][groupValue] || 0) + 1;
+            });
+            
+            return formatChartData(counts, chartType, groupField);
+        }
+
+        // Generate average-based chart data (for Days to Fix)
+        function generateAverageChartData(data, xField, yField, groupField, chartType, useCompleteDataset = false) {
+            // Regression-specific filtering (only when NOT using complete dataset)
+            let filteredData = data;
+            if (!useCompleteDataset && (xField.field === 'regression' || (groupField && groupField.field === 'regression'))) {
+                filteredData = data.filter(bug => bug.regression === 'Yes');
+            }
+
+            const sums = {};
+            const counts = {};
+
+            // If using complete dataset, initialize with ALL possible categories from global data
+            if (useCompleteDataset && bugsData) {
+                // Get all possible X-axis values from global dataset
+                let allXValues = [...new Set(bugsData.map(bug => bug[xField.field] || 'Unknown'))];
+                
+                // Transform regression values for display
+                if (xField.field === 'regression') {
+                    allXValues = allXValues.map(val => (val === 'Yes') ? 'Regression' : 'Non-Regression');
+                    allXValues = [...new Set(allXValues)]; // Remove duplicates after transformation
+                }
+
+                // Get all possible Group-by values from global dataset
+                let allGroupValues = ['All'];
+                if (groupField) {
+                    allGroupValues = [...new Set(bugsData.map(bug => bug[groupField.field] || 'Unknown'))];
+                    
+                    // Transform regression values for display
+                    if (groupField.field === 'regression') {
+                        allGroupValues = allGroupValues.map(val => (val === 'Yes') ? 'Regression' : 'Non-Regression');
+                        allGroupValues = [...new Set(allGroupValues)]; // Remove duplicates after transformation
+                    }
+                }
+
+                // Initialize sums and counts with all possible combinations (starting with 0)
+                allXValues.forEach(xValue => {
+                    sums[xValue] = {};
+                    counts[xValue] = {};
+                    allGroupValues.forEach(groupValue => {
+                        sums[xValue][groupValue] = 0;
+                        counts[xValue][groupValue] = 0;
+                    });
+                });
+            }
+
+            filteredData.forEach(bug => {
+                let xValue = bug[xField.field] || 'Unknown';
+                let groupValue = groupField ? (bug[groupField.field] || 'Unknown') : 'All';
+
+                // Category handling based on dataset type
+                if (xField.field === 'regression') {
+                    if (useCompleteDataset) {
+                        // Show both categories when using complete dataset
+                        xValue = (xValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                    } else {
+                        // Show only "Regression" when filtered (existing behavior)
+                        xValue = 'Regression';
+                    }
+                }
+                if (groupField && groupField.field === 'regression') {
+                    if (useCompleteDataset) {
+                        groupValue = (groupValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                    } else {
+                        groupValue = 'Regression';
+                    }
+                }
+
+                // Calculate numeric value (days to fix)
+                let numValue = 0;
+                if (yField.field === 'daysToFix') {
+                    const createdDateStr = bug.createdDate || bug.created;
+                    
+                    if (createdDateStr && bug.status === 'Deployed') {
+                        // Parse creation date
+                        let createdDate;
+                        if (createdDateStr.includes('/')) {
+                            const parts = createdDateStr.split('/');
+                            createdDate = new Date(parts[2], parts[0] - 1, parts[1]);
+                        } else {
+                            createdDate = new Date(createdDateStr);
+                        }
+                        
+                        if (!isNaN(createdDate.getTime())) {
+                            // PRECISE CALCULATION: Use actual resolution date from Jira when available
+                            let resolutionDate = null;
+                            
+                            if (bug.resolutionDate) {
+                                resolutionDate = new Date(bug.resolutionDate);
+                            } 
+                            else if (bug.resolutionDateFormatted) {
+                                const parts = bug.resolutionDateFormatted.split('/');
+                                resolutionDate = new Date(parts[2], parts[0] - 1, parts[1]);
+                            }
+                            
+                            // ONLY use precise resolution date - no fallback
+                            if (resolutionDate && !isNaN(resolutionDate.getTime())) {
+                                const diffTime = Math.abs(resolutionDate - createdDate);
+                                numValue = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            }
+                        }
+                    }
+                }
+                
+                if (numValue > 0) { // Only include bugs with valid numeric values
+                    if (!sums[xValue]) sums[xValue] = {};
+                    if (!counts[xValue]) counts[xValue] = {};
+                    
+                    sums[xValue][groupValue] = (sums[xValue][groupValue] || 0) + numValue;
+                    counts[xValue][groupValue] = (counts[xValue][groupValue] || 0) + 1;
+                }
+            });
+
+            // Calculate averages
+            const averages = {};
+            for (const xValue in sums) {
+                averages[xValue] = {};
+                for (const groupValue in sums[xValue]) {
+                    averages[xValue][groupValue] = Math.round(sums[xValue][groupValue] / counts[xValue][groupValue]);
+                }
+            }
+
+            return formatChartData(averages, chartType, groupField);
+        }
+
+        // Generate field count chart data (count occurrences of Y-field values by X-field)
+        function generateFieldCountChartData(data, xField, yField, groupField, chartType, useCompleteDataset = false) {
+            const counts = {};
+
+            // Regression-specific filtering (only when NOT using complete dataset)
+            let filteredData = data;
+            if (!useCompleteDataset && (xField.field === 'regression' || yField.field === 'regression' || (groupField && groupField.field === 'regression'))) {
+                filteredData = data.filter(bug => bug.regression === 'Yes');
+            }
+
+            // If using complete dataset, initialize with ALL possible categories from global data
+            if (useCompleteDataset && bugsData) {
+                // Get all possible X-axis values from global dataset
+                let allXValues = [...new Set(bugsData.map(bug => bug[xField.field] || 'Unknown'))];
+                if (xField.field === 'regression') {
+                    allXValues = allXValues.map(val => (val === 'Yes') ? 'Regression' : 'Non-Regression');
+                    allXValues = [...new Set(allXValues)];
+                }
+
+                // Get all possible Y-axis values from global dataset
+                let allYValues = [...new Set(bugsData.map(bug => bug[yField.field] || 'Unknown'))];
+                if (yField.field === 'regression') {
+                    allYValues = allYValues.map(val => (val === 'Yes') ? 'Regression' : 'Non-Regression');
+                    allYValues = [...new Set(allYValues)];
+                }
+
+                // Get all possible Group-by values from global dataset
+                let allGroupValues = ['All'];
+                if (groupField) {
+                    allGroupValues = [...new Set(bugsData.map(bug => bug[groupField.field] || 'Unknown'))];
+                    if (groupField.field === 'regression') {
+                        allGroupValues = allGroupValues.map(val => (val === 'Yes') ? 'Regression' : 'Non-Regression');
+                        allGroupValues = [...new Set(allGroupValues)];
+                    }
+                }
+
+                // Initialize counts with all possible combinations (starting with 0)
+                allXValues.forEach(xValue => {
+                    counts[xValue] = {};
+                    allGroupValues.forEach(groupValue => {
+                        counts[xValue][groupValue] = {};
+                        allYValues.forEach(yValue => {
+                            counts[xValue][groupValue][yValue] = 0;
+                        });
+                    });
+                });
+            }
+
+            // Count Y-field values for each X-field value
+            filteredData.forEach(bug => {
+                let xValue = bug[xField.field] || 'Unknown';
+                let yValue = bug[yField.field] || 'Unknown';
+                let groupValue = groupField ? (bug[groupField.field] || 'Unknown') : 'All';
+
+                // Transform regression field values for display consistency
+                if (xField.field === 'regression') {
+                    if (useCompleteDataset) {
+                        xValue = (xValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                    } else {
+                        xValue = 'Regression';
+                    }
+                }
+                if (yField.field === 'regression') {
+                    if (useCompleteDataset) {
+                        yValue = (yValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                    } else {
+                        yValue = 'Regression';
+                    }
+                }
+                if (groupField && groupField.field === 'regression') {
+                    if (useCompleteDataset) {
+                        groupValue = (groupValue === 'Yes') ? 'Regression' : 'Non-Regression';
+                    } else {
+                        groupValue = 'Regression';
+                    }
+                }
+                
+                // Create nested structure: X-value -> Group -> Y-value -> count
+                // Initialize if not using complete dataset (for backward compatibility)
+                if (!counts[xValue]) counts[xValue] = {};
+                if (!counts[xValue][groupValue]) counts[xValue][groupValue] = {};
+                counts[xValue][groupValue][yValue] = (counts[xValue][groupValue][yValue] || 0) + 1;
+            });
+            
+            return formatFieldCountChartData(counts, chartType, groupField, yField.label);
+        }
+
+
+        // Format data for Chart.js
+        function formatChartData(counts, chartType, groupField) {
+            const labels = Object.keys(counts);
+            
+            if (!groupField) {
+                // Simple dataset
+                const data = labels.map(label => counts[label]['All'] || 0);
+                
+                return {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Count',
+                        data: data,
+                        backgroundColor: generateColors(labels.length),
+                        borderColor: '#EE164F',
+                        borderWidth: 2
+                    }]
+                };
+            } else {
+                // Grouped dataset
+                const groups = [...new Set(
+                    Object.values(counts).flatMap(x => Object.keys(x))
+                )];
+                
+                const datasets = groups.map((group, index) => ({
+                    label: group,
+                    data: labels.map(label => counts[label][group] || 0),
+                    backgroundColor: generateColors(groups.length)[index],
+                    borderColor: '#EE164F',
+                    borderWidth: 2
+                }));
+                
+                return { labels, datasets };
+            }
+        }
+
+        // Format field count data for Chart.js (handles Y-field value distributions)
+        function formatFieldCountChartData(counts, chartType, groupField, yFieldLabel) {
+            const labels = Object.keys(counts);
+            
+            if (!groupField) {
+                // For field counts without grouping, we need to decide how to aggregate
+                // Option 1: Show most common Y-field value per X-field value
+                // Option 2: Show total count of all Y-field values per X-field value
+                
+                // Using Option 2 for simplicity - total count
+                const data = labels.map(label => {
+                    const allGroup = counts[label]['All'] || {};
+                    return Object.values(allGroup).reduce((sum, count) => sum + count, 0);
+                });
+                
+                return {
+                    labels: labels,
+                    datasets: [{
+                        label: `Total ${yFieldLabel}`,
+                        data: data,
+                        backgroundColor: generateColors(labels.length),
+                        borderColor: '#EE164F',
+                        borderWidth: 2
+                    }]
+                };
+            } else {
+                // For grouped field counts, sum all Y-field values per group
+                const groups = [...new Set(
+                    Object.values(counts).flatMap(x => Object.keys(x))
+                )];
+                
+                const datasets = groups.map((group, index) => ({
+                    label: group,
+                    data: labels.map(label => {
+                        const groupData = counts[label][group] || {};
+                        return Object.values(groupData).reduce((sum, count) => sum + count, 0);
+                    }),
+                    backgroundColor: generateColors(groups.length)[index],
+                    borderColor: '#EE164F',
+                    borderWidth: 2
+                }));
+                
+                return { labels, datasets };
+            }
+        }
+
+        // Generate chart title based on field types
+        function generateChartTitle() {
+            const { xAxisField, yAxisField, groupByField } = chartBuilderState;
+            
+            let title = '';
+            
+            if (yAxisField.field === 'count') {
+                title = `${xAxisField.label} Distribution`;
+            } else if (yAxisField.field === 'allBugs') {
+                title = `${xAxisField.label} Distribution (All Bugs)`;
+            } else if (yAxisField.field === 'filteredAllBugs') {
+                title = `${xAxisField.label} Distribution (Filtered Context)`;
+            } else if (yAxisField.field === 'daysToFix') {
+                title = `Average ${yAxisField.label} by ${xAxisField.label}`;
+            } else {
+                title = `${yAxisField.label} Count by ${xAxisField.label}`;
+            }
+            
+            if (groupByField) {
+                title += ` (grouped by ${groupByField.label})`;
+            }
+            
+            // Add filter context if filtered data is being used
+            const totalBugs = bugsData.length;
+            const filteredBugs = filteredData.length;
+            if (filteredBugs < totalBugs) {
+                title += ` - ${filteredBugs}/${totalBugs} bugs`;
+            }
+            
+            return title;
+        }
+
+        // Generate Y-axis title based on field type
+        function getYAxisTitle() {
+            const { yAxisField } = chartBuilderState;
+            
+            if (yAxisField.field === 'count') {
+                return 'Bug Count';
+            } else if (yAxisField.field === 'allBugs') {
+                return 'All Bugs Count';
+            } else if (yAxisField.field === 'filteredAllBugs') {
+                return 'Filtered All Bugs Count';
+            } else if (yAxisField.field === 'daysToFix') {
+                return 'Average Days to Fix';
+            } else {
+                return `${yAxisField.label} Count`;
+            }
+        }
+
+        // Generate HiBob brand colors
+        function generateColors(count) {
+            const colors = [
+                '#EE164F', '#FAA32B', '#83143D', '#3A3A37', 
+                '#F36488', '#FFD887', '#FEABB0', '#FAC7D1'
+            ];
+            
+            return Array(count).fill(null).map((_, i) => colors[i % colors.length]);
+        }
+
+        // Create chart
+        function createChart() {
+            const chartData = generateChartData();
+            if (!chartData) return;
+            
+            const canvas = document.getElementById('chart-preview-canvas');
+            const placeholder = document.querySelector('.chart-preview-placeholder');
+            
+            // Show canvas, hide placeholder
+            canvas.style.display = 'block';
+            placeholder.style.display = 'none';
+            
+            // Destroy existing chart
+            if (chartBuilderState.currentChart) {
+                chartBuilderState.currentChart.destroy();
+            }
+            
+            // Create new chart
+            const ctx = canvas.getContext('2d');
+            chartBuilderState.currentChart = new Chart(ctx, {
+                type: chartBuilderState.selectedChartType,
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: generateChartTitle(),
+                            font: {
+                                family: "'Domine', serif",
+                                size: 16,
+                                weight: 600
+                            },
+                            color: '#3A3A37'
+                        },
+                        legend: {
+                            display: !!chartBuilderState.groupByField,
+                            position: 'top'
+                        },
+                        // Add percentage labels for pie and doughnut charts
+                        ...(chartBuilderState.selectedChartType === 'pie' || chartBuilderState.selectedChartType === 'doughnut' ? {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((sum, value) => sum + value, 0);
+                                        const percentage = ((context.parsed * 100) / total).toFixed(1);
+                                        return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                display: function(context) {
+                                    // Only show percentages for slices > 5%
+                                    const total = context.dataset.data.reduce((sum, value) => sum + value, 0);
+                                    const percentage = (context.parsed * 100) / total;
+                                    return percentage > 5;
+                                },
+                                formatter: function(value, context) {
+                                    const total = context.dataset.data.reduce((sum, val) => sum + val, 0);
+                                    const percentage = ((value * 100) / total).toFixed(1);
+                                    return `${percentage}%`;
+                                },
+                                color: '#FFFFFF',
+                                font: {
+                                    weight: 'bold',
+                                    size: 12
+                                },
+                                textStrokeColor: '#333333',
+                                textStrokeWidth: 1
+                            }
+                        } : {})
+                    },
+                    scales: chartBuilderState.selectedChartType === 'pie' || chartBuilderState.selectedChartType === 'doughnut' ? {} : {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: getYAxisTitle()
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: chartBuilderState.xAxisField.label
+                            }
+                        }
+                    }
+                }
+            });
+            
+            updateActionButtons();
+        }
+
+        // Update chart preview
+        function updateChartPreview() {
+            if (chartBuilderState.xAxisField && chartBuilderState.yAxisField) {
+                createChart();
+            }
+        }
+
+        // AUTO-REFRESH charts when table filters change
+        function refreshChartsWithFilteredData() {
+            // Only refresh if there's an active chart
+            if (chartBuilderState.currentChart && chartBuilderState.xAxisField && chartBuilderState.yAxisField) {
+                console.log('🔄 Auto-refreshing chart with filtered data...');
+                createChart(); // This will use the updated filteredData
+            }
+        }
+
+        // Clear chart
+        function clearChart() {
+            // Reset state
+            chartBuilderState.xAxisField = null;
+            chartBuilderState.yAxisField = null;
+            chartBuilderState.groupByField = null;
+            
+            // Reset UI
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('has-field');
+                const content = zone.querySelector('.drop-zone-content');
+                const isOptional = zone.classList.contains('optional');
+                content.textContent = isOptional ? 'Drop a field to split data' : 'Drop a field here';
+            });
+            
+            // Hide chart, show placeholder
+            const canvas = document.getElementById('chart-preview-canvas');
+            const placeholder = document.querySelector('.chart-preview-placeholder');
+            canvas.style.display = 'none';
+            placeholder.style.display = 'flex';
+            
+            console.log('🧹 Chart cleared - placeholder should be centered');
+            
+            // Destroy chart
+            if (chartBuilderState.currentChart) {
+                chartBuilderState.currentChart.destroy();
+                chartBuilderState.currentChart = null;
+            }
+            
+            updateActionButtons();
+        }
+
+        // Save chart
+        function saveChart() {
+            if (!chartBuilderState.currentChart) return;
+            
+            const chartName = prompt('Enter a name for this chart:', `${chartBuilderState.xAxisField.label} by ${chartBuilderState.yAxisField.label}`);
+            if (!chartName) return;
+            
+            const chartConfig = {
+                id: Date.now().toString(),
+                name: chartName,
+                type: chartBuilderState.selectedChartType,
+                xAxisField: chartBuilderState.xAxisField,
+                yAxisField: chartBuilderState.yAxisField,
+                groupByField: chartBuilderState.groupByField,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            const savedCharts = JSON.parse(localStorage.getItem('bugDashboard_savedCharts') || '[]');
+            savedCharts.push(chartConfig);
+            localStorage.setItem('bugDashboard_savedCharts', JSON.stringify(savedCharts));
+            
+            // Update UI
+            chartBuilderState.savedCharts = savedCharts;
+            displaySavedCharts();
+            
+            console.log('💾 Chart saved:', chartName);
+        }
+
+        // Load saved charts
+        function loadSavedCharts() {
+            const savedCharts = JSON.parse(localStorage.getItem('bugDashboard_savedCharts') || '[]');
+            chartBuilderState.savedCharts = savedCharts;
+            
+            if (savedCharts.length > 0) {
+                displaySavedCharts();
+            }
+            
+            console.log('📂 Loaded', savedCharts.length, 'saved charts');
+        }
+        
+        // Display saved charts
+        function displaySavedCharts() {
+            const savedChartsSection = document.querySelector('.saved-charts-section');
+            const container = document.getElementById('saved-charts-container');
+            
+            if (chartBuilderState.savedCharts.length === 0) {
+                savedChartsSection.style.display = 'none';
+                return;
+            }
+            
+            savedChartsSection.style.display = 'block';
+            container.innerHTML = '';
+            
+            chartBuilderState.savedCharts.forEach(chartConfig => {
+                const chartCard = createSavedChartCard(chartConfig);
+                container.appendChild(chartCard);
+            });
+        }
+        
+        // Create saved chart card
+        function createSavedChartCard(chartConfig) {
+            const card = document.createElement('div');
+            card.className = 'saved-chart-card';
+            card.innerHTML = `
+                <div class="saved-chart-header">
+                    <div class="saved-chart-name">${chartConfig.name}</div>
+                    <button class="delete-chart-btn" onclick="deleteSavedChart('${chartConfig.id}')" title="Delete chart">×</button>
+                </div>
+                <div class="saved-chart-details">
+                    <div class="chart-type-indicator">${getChartTypeIcon(chartConfig.type)} ${chartConfig.type.charAt(0).toUpperCase() + chartConfig.type.slice(1)}</div>
+                    <div class="chart-fields">${chartConfig.xAxisField.label} vs ${chartConfig.yAxisField.label}</div>
+                    ${chartConfig.groupByField ? `<div class="chart-group">Grouped by ${chartConfig.groupByField.label}</div>` : ''}
+                </div>
+                <div class="saved-chart-actions">
+                    <button class="load-chart-btn" onclick="loadSavedChart('${chartConfig.id}')">Load Chart</button>
+                </div>
+            `;
+            return card;
+        }
+        
+        // Get chart type icon
+        function getChartTypeIcon(type) {
+            const icons = {
+                bar: '📊',
+                line: '📈', 
+                pie: '🥧',
+                doughnut: '🍩'
+            };
+            return icons[type] || '📊';
+        }
+        
+        // Load saved chart
+        function loadSavedChart(chartId) {
+            const chartConfig = chartBuilderState.savedCharts.find(c => c.id === chartId);
+            if (!chartConfig) return;
+            
+            // Clear current chart
+            clearChart();
+            
+            // Restore chart configuration
+            chartBuilderState.selectedChartType = chartConfig.type;
+            chartBuilderState.xAxisField = chartConfig.xAxisField;
+            chartBuilderState.yAxisField = chartConfig.yAxisField;
+            chartBuilderState.groupByField = chartConfig.groupByField;
+            
+            // Update UI
+            // Set chart type
+            document.querySelectorAll('.chart-type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.chartType === chartConfig.type);
+            });
+            
+            // Set drop zones
+            if (chartConfig.xAxisField) {
+                assignFieldToZone(chartConfig.xAxisField, 'x-axis', document.getElementById('x-axis-zone'));
+            }
+            if (chartConfig.yAxisField) {
+                assignFieldToZone(chartConfig.yAxisField, 'y-axis', document.getElementById('y-axis-zone'));
+            }
+            if (chartConfig.groupByField) {
+                assignFieldToZone(chartConfig.groupByField, 'group-by', document.getElementById('group-by-zone'));
+            }
+            
+            // Create chart
+            createChart();
+            
+            console.log('📂 Loaded chart:', chartConfig.name);
+        }
+        
+        // Delete saved chart
+        function deleteSavedChart(chartId) {
+            if (!confirm('Are you sure you want to delete this chart?')) return;
+            
+            // Remove from storage
+            const savedCharts = chartBuilderState.savedCharts.filter(c => c.id !== chartId);
+            localStorage.setItem('bugDashboard_savedCharts', JSON.stringify(savedCharts));
+            
+            // Update state and UI
+            chartBuilderState.savedCharts = savedCharts;
+            displaySavedCharts();
+            
+            console.log('🗑️ Chart deleted');
+        }
+
+        // Show drop validation error
+        function showDropValidationError(fieldData, zoneType) {
+            console.warn(`❌ Cannot drop ${fieldData.type} field "${fieldData.label}" in ${zoneType} zone`);
+        }
+
         // Event listeners with HiBob's modern, supportive approach
         document.addEventListener('DOMContentLoaded', function() {
+            // Register Chart.js datalabels plugin for percentage labels
+            if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
+                Chart.register(ChartDataLabels);
+                console.log('✅ Chart.js datalabels plugin registered');
+            }
+            
             loadDashboardDataFromSource(); // Load from automated source, then initialize all functionality
+            
+            // BACKUP: Attach date range listeners directly in DOMContentLoaded as fallback
+            setTimeout(() => {
+                setupDateRangeListeners();
+            }, 500);
+            
+            // Initialize chart builder after a short delay to ensure dashboard is loaded
+            setTimeout(() => {
+                initializeChartBuilder();
+            }, 1000);
         });
     </script>
 </body>

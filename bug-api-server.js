@@ -332,6 +332,17 @@ class BugApiServer {
                 });
             }
 
+            // Extract resolution date from resolution field or changelog
+            const resolution = issue.fields.resolution;
+            let resolutionDate = resolution && resolution.date ? resolution.date : null;
+            
+            // If no resolution date, try to find deployment date from changelog
+            if (!resolutionDate && issue.changelog && issue.changelog.histories) {
+                resolutionDate = this.extractDeploymentDateFromChangelog(issue.changelog.histories);
+            }
+            
+            const resolutionDateFormatted = resolutionDate ? new Date(resolutionDate).toLocaleDateString() : null;
+
             return {
                 key: issue.key,
                 project: issue.key.split('-')[0],
@@ -344,6 +355,8 @@ class BugApiServer {
                 updated: updated,
                 createdDate: new Date(created).toLocaleDateString(),
                 updatedDate: new Date(updated).toLocaleDateString(),
+                resolutionDate: resolutionDate,
+                resolutionDateFormatted: resolutionDateFormatted,
                 daysOpen: this.calculateDaysOpen(created),
                 
                 // Custom fields
@@ -357,7 +370,8 @@ class BugApiServer {
                 // Additional data
                 components: fields.components || [],
                 labels: fields.labels || [],
-                description: issue.fields.description ? this.extractTextFromADF(issue.fields.description) : ''
+                description: issue.fields.description ? this.extractTextFromADF(issue.fields.description) : '',
+                changelog: issue.changelog || null
             };
         });
     }
@@ -377,6 +391,8 @@ class BugApiServer {
             updated: bug.updated,
             createdDate: bug.createdDate,
             updatedDate: bug.updatedDate,
+            resolutionDate: bug.resolutionDate,
+            resolutionDateFormatted: bug.resolutionDateFormatted,
             daysOpen: bug.daysOpen,
             
             // Custom fields
@@ -457,6 +473,32 @@ class BugApiServer {
         const now = new Date();
         const diffTime = Math.abs(now - created);
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    // Extract deployment date from changelog by finding status change to "Deployed"
+    extractDeploymentDateFromChangelog(histories) {
+        if (!histories || !Array.isArray(histories)) {
+            return null;
+        }
+
+        // Look through all changelog entries, newest first
+        for (let i = histories.length - 1; i >= 0; i--) {
+            const history = histories[i];
+            
+            if (!history.items || !Array.isArray(history.items)) {
+                continue;
+            }
+
+            // Check if this history entry contains a status change to "Deployed"
+            for (const item of history.items) {
+                if (item.field === 'status' && 
+                    (item.toString === 'Deployed' || item.to === 'Deployed')) {
+                    return history.created;
+                }
+            }
+        }
+
+        return null;
     }
 
     extractTextFromADF(adfDocument) {
