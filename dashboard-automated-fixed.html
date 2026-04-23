@@ -5045,7 +5045,12 @@
         let currentSort = { column: null, direction: 'asc' };
 
         function applySorting() {
-            if (!currentSort.column) return;
+            if (!currentSort.column) {
+                console.log('📊 applySorting: No sort column set');
+                return;
+            }
+
+            console.log('📊 applySorting: Sorting', filteredData.length, 'rows by', currentSort.column, currentSort.direction);
 
             filteredData.sort((a, b) => {
                 let aVal = a[currentSort.column] || '';
@@ -5100,15 +5105,21 @@
 
                 return currentSort.direction === 'asc' ? comparison : -comparison;
             });
+            
+            console.log('✅ applySorting: Sorting completed');
         }
 
         function handleSort(column) {
+            console.log('📊 handleSort called for column:', column, 'current sort:', currentSort);
+            
             if (currentSort.column === column) {
                 currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
             } else {
                 currentSort.column = column;
                 currentSort.direction = 'asc';
             }
+
+            console.log('📊 New sort state:', currentSort);
 
             // Update sort indicators
             document.querySelectorAll('.sort-indicator').forEach(indicator => {
@@ -5215,6 +5226,26 @@
             updateDateClearButtons();
         }
 
+        // Setup table column sorting event listeners
+        function setupSortingEventListeners() {
+            console.log('🔧 Setting up table sorting event listeners...');
+            
+            // Add sorting listeners to all table headers with data-column attribute
+            document.querySelectorAll('th[data-column]').forEach(header => {
+                // Remove existing listener to avoid duplicates
+                const newHeader = header.cloneNode(true);
+                header.parentNode.replaceChild(newHeader, header);
+                
+                newHeader.addEventListener('click', () => {
+                    const column = newHeader.getAttribute('data-column');
+                    console.log('📊 Table column clicked for sorting:', column);
+                    handleSort(column);
+                });
+            });
+            
+            console.log('✅ Table sorting event listeners setup complete');
+        }
+
         // Initialize all event listeners (called on load and after sync)
         function initializeEventListeners() {
             console.log('🔧 InitializeEventListeners called');
@@ -5228,16 +5259,7 @@
             }
             
             // Add sorting listeners
-            document.querySelectorAll('th[data-column]').forEach(header => {
-                // Remove existing listener to avoid duplicates
-                const newHeader = header.cloneNode(true);
-                header.parentNode.replaceChild(newHeader, header);
-                
-                newHeader.addEventListener('click', () => {
-                    const column = newHeader.getAttribute('data-column');
-                    handleSort(column);
-                });
-            });
+            setupSortingEventListeners();
 
             // Add date range input listeners
             const dateFromInput = document.getElementById('dateFrom');
@@ -5463,6 +5485,7 @@
             setupDateRangeListeners();
             setupPaginationEventListeners();
             setupSyncButtonListener(); // Dedicated sync button setup
+            setupSortingEventListeners(); // CRITICAL: Add sorting listeners back
             console.log('✅ All event listeners reinitialized');
         }
 
