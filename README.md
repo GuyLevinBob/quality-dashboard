@@ -1,36 +1,146 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HiBob Production Bug Analytics Dashboard
 
-## Getting Started
+A comprehensive bug tracking and analytics dashboard for production issue management, featuring real-time JIRA integration and advanced data visualization.
 
-First, run the development server:
+## Features
 
+- 📊 **Real-time JIRA Integration**: Live sync with JIRA API for up-to-date bug data
+- 🎯 **Interactive Analytics**: Drag-and-drop chart builder with filtering capabilities  
+- 📈 **KPI Monitoring**: Key metrics including regression rate, SLA compliance, and bug velocity
+- 🔍 **Advanced Filtering**: Multi-dimensional filtering with chart-based interactions
+- 📱 **Responsive Design**: Works across desktop and mobile devices
+- 💾 **Chart Management**: Save and load custom chart configurations
+
+## Quick Start
+
+### Local Development (Full Features)
+
+1. **Start the API server**:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+node bug-api-server.js
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Start the web server**:
+```bash
+python3 -m http.server 8090
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Access dashboard**:
+```
+http://127.0.0.1:8090/dashboard-automated-fixed.html
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Static Deployment (Cross-Team Access)
 
-## Learn More
+For managers and cross-team access without local setup:
 
-To learn more about Next.js, take a look at the following resources:
+1. **Update data** (when needed):
+```bash
+./update-dashboard-data.sh
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Access production dashboard**:
+```
+https://guylevinbob.github.io/quality-dashboard/
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+├── dashboard-automated-fixed.html    # Main dashboard application
+├── bug-api-server.js                # Node.js API server for JIRA integration
+├── dashboard-data.json              # Cached JIRA data (real bug data)
+├── update-dashboard-data.sh         # Automated update script
+├── DASHBOARD_UPDATE_GUIDE.md        # Comprehensive update documentation
+├── DASHBOARD_CAPABILITIES.md        # Technical feature documentation
+└── .env                            # JIRA credentials (local only)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Configuration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Environment Variables (.env)
+```env
+JIRA_USERNAME=your-username
+JIRA_API_TOKEN=your-api-token
+JIRA_DOMAIN=hibob.atlassian.net
+```
+
+### API Server (bug-api-server.js)
+- **Port**: 3002
+- **Endpoints**: `/api/sync`, `/api/bugs-lite`
+- **Features**: JIRA changelog parsing, resolution date extraction
+
+### Web Server
+- **Port**: 8090 (configurable)
+- **Purpose**: Serves static dashboard files
+
+## Deployment Options
+
+### Option 1: Local Development (Recommended for Daily Use)
+- **Pros**: Live JIRA sync, real-time data, full functionality
+- **Cons**: Requires local setup, not accessible to others
+- **Use case**: Development, analysis, troubleshooting
+
+### Option 2: Static GitHub Pages (Recommended for Management)  
+- **Pros**: Professional URL, no local setup, cross-team access
+- **Cons**: Manual updates required, no live sync
+- **Use case**: Management reviews, stakeholder demos
+
+## Documentation
+
+- **[DASHBOARD_CAPABILITIES.md](DASHBOARD_CAPABILITIES.md)** - Complete feature documentation
+- **[DASHBOARD_UPDATE_GUIDE.md](DASHBOARD_UPDATE_GUIDE.md)** - Static deployment guide
+- **[JIRA_INTEGRATION_README.md](JIRA_INTEGRATION_README.md)** - API integration details
+
+## Usage Examples
+
+### Interactive Chart Building
+1. Drag fields to X-axis (Status, Sprint, System, etc.)
+2. Drag metrics to Y-axis (Bug Count, Days to Fix, etc.)  
+3. Optional: Add grouping field for multi-dimensional analysis
+4. Click chart elements to filter the main data table
+
+### KPI Monitoring
+- **Regression Rate**: Percentage of bugs marked as regressions
+- **SLA Compliance**: Percentage of critical/high bugs resolved within SLA
+- **Bug Velocity**: Average bugs resolved per month
+- **Median Resolution**: Typical time to resolve production issues
+
+### Advanced Filtering
+- Multi-select dropdowns for categorical filtering
+- Date range filtering for temporal analysis
+- Search functionality across bug summaries
+- Chart-based filtering (click bars/slices to filter table)
+
+## Development
+
+### Adding New Features
+1. Edit `dashboard-automated-fixed.html`
+2. Test locally with both servers running
+3. Update documentation as needed
+4. For cross-team deployment, run update script
+
+### Modifying JIRA Integration
+1. Edit `bug-api-server.js` 
+2. Update field mappings or API calls
+3. Test with local dashboard
+4. Sync new data format using dashboard
+
+## Troubleshooting
+
+### Common Issues
+- **API Connection**: Check `.env` credentials and JIRA permissions
+- **Port Conflicts**: Ensure ports 3002 and 8090 are available  
+- **Data Loading**: Verify `dashboard-data.json` exists and is valid JSON
+- **GitHub Pages**: Allow 1-2 minutes for deployment after git push
+
+### Debug Mode
+Enable detailed logging by opening browser console while using dashboard.
+
+## License
+
+Internal company project for HiBob production bug analytics.
+
+## Support
+
+For technical issues or feature requests, contact the development team.
