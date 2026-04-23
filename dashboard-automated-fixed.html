@@ -7839,8 +7839,20 @@
                 console.log('✅ Chart.js datalabels plugin registered');
             }
             
-            // Setup sync button listener immediately
-            setupSyncButtonListener();
+            // Hide Sync Data button on GitHub Pages (non-functional without API server)
+            if (window.location.hostname.includes('github.io')) {
+                console.log('🌐 GitHub Pages detected - hiding Sync Data button');
+                const syncControls = document.getElementById('sync-controls');
+                if (syncControls) {
+                    syncControls.style.display = 'none';
+                    console.log('✅ Sync Data button hidden for GitHub Pages deployment');
+                }
+            }
+            
+            // Setup sync button listener immediately (only if visible)
+            if (!window.location.hostname.includes('github.io')) {
+                setupSyncButtonListener();
+            }
             
             loadDashboardDataFromSource(); // Load from automated source, then initialize all functionality
             
@@ -7861,7 +7873,9 @@
             
             // Additional backup for sync button (in case DOM wasn't fully ready)
             setTimeout(() => {
-                setupSyncButtonListener();
+                if (!window.location.hostname.includes('github.io')) {
+                    setupSyncButtonListener();
+                }
             }, 1500);
             
             // Add debugging functions to window for manual testing
@@ -7898,15 +7912,17 @@
             
             // Final fallback: Set up sync button using different approach after full page load
             window.addEventListener('load', function() {
-                console.log('🌍 Window fully loaded, final sync button setup attempt...');
-                setTimeout(() => {
-                    const syncBtn = document.getElementById('syncButton');
-                    if (syncBtn && !syncBtn.onclick) {
-                        console.log('🚨 Final emergency sync button setup');
-                        syncBtn.onclick = handleSyncData;
-                        syncBtn.addEventListener('click', handleSyncData);
-                    }
-                }, 100);
+                if (!window.location.hostname.includes('github.io')) {
+                    console.log('🌍 Window fully loaded, final sync button setup attempt...');
+                    setTimeout(() => {
+                        const syncBtn = document.getElementById('syncButton');
+                        if (syncBtn && !syncBtn.onclick) {
+                            console.log('🚨 Final emergency sync button setup');
+                            syncBtn.onclick = handleSyncData;
+                            syncBtn.addEventListener('click', handleSyncData);
+                        }
+                    }, 100);
+                }
             });
         });
     </script>
