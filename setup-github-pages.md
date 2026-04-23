@@ -22,7 +22,10 @@ git push -u origin main
 
 ## Step 3: Access Your Dashboard
 Your dashboard will be available at:
-`https://YOUR-USERNAME.github.io/bug-dashboard/bug-dashboard-embedded.html`
+`https://YOUR-USERNAME.github.io/quality-dashboard/` (uses index.html)
+
+Or directly:
+`https://YOUR-USERNAME.github.io/quality-dashboard/dashboard-automated-fixed.html`
 
 ## Step 4: Share with Teams
 - Share the GitHub Pages URL

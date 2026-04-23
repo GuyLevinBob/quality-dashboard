@@ -3,7 +3,11 @@ name: Deploy Dashboard Updates
 on:
   push:
     branches: [ main ]
-    paths: [ 'dashboard-data.json' ]
+    paths: 
+      - 'dashboard-data.json'
+      - 'dashboard-automated-fixed.html'
+      - 'index.html'
+      - 'bugs-cache.json'
   workflow_dispatch: # Allow manual triggering
 
 jobs:
@@ -28,6 +32,9 @@ jobs:
         
     - name: Deploy notification
       run: |
-        echo "🚀 Dashboard deployment triggered by data update"
+        echo "🚀 Dashboard deployment triggered by dashboard updates"
         echo "📊 GitHub Pages will automatically serve updated dashboard"
-        echo "🌐 Team dashboard URL: https://guylevinbob.github.io/quality-dashboard/dashboard-automated.html"
+        echo "🌐 Team dashboard URLs:"
+        echo "   - Main: https://guylevinbob.github.io/quality-dashboard/"
+        echo "   - Direct: https://guylevinbob.github.io/quality-dashboard/dashboard-automated-fixed.html"
+        echo "✅ Latest changes now live on GitHub Pages"
