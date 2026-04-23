@@ -2,10 +2,30 @@
 
 # Dashboard Data Update Script
 # This script helps update the GitHub Pages dashboard with fresh JIRA data
+# 
+# Usage:
+#   ./update-dashboard-data.sh           # Manual mode (interactive)
+#   ./update-dashboard-data.sh --auto    # Automated mode (for cron jobs)
 
-echo "🔄 HiBob Dashboard Data Update Process"
-echo "======================================"
+# Check for auto mode flag
+AUTO_MODE=false
+if [[ "$1" == "--auto" ]]; then
+    AUTO_MODE=true
+    echo "🤖 Running in AUTOMATED mode"
+    echo "=============================="
+    # Log start of auto update
+    echo "$(date): Starting automated dashboard update" >> ~/dashboard-update.log
+else
+    echo "🔄 HiBob Dashboard Data Update Process"
+    echo "======================================"
+fi
 echo
+
+# Enable error handling for auto mode
+if [ "$AUTO_MODE" = true ]; then
+    set -e  # Exit on any error in auto mode
+    trap 'echo "$(date): ERROR - Dashboard auto-update failed at line $LINENO" >> ~/dashboard-update.log' ERR
+fi
 
 # Check if we're in the correct directory
 if [ ! -f "bug-api-server.js" ]; then
@@ -16,13 +36,18 @@ fi
 # Check if API server is already running
 if lsof -ti:3002 > /dev/null; then
     echo "⚠️  API server is already running on port 3002"
-    read -p "Do you want to continue with the existing server? (y/n): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "❌ Process cancelled. Please stop the existing server first."
-        exit 1
+    if [ "$AUTO_MODE" = true ]; then
+        echo "🤖 Auto mode: Continuing with existing server..."
+        EXISTING_SERVER=true
+    else
+        read -p "Do you want to continue with the existing server? (y/n): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "❌ Process cancelled. Please stop the existing server first."
+            exit 1
+        fi
+        EXISTING_SERVER=true
     fi
-    EXISTING_SERVER=true
 else
     echo "🚀 Starting local API server..."
     node bug-api-server.js &
@@ -33,14 +58,43 @@ else
 fi
 
 echo
-echo "📊 Next Steps:"
-echo "1. Open your dashboard: http://127.0.0.1:8090/dashboard-automated-fixed.html"
-echo "2. Click the 'Sync Data' button to fetch fresh JIRA data"
-echo "3. Wait for the sync to complete (you'll see updated KPIs)"
-echo "4. Come back here and press Enter when sync is complete"
-echo
-
-read -p "Press Enter after completing the data sync in the dashboard..."
+if [ "$AUTO_MODE" = true ]; then
+    echo "🤖 Triggering automated JIRA data sync..."
+    
+    # Wait a moment for API server to be ready
+    sleep 2
+    
+    # Trigger sync via API call
+    echo "📡 Calling sync API endpoint..."
+    SYNC_RESPONSE=$(curl -s -X POST http://localhost:3002/api/sync \
+        -H "Content-Type: application/json" \
+        -w "\nHTTP_STATUS:%{http_code}" 2>/dev/null)
+    
+    HTTP_STATUS=$(echo "$SYNC_RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
+    SYNC_BODY=$(echo "$SYNC_RESPONSE" | sed '/HTTP_STATUS:/d')
+    
+    if [ "$HTTP_STATUS" = "200" ]; then
+        echo "✅ Sync completed successfully"
+        echo "📊 Sync details: $SYNC_BODY"
+    else
+        echo "❌ Sync failed (HTTP $HTTP_STATUS)"
+        echo "Error details: $SYNC_BODY"
+        exit 1
+    fi
+    
+    # Wait for data to be written to file
+    sleep 2
+    
+else
+    echo "📊 Next Steps:"
+    echo "1. Open your dashboard: http://127.0.0.1:8090/dashboard-automated-fixed.html"
+    echo "2. Click the 'Sync Data' button to fetch fresh JIRA data"
+    echo "3. Wait for the sync to complete (you'll see updated KPIs)"
+    echo "4. Come back here and press Enter when sync is complete"
+    echo
+    
+    read -p "Press Enter after completing the data sync in the dashboard..."
+fi
 
 # Kill the server if we started it
 if [ "$EXISTING_SERVER" = false ]; then
@@ -59,8 +113,13 @@ else
 fi
 
 echo
-read -p "Do you want to deploy the updated data to GitHub Pages? (y/n): " -n 1 -r
-echo
+if [ "$AUTO_MODE" = true ]; then
+    echo "🤖 Auto mode: Automatically deploying to GitHub Pages..."
+    REPLY="y"
+else
+    read -p "Do you want to deploy the updated data to GitHub Pages? (y/n): " -n 1 -r
+    echo
+fi
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "🚀 Deploying updated data to GitHub Pages..."
@@ -97,8 +156,15 @@ echo "📋 Update Complete Summary:"
 echo "- Local data: ✅ Updated"
 echo "- GitHub deployment: $([ $REPLY = 'y' ] && echo '✅ Deployed' || echo '⏸️  Skipped')"
 echo "- Managers can access: https://guylevinbob.github.io/quality-dashboard/"
-echo
-echo "💡 Recommended update frequency:"
-echo "   - Before important meetings"
-echo "   - Weekly for regular management reviews"
-echo "   - Monthly for comprehensive reports"
+
+if [ "$AUTO_MODE" = true ]; then
+    echo "- Auto mode: ✅ Completed at $(date)"
+    # Log to file for tracking
+    echo "$(date): Dashboard auto-update completed successfully" >> ~/dashboard-update.log
+else
+    echo
+    echo "💡 Recommended update frequency:"
+    echo "   - Before important meetings"
+    echo "   - Weekly for regular management reviews"
+    echo "   - Monthly for comprehensive reports"
+fi

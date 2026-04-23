@@ -10,6 +10,23 @@ A comprehensive bug tracking and analytics dashboard for production issue manage
 - 🔍 **Advanced Filtering**: Multi-dimensional filtering with chart-based interactions
 - 📱 **Responsive Design**: Works across desktop and mobile devices
 - 💾 **Chart Management**: Save and load custom chart configurations
+- 🕘 **Morning Automation**: Automatic daily updates for GitHub Pages deployment
+
+## ⚡ Morning Automation (NEW!)
+
+Set up automatic daily updates in 2 minutes:
+
+```bash
+./setup-morning-cron.sh
+```
+
+**Benefits:**
+- ✅ Fresh JIRA data every morning (9 AM, weekdays)
+- ✅ Managers always see current bug status
+- ✅ Zero manual work required
+- ✅ GitHub Pages automatically updated
+
+👉 **[Full Setup Guide](AUTOMATION_SETUP.md)**
 
 ## Quick Start
 
@@ -88,8 +105,9 @@ JIRA_DOMAIN=hibob.atlassian.net
 
 ## Documentation
 
-- **[DASHBOARD_CAPABILITIES.md](DASHBOARD_CAPABILITIES.md)** - Complete feature documentation
-- **[DASHBOARD_UPDATE_GUIDE.md](DASHBOARD_UPDATE_GUIDE.md)** - Static deployment guide
+- **[AUTOMATION_SETUP.md](AUTOMATION_SETUP.md)** - ⚡ Morning automation setup (NEW!)
+- **[DASHBOARD_CAPABILITIES.md](DASHBOARD_CAPABILITIES.md)** - Complete feature documentation  
+- **[DASHBOARD_UPDATE_GUIDE.md](DASHBOARD_UPDATE_GUIDE.md)** - Manual & automated update guide
 - **[JIRA_INTEGRATION_README.md](JIRA_INTEGRATION_README.md)** - API integration details
 
 ## Usage Examples

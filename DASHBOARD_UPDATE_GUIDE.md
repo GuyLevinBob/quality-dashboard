@@ -16,20 +16,52 @@ This guide explains how to update the production dashboard with fresh JIRA data 
 - **Features**: Static dashboard with real JIRA data
 - **Updates**: Manual sync process (documented below)
 
-## Manual Update Process
+## Update Methods
 
-### Quick Method (Automated Script)
+### Method 1: Automated Morning Updates (Recommended)
+
+Set up once, runs automatically every weekday morning:
 
 ```bash
-# Run the automated update script
-./update-dashboard-data.sh
+# One-time setup for morning automation
+./setup-morning-cron.sh
 ```
 
-The script will:
+**What it does:**
+- Runs every weekday at 9:00 AM automatically
+- Syncs fresh JIRA data without manual intervention
+- Deploys to GitHub Pages automatically
+- Logs results to `~/dashboard-update.log`
+
+**Benefits:**
+- ✅ Managers always see fresh data
+- ✅ No need to remember manual updates  
+- ✅ Consistent daily refresh schedule
+- ✅ Logs track update success/failure
+
+### Method 2: Manual Updates (On-Demand)
+
+For immediate updates or testing:
+
+```bash
+# Manual interactive mode
+./update-dashboard-data.sh
+
+# Manual automated mode (no prompts)
+./update-dashboard-data.sh --auto
+```
+
+**Interactive Mode:**
 1. ✅ Start the local API server (if needed)
-2. ✅ Guide you through the sync process
-3. ✅ Help deploy updated data to GitHub Pages
-4. ✅ Provide confirmation and next steps
+2. ✅ Guide you through the sync process  
+3. ✅ Ask for deployment confirmation
+4. ✅ Provide status and next steps
+
+**Auto Mode:**
+1. ✅ Fully automated (no user input required)
+2. ✅ Direct API sync (no manual button clicking)
+3. ✅ Auto-deploys to GitHub Pages
+4. ✅ Logs results for tracking
 
 ### Manual Method (Step by Step)
 
@@ -64,31 +96,107 @@ git push
 - Visit: `https://guylevinbob.github.io/quality-dashboard/`
 - Verify managers see updated data
 
+## Managing Automation
+
+### Monitoring Morning Updates
+
+**Check Update Status:**
+```bash
+# View recent update logs
+tail -20 ~/dashboard-update.log
+
+# Monitor live updates
+tail -f ~/dashboard-update.log
+
+# Check if updates are working
+grep "$(date +%Y-%m-%d)" ~/dashboard-update.log
+```
+
+**Verify Cron Job:**
+```bash
+# List all cron jobs
+crontab -l
+
+# Edit cron jobs (if needed)
+crontab -e
+```
+
+### Disable/Enable Automation
+
+**Temporarily Disable:**
+```bash
+# Comment out the cron job
+crontab -e
+# Add # at the beginning of the dashboard line
+```
+
+**Permanently Remove:**
+```bash
+# Remove dashboard cron job
+crontab -l | grep -v "update-dashboard-data.sh" | crontab -
+```
+
+**Re-enable:**
+```bash
+# Run setup script again
+./setup-morning-cron.sh
+```
+
 ## Update Frequency Recommendations
 
-### Before Important Meetings
-- **When**: 30 minutes before executive reviews
-- **Purpose**: Ensure managers have latest bug status
-- **Focus**: Check critical bug resolution progress
+### With Morning Automation (Recommended)
+- **Daily**: Automatic updates at 9:00 AM (weekdays)
+- **Ad-hoc**: Manual updates for urgent changes
+- **Before meetings**: Data is already fresh from morning sync
 
-### Weekly Management Updates  
-- **When**: Monday morning or Friday afternoon
-- **Purpose**: Regular team performance reviews
-- **Focus**: Weekly trend analysis and KPI updates
-
-### Monthly Comprehensive Reports
-- **When**: First Monday of each month  
-- **Purpose**: Monthly quality reports and planning
-- **Focus**: Complete data refresh for strategic discussions
-
-### Ad-hoc Updates
-- **When**: After major deployments or incidents
-- **Purpose**: Immediate visibility into production health
-- **Focus**: Recent bug creation and resolution activity
+### Manual Only Approach
+- **Before important meetings**: 30 minutes prior
+- **Weekly management updates**: Monday morning or Friday afternoon
+- **Monthly reports**: First Monday of each month
+- **After major deployments**: Within 1-2 hours of production changes
 
 ## Troubleshooting
 
-### Common Issues
+### Automation Issues
+
+**Problem**: "Morning updates not running"
+**Solution**:
+```bash
+# Check if cron job exists
+crontab -l | grep dashboard
+
+# Check update logs
+tail -f ~/dashboard-update.log
+
+# Test auto mode manually
+./update-dashboard-data.sh --auto
+```
+
+**Problem**: "Auto mode failing"
+**Solution**:
+```bash
+# Check error logs
+grep ERROR ~/dashboard-update.log
+
+# Verify API server can start
+node bug-api-server.js
+
+# Test API endpoint
+curl -X POST http://localhost:3002/api/sync
+```
+
+**Problem**: "Cron job permission errors"
+**Solution**:
+```bash
+# Ensure scripts are executable
+chmod +x update-dashboard-data.sh
+chmod +x setup-morning-cron.sh
+
+# Check cron job path is correct
+crontab -l
+```
+
+### General Issues
 
 **Problem**: "API server not responding"
 **Solution**: 
