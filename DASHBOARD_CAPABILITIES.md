@@ -707,11 +707,27 @@ The Production Bug Analytics Dashboard is a **comprehensive, interactive analyti
 - **Data Persistence**: KPI caching and saved chart configurations
 - **Performance Optimized**: Efficient data processing and chart rendering
 - **Error Handling**: Robust error management and user feedback
+- **Environment Detection**: Smart UI adaptation for local vs GitHub Pages deployment
 
 ### Access Points
 - **Live Dashboard**: `http://127.0.0.1:8090/dashboard-automated-fixed.html`
 - **API Server**: `http://127.0.0.1:3002` (local development)
 - **Production**: GitHub Pages hosted version (sanitized data)
+
+### Deployment Environments
+
+#### 🖥️ **Local Development**
+- Full functionality with live JIRA API integration
+- Real-time data synchronization via "Sync Data" button
+- All features available including chart builder and filtering
+- Requires both Node.js API server (port 3002) and Python HTTP server (port 8090)
+
+#### 🌐 **GitHub Pages Production**  
+- Static deployment for cross-team manager access
+- Uses pre-loaded `dashboard-data.json` for data (updated manually)
+- **Sync Data button automatically hidden** (non-functional without API server)
+- All analytical and visualization features work identically to local version
+- Professional presentation without development-specific UI elements
 
 ---
 
