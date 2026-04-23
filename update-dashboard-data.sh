@@ -76,14 +76,31 @@ if [ "$AUTO_MODE" = true ]; then
     if [ "$HTTP_STATUS" = "200" ]; then
         echo "✅ Sync completed successfully"
         echo "📊 Sync details: $SYNC_BODY"
+        
+        # Fetch the synced data and write to dashboard-data.json
+        echo "📁 Fetching synced data for dashboard-data.json..."
+        DASHBOARD_DATA=$(curl -s -X GET http://localhost:3002/api/bugs-lite 2>/dev/null)
+        
+        if [[ "$DASHBOARD_DATA" == *"bugs"* ]]; then
+            echo "$DASHBOARD_DATA" > dashboard-data.json
+            echo "✅ Updated dashboard-data.json with fresh data"
+            
+            # Count bugs in the file for verification
+            BUG_COUNT=$(echo "$DASHBOARD_DATA" | grep -o '"id":"BT-[0-9]*"' | wc -l | tr -d ' ')
+            echo "📊 Dashboard file now contains $BUG_COUNT bugs"
+        else
+            echo "❌ Failed to fetch dashboard data"
+            echo "Error: $DASHBOARD_DATA"
+            exit 1
+        fi
     else
         echo "❌ Sync failed (HTTP $HTTP_STATUS)"
         echo "Error details: $SYNC_BODY"
         exit 1
     fi
     
-    # Wait for data to be written to file
-    sleep 2
+    # Wait for file operations to complete
+    sleep 1
     
 else
     echo "📊 Next Steps:"
@@ -140,7 +157,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 - Updated for management access"
 
         echo "📤 Pushing to GitHub..."
-        git push
+        git push || git push --set-upstream origin main
         
         echo
         echo "✅ Dashboard data updated successfully!"
