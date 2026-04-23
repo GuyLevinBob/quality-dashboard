@@ -2453,10 +2453,15 @@
         
         async function loadDashboardDataFromSource() {
             try {
+                console.log('🚀 loadDashboardDataFromSource started');
+                document.getElementById('status').innerHTML = 'Loading bug data... (checking cached data)';
+                
                 // First, check if we have more recent synced data in localStorage
                 try {
+                    console.log('💾 Checking localStorage for synced data...');
                     const storedData = localStorage.getItem('hibob-dashboard-synced-data');
                     if (storedData) {
+                        console.log('💾 Found stored data, parsing...');
                         const parsed = JSON.parse(storedData);
                         const syncAge = new Date().getTime() - new Date(parsed.syncTimestamp).getTime();
                         const hoursOld = Math.floor(syncAge / (1000 * 60 * 60));
@@ -2472,37 +2477,54 @@
                                 regressionRate: parsed.data.stats.regressionRate + '%'
                             });
                             data = parsed.data;
+                            document.getElementById('status').innerHTML = 'Loading bug data... (using cached data)';
                             loadData();
                             return;
                         } else {
                             console.log('📅 Synced data is too old, falling back to static file');
                             localStorage.removeItem('hibob-dashboard-synced-data');
                         }
+                    } else {
+                        console.log('💾 No stored data found in localStorage');
                     }
                 } catch (e) {
                     console.warn('⚠️ Could not load synced data from localStorage:', e);
+                    console.warn('⚠️ localStorage error details:', e.message, e.stack);
                 }
                 
                 console.log('🔄 Loading dashboard data from static source...');
+                document.getElementById('status').innerHTML = 'Loading bug data... (fetching static data)';
+                
                 const response = await fetch(`./dashboard-data.json?_=${Date.now()}`);
+                console.log('📡 Fetch response status:', response.status, response.ok);
 
                 if (!response.ok) {
-                    throw new Error(`Failed to load dashboard data: ${response.status}`);
+                    throw new Error(`Failed to load dashboard data: ${response.status} ${response.statusText}`);
                 }
 
+                console.log('📡 Starting JSON parsing...');
+                document.getElementById('status').innerHTML = 'Loading bug data... (parsing data)';
                 const rawData = await response.json();
-                console.log(`✅ Loaded ${rawData.bugs.length} bugs from automated data source`);
+                console.log('✅ JSON parsing complete');
+                console.log(`✅ Loaded ${rawData.bugs?.length || 0} bugs from automated data source`);
                 console.log('📊 Static data keys:', Object.keys(rawData));
+                console.log('📊 Has bugs array:', !!rawData.bugs);
                 console.log('📊 Has stats field:', !!rawData.stats);
                 console.log('📊 Stats value:', rawData.stats);
+                
+                document.getElementById('status').innerHTML = 'Loading bug data... (processing data)';
 
                 // Check if this is API format (needs transformation) or already transformed
                 if (rawData.bugs && (!rawData.stats || rawData.stats === 'WILL_BE_CALCULATED')) {
                     console.log('🔄 TRANSFORMATION BRANCH TRIGGERED - transforming API data');
                     console.log('🔄 Transforming API format data to dashboard format...');
+                    document.getElementById('status').innerHTML = 'Loading bug data... (transforming data)';
                     
+                    console.log('📊 Starting bug transformation...');
                     // Apply same transformation as handleSyncData
-                    const transformedBugs = rawData.bugs.map(bug => ({
+                    const transformedBugs = rawData.bugs.map((bug, index) => {
+                        if (index % 100 === 0) console.log(`📊 Transforming bug ${index}/${rawData.bugs.length}`);
+                        return {
                         key: bug.key,
                         project: bug.project,
                         summary: bug.summary,
@@ -2536,8 +2558,20 @@
                             projects: ["BT"],
                             jiraInstance: rawData.metadata?.jiraInstance || 'hibob.atlassian.net'
                         },
-                        stats: generateStatsFromBugs(transformedBugs)
+                        stats: 'CALCULATING...'
                     };
+                    
+                    console.log('📊 Generating stats from transformed bugs...');
+                    document.getElementById('status').innerHTML = 'Loading bug data... (calculating statistics)';
+                    
+                    try {
+                        data.stats = generateStatsFromBugs(transformedBugs);
+                        console.log('✅ Stats generation complete');
+                    } catch (statsError) {
+                        console.error('❌ Error generating stats:', statsError);
+                        document.getElementById('status').innerHTML = 'Error calculating statistics: ' + statsError.message;
+                        throw statsError;
+                    }
                     
                     console.log('✅ Data transformed with stats:', {
                         medianResolution: data.stats.averageResolutionDays,
@@ -2555,20 +2589,59 @@
                 }
 
                 // Initialize dashboard with loaded data (preserves ALL existing functionality)
-                loadData();
+                console.log('🎯 Calling loadData() to initialize dashboard...');
+                document.getElementById('status').innerHTML = 'Loading bug data... (initializing dashboard)';
                 
-                // Initialize event listeners after initial load
-                initializeEventListeners();
+                try {
+                    loadData();
+                    console.log('✅ loadData() completed successfully');
+                } catch (loadError) {
+                    console.error('❌ Error in loadData():', loadError);
+                    document.getElementById('status').innerHTML = 'Error loading dashboard: ' + loadError.message;
+                    throw loadError;
+                }
+                
+                console.log('🔧 Initializing event listeners...');
+                try {
+                    initializeEventListeners();
+                    console.log('✅ Event listeners initialized');
+                    document.getElementById('status').innerHTML = 'Dashboard loaded successfully!';
+                    // Hide status after 2 seconds if successful
+                    setTimeout(() => {
+                        const statusEl = document.getElementById('status');
+                        if (statusEl && statusEl.textContent.includes('successfully')) {
+                            statusEl.style.display = 'none';
+                        }
+                    }, 2000);
+                } catch (eventError) {
+                    console.error('❌ Error initializing event listeners:', eventError);
+                    document.getElementById('status').innerHTML = 'Dashboard loaded but some features may not work: ' + eventError.message;
+                }
                 
             } catch (error) {
                 console.error('❌ Failed to load dashboard data:', error);
-                document.getElementById('status').innerHTML = '<span class="error">❌ Failed to load dashboard data. Please try refreshing the page.</span>';
+                console.error('❌ Error details:', error.message, error.stack);
+                document.getElementById('status').innerHTML = '<span class="error">❌ Failed to load dashboard data: ' + error.message + '. Please try refreshing the page.</span>';
             }
         }
 
         // Generate stats object from bugs array (for API sync)
         function generateStatsFromBugs(bugs) {
-            console.log('🔄 generateStatsFromBugs called with', bugs.length, 'bugs');
+            console.log('🔄 generateStatsFromBugs called with', bugs?.length || 0, 'bugs');
+            
+            if (!bugs || bugs.length === 0) {
+                console.warn('⚠️ No bugs provided to generateStatsFromBugs');
+                return {
+                    monthlyBugsWithTrend: { value: 0, trend: 0, trendClass: 'neutral' },
+                    inProgressHighPriority: 0,
+                    resolvedThisMonth: { value: 0, trend: 0, trendClass: 'neutral' },
+                    averageResolutionDays: 0,
+                    regressionRate: 0,
+                    slaCompliance: 0,
+                    bugVelocity: 0
+                };
+            }
+            
             console.log('📊 Sample bug for debugging:', bugs.find(b => b.status === 'Deployed'));
             const deployedWithResolution = bugs.filter(b => b.status === 'Deployed' && b.resolutionDate);
             console.log(`📊 Found ${deployedWithResolution.length} deployed bugs with resolutionDate`);
