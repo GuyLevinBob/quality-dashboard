@@ -2525,29 +2525,29 @@
                     const transformedBugs = rawData.bugs.map((bug, index) => {
                         if (index % 100 === 0) console.log(`📊 Transforming bug ${index}/${rawData.bugs.length}`);
                         return {
-                        key: bug.key,
-                        project: bug.project,
-                        summary: bug.summary,
-                        status: bug.status,
-                        priority: bug.priority,
-                        severity: bug.severity || 'Unknown',
-                        assignee: bug.assignee || 'Unassigned',
-                        reporter: bug.reporter,
-                        created: bug.created,
-                        updated: bug.updated,
-                        createdDate: bug.createdDate,
-                        updatedDate: bug.updatedDate,
-                        resolutionDate: bug.resolutionDate,
-                        resolutionDateFormatted: bug.resolutionDateFormatted,
-                        daysOpen: bug.daysOpen,
-                        leadingTeam: bug.leadingTeam || 'Unknown',
-                        system: bug.system || 'Unknown',
-                        sprint: bug.sprintName || bug.sprint || 'No Sprint',
-                        regression: bug.regression || 'Unknown',
-                        fixDuration: 'CALCULATED', // Let calculateFixDuration function handle this
-                        bugType: bug.bugType,
-                        components: bug.components || [],
-                        labels: bug.labels || []
+                            key: bug.key,
+                            project: bug.project,
+                            summary: bug.summary,
+                            status: bug.status,
+                            priority: bug.priority,
+                            severity: bug.severity || 'Unknown',
+                            assignee: bug.assignee || 'Unassigned',
+                            reporter: bug.reporter,
+                            created: bug.created,
+                            updated: bug.updated,
+                            createdDate: bug.createdDate,
+                            updatedDate: bug.updatedDate,
+                            resolutionDate: bug.resolutionDate,
+                            resolutionDateFormatted: bug.resolutionDateFormatted,
+                            daysOpen: bug.daysOpen,
+                            leadingTeam: bug.leadingTeam || 'Unknown',
+                            system: bug.system || 'Unknown',
+                            sprint: bug.sprintName || bug.sprint || 'No Sprint',
+                            regression: bug.regression || 'Unknown',
+                            fixDuration: 'CALCULATED', // Let calculateFixDuration function handle this
+                            bugType: bug.bugType,
+                            components: bug.components || [],
+                            labels: bug.labels || []
                     }));
 
                     data = {
