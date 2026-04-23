@@ -5058,39 +5058,42 @@
 
                 // Special handling for numeric columns
                 if (currentSort.column === 'fixDuration') {
-                    // Calculate fix duration for sorting using same logic as calculateFixDuration
-                    const calculateSortableDuration = (bug) => {
-                        if (bug.status !== 'Deployed') return 99999; // Put non-deployed at end
+                    // Parse the displayed fix duration values for numerical sorting
+                    const parseFixDuration = (bug) => {
+                        const fixDuration = calculateFixDuration(bug);
                         
-                        const createdDateStr = bug.createdDate || bug.created;
-                        const updatedDateStr = bug.updatedDate || bug.updated || bug.resolutionDate;
-                        
-                        if (!createdDateStr || !updatedDateStr) return 99999;
-                        
-                        let createdDate, updatedDate;
-                        
-                        // Handle different date formats
-                        if (createdDateStr.includes('/')) {
-                            const parts = createdDateStr.split('/');
-                            createdDate = new Date(parts[2], parts[0] - 1, parts[1]);
-                        } else {
-                            createdDate = new Date(createdDateStr);
+                        // Handle "N/A" and invalid cases
+                        if (fixDuration === 'N/A' || !fixDuration) {
+                            return 99999; // Put N/A at the end
                         }
                         
-                        if (updatedDateStr.includes('/')) {
-                            const parts = updatedDateStr.split('/');
-                            updatedDate = new Date(parts[2], parts[0] - 1, parts[1]);
-                        } else {
-                            updatedDate = new Date(updatedDateStr);
+                        // Extract the numerical part from strings like "13 days", "1 day"
+                        if (typeof fixDuration === 'string') {
+                            const match = fixDuration.match(/^(\d+(?:\.\d+)?)/);
+                            if (match) {
+                                return parseFloat(match[1]);
+                            }
                         }
                         
-                        if (isNaN(createdDate.getTime()) || isNaN(updatedDate.getTime())) return 99999;
+                        // If it's already a number, use it directly
+                        if (typeof fixDuration === 'number') {
+                            return fixDuration;
+                        }
                         
-                        return Math.abs(updatedDate - createdDate) / (1000 * 60 * 60 * 24);
+                        return 99999; // Fallback for unparseable values
                     };
                     
-                    aVal = calculateSortableDuration(a);
-                    bVal = calculateSortableDuration(b);
+                    aVal = parseFixDuration(a);
+                    bVal = parseFixDuration(b);
+                    
+                    console.log('📊 Fix Duration sorting:', {
+                        bugA: a.key,
+                        bugB: b.key,
+                        aDisplay: calculateFixDuration(a),
+                        bDisplay: calculateFixDuration(b),
+                        aNumeric: aVal,
+                        bNumeric: bVal
+                    });
                 }
 
                 // Special handling for dates
