@@ -12,6 +12,15 @@ const JIRA_FIELD_MAPPINGS = {
     SEVERITY: 'customfield_10104',         // Severity dropdown (e.g., "High", "Critical")
     BUG_TYPE: 'customfield_10578',         // Bug Type dropdown (e.g., "Production")
     
+    // Story-specific fields
+    STORY_POINTS: 'customfield_10016',     // Story Points field (Fibonacci points)
+    EPIC_LINK: 'customfield_10014',        // Epic Link field  
+    TEST_CASE_CREATED: 'customfield_XXXX', // Test Case Created field (Yes/No) - NEEDS REAL FIELD ID
+    
+    // Test Case-specific fields
+    AI_GENERATED_TEST_CASES: 'customfield_YYYY', // AI Generated Test Cases field - NEEDS REAL FIELD ID
+    TEST_TYPE: 'customfield_ZZZZ',         // Test Type field - NEEDS REAL FIELD ID
+    
     // Standard JIRA fields
     ASSIGNEE: 'assignee',                  // Assignee object
     REPORTER: 'reporter',                  // Reporter object
@@ -23,7 +32,8 @@ const JIRA_FIELD_MAPPINGS = {
     UPDATED: 'updated',                    // Last update date
     RESOLUTION: 'resolution',              // Resolution object
     COMPONENTS: 'components',              // Components array (usually empty in our case)
-    LABELS: 'labels'                       // Labels array (usually empty in our case)
+    LABELS: 'labels',                      // Labels array (usually empty in our case)
+    ISSUE_TYPE: 'issuetype'                // Issue type object (Bug, Story, Test, etc.)
 };
 
 // Field extraction helpers
@@ -71,6 +81,26 @@ const FIELD_EXTRACTORS = {
     getStatusName: (statusField) => {
         if (!statusField) return null;
         return statusField.name || null;
+    },
+    
+    // Extract issue type name
+    getIssueTypeName: (issueTypeField) => {
+        if (!issueTypeField) return null;
+        return issueTypeField.name || null;
+    },
+    
+    // Extract story points (numeric field)
+    getStoryPoints: (storyPointsField) => {
+        if (!storyPointsField) return 0;
+        return parseFloat(storyPointsField) || 0;
+    },
+    
+    // Extract epic link
+    getEpicLink: (epicLinkField) => {
+        if (!epicLinkField) return null;
+        // Epic link can be a string (epic key) or object
+        if (typeof epicLinkField === 'string') return epicLinkField;
+        return epicLinkField.key || epicLinkField.name || null;
     }
 };
 
@@ -90,7 +120,15 @@ const JIRA_API_CONFIG = {
         JIRA_FIELD_MAPPINGS.PRIORITY,
         JIRA_FIELD_MAPPINGS.CREATED,
         JIRA_FIELD_MAPPINGS.UPDATED,
-        JIRA_FIELD_MAPPINGS.RESOLUTION
+        JIRA_FIELD_MAPPINGS.RESOLUTION,
+        JIRA_FIELD_MAPPINGS.ISSUE_TYPE,
+        // Story-specific fields
+        JIRA_FIELD_MAPPINGS.STORY_POINTS,
+        JIRA_FIELD_MAPPINGS.EPIC_LINK,
+        JIRA_FIELD_MAPPINGS.TEST_CASE_CREATED,
+        // Test Case-specific fields  
+        JIRA_FIELD_MAPPINGS.AI_GENERATED_TEST_CASES,
+        JIRA_FIELD_MAPPINGS.TEST_TYPE
     ].join(','),
     
     // Expand options for API requests
@@ -99,6 +137,52 @@ const JIRA_API_CONFIG = {
     // Build complete fields parameter for API
     getFieldsParam: function() {
         return `?expand=${this.EXPAND_OPTIONS}&fields=${this.REQUIRED_FIELDS}`;
+    },
+    
+    // Get fields based on issue types (more efficient for specific requests)
+    getFieldsForIssueTypes: function(issueTypes = ['Bug']) {
+        const commonFields = [
+            JIRA_FIELD_MAPPINGS.SPRINT,
+            JIRA_FIELD_MAPPINGS.LEADING_TEAM,
+            JIRA_FIELD_MAPPINGS.SYSTEM,
+            JIRA_FIELD_MAPPINGS.ASSIGNEE,
+            JIRA_FIELD_MAPPINGS.STATUS,
+            JIRA_FIELD_MAPPINGS.SUMMARY,
+            JIRA_FIELD_MAPPINGS.PRIORITY,
+            JIRA_FIELD_MAPPINGS.CREATED,
+            JIRA_FIELD_MAPPINGS.UPDATED,
+            JIRA_FIELD_MAPPINGS.RESOLUTION,
+            JIRA_FIELD_MAPPINGS.ISSUE_TYPE,
+            JIRA_FIELD_MAPPINGS.COMPONENTS,
+            JIRA_FIELD_MAPPINGS.LABELS
+        ];
+        
+        const typeSpecificFields = [];
+        
+        if (issueTypes.includes('Bug')) {
+            typeSpecificFields.push(
+                JIRA_FIELD_MAPPINGS.REGRESSION,
+                JIRA_FIELD_MAPPINGS.SEVERITY,
+                JIRA_FIELD_MAPPINGS.BUG_TYPE
+            );
+        }
+        
+        if (issueTypes.includes('Story')) {
+            typeSpecificFields.push(
+                JIRA_FIELD_MAPPINGS.STORY_POINTS,
+                JIRA_FIELD_MAPPINGS.EPIC_LINK,
+                JIRA_FIELD_MAPPINGS.TEST_CASE_CREATED
+            );
+        }
+        
+        if (issueTypes.includes('Test')) {
+            typeSpecificFields.push(
+                JIRA_FIELD_MAPPINGS.AI_GENERATED_TEST_CASES,
+                JIRA_FIELD_MAPPINGS.TEST_TYPE
+            );
+        }
+        
+        return [...commonFields, ...typeSpecificFields].join(',');
     }
 };
 

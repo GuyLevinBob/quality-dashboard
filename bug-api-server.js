@@ -66,8 +66,11 @@ class BugApiServer {
             console.log(`🚀 Bug API Server running on http://localhost:${this.port}`);
             console.log(`📖 Available endpoints:`);
             console.log(`   GET  /api/bugs-lite - Get lightweight bugs data`);
+            console.log(`   GET  /api/issues-lite?types=Bug,Story,Test - Get lightweight issues data (NEW)`);
             console.log(`   POST /api/sync - Incremental sync from Jira`);
+            console.log(`   POST /api/sync-issues - Multi-issue type sync from Jira (NEW)`);
             console.log(`   GET  /api/bugs/:id/details - Get bug details`);
+            console.log(`   GET  /api/issues/:id/details - Get issue details (NEW)`);
             console.log(`   GET  /health - Health check`);
         });
         
@@ -96,11 +99,18 @@ class BugApiServer {
 
             if (method === 'GET' && pathname === '/api/bugs-lite') {
                 await this.handleGetBugsLite(req, res);
+            } else if (method === 'GET' && pathname === '/api/issues-lite') {
+                await this.handleGetIssuesLite(req, res);
             } else if (method === 'POST' && pathname === '/api/sync') {
                 await this.handleSync(req, res);
+            } else if (method === 'POST' && pathname === '/api/sync-issues') {
+                await this.handleSyncIssues(req, res);
             } else if (method === 'GET' && pathname.startsWith('/api/bugs/') && pathname.endsWith('/details')) {
                 const bugId = pathname.split('/')[3];
                 await this.handleGetBugDetails(req, res, bugId);
+            } else if (method === 'GET' && pathname.startsWith('/api/issues/') && pathname.endsWith('/details')) {
+                const issueId = pathname.split('/')[3];
+                await this.handleGetIssueDetails(req, res, issueId);
             } else if (method === 'GET' && pathname === '/health') {
                 this.handleHealth(req, res);
             } else {
@@ -204,6 +214,139 @@ class BugApiServer {
         } catch (error) {
             console.error('❌ Sync failed:', error);
             this.sendError(res, 500, 'Sync failed', error.message);
+        }
+    }
+
+    // NEW: GET /api/issues-lite - Return lightweight issues data (bugs, stories, test cases)
+    async handleGetIssuesLite(req, res) {
+        try {
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const typesParam = url.searchParams.get('types') || 'Bug';
+            const issueTypes = typesParam.split(',').map(t => t.trim());
+            
+            console.log(`📊 Fetching issues for types: ${issueTypes.join(', ')}`);
+            
+            // For now, use cached data if available, otherwise return empty
+            const data = this.loadCachedData();
+            
+            // TODO: This will need to be enhanced when we have multi-issue cache
+            // For now, only support bugs from existing cache
+            if (issueTypes.includes('Bug') && data && data.bugs) {
+                const lightweightBugs = data.bugs.map(bug => this.toLightweightIssue(bug));
+                
+                this.sendJson(res, {
+                    issues: lightweightBugs,
+                    metadata: {
+                        totalIssues: lightweightBugs.length,
+                        issueTypes: ['Bug'],
+                        lastSync: data.lastSync,
+                        jiraInstance: data.metadata?.jiraInstance || 'hibob.atlassian.net'
+                    }
+                });
+            } else {
+                // No cached data, need initial sync
+                this.sendJson(res, {
+                    issues: [],
+                    metadata: {
+                        totalIssues: 0,
+                        issueTypes: issueTypes,
+                        lastSync: null,
+                        needsInitialSync: true
+                    }
+                });
+            }
+            
+        } catch (error) {
+            console.error('❌ Error getting issues-lite:', error);
+            this.sendError(res, 500, 'Failed to get issues', error.message);
+        }
+    }
+
+    // NEW: POST /api/sync-issues - Sync multiple issue types from JIRA
+    async handleSyncIssues(req, res) {
+        if (!this.jiraClient) {
+            this.sendError(res, 503, 'Jira client not configured');
+            return;
+        }
+
+        try {
+            const body = await this.readRequestBody(req);
+            const { since, types } = JSON.parse(body || '{}');
+            const issueTypes = types || ['Bug', 'Story', 'Test'];
+            
+            console.log('🔄 Starting multi-issue sync...', since ? `since ${since}` : 'full sync');
+            console.log('📋 Issue types:', issueTypes.join(', '));
+            
+            let allIssues;
+            if (since) {
+                // Incremental sync - fetch issues updated since timestamp
+                allIssues = await this.fetchUpdatedIssues(since, issueTypes);
+            } else {
+                // Full sync - fetch all issues of specified types
+                allIssues = await this.fetchAllIssues(issueTypes);
+            }
+
+            const processedIssues = this.processIssuesData(allIssues);
+            
+            // Store in cache (for now, separate from bugs cache)
+            const issueData = {
+                issues: processedIssues,
+                metadata: {
+                    totalIssues: processedIssues.length,
+                    issueTypes: issueTypes,
+                    jiraInstance: this.jiraClient.domain || 'hibob.atlassian.net'
+                },
+                lastSync: new Date().toISOString()
+            };
+
+            this.saveCachedIssuesData(issueData);
+            
+            this.sendJson(res, {
+                success: true,
+                syncType: since ? 'incremental' : 'full',
+                issuesProcessed: processedIssues.length,
+                lastSync: issueData.lastSync
+            });
+            
+        } catch (error) {
+            console.error('❌ Multi-issue sync failed:', error);
+            this.sendError(res, 500, 'Multi-issue sync failed', error.message);
+        }
+    }
+
+    // NEW: GET /api/issues/:id/details - Get heavy issue details
+    async handleGetIssueDetails(req, res, issueId) {
+        try {
+            // First try issues cache, then fall back to bugs cache
+            let issue = null;
+            
+            const issuesData = this.loadCachedIssuesData();
+            if (issuesData?.issues) {
+                issue = issuesData.issues.find(i => i.key === issueId);
+            }
+            
+            if (!issue) {
+                const bugsData = this.loadCachedData();
+                issue = bugsData?.bugs?.find(b => b.key === issueId);
+            }
+            
+            if (!issue) {
+                this.sendError(res, 404, 'Issue not found');
+                return;
+            }
+
+            // Return full issue details
+            this.sendJson(res, {
+                issue: issue,
+                metadata: {
+                    issueType: issue.issueType || 'Bug',
+                    lastUpdate: issue.updated
+                }
+            });
+            
+        } catch (error) {
+            console.error('❌ Error getting issue details:', error);
+            this.sendError(res, 500, 'Failed to get issue details', error.message);
         }
     }
 
@@ -515,6 +658,214 @@ class BugApiServer {
         
         adfDocument.content.forEach(extractText);
         return text.trim();
+    }
+
+    // NEW: Multi-issue helper methods
+    
+    // Convert any issue type to lightweight version
+    toLightweightIssue(issue) {
+        const base = {
+            id: issue.key,
+            key: issue.key,
+            project: issue.project,
+            summary: issue.summary,
+            status: issue.status,
+            priority: issue.priority,
+            assignee: issue.assignee,
+            reporter: issue.reporter,
+            created: issue.created,
+            updated: issue.updated,
+            createdDate: issue.createdDate,
+            updatedDate: issue.updatedDate,
+            resolutionDate: issue.resolutionDate,
+            resolutionDateFormatted: issue.resolutionDateFormatted,
+            daysOpen: issue.daysOpen,
+            
+            // Common fields
+            leadingTeam: issue.leadingTeam,
+            system: issue.system,
+            sprintName: issue.sprintName,
+            components: issue.components,
+            labels: issue.labels,
+            
+            // Issue type
+            issueType: issue.issueType || 'Bug'
+        };
+
+        // Add type-specific fields
+        if (issue.issueType === 'Bug' || !issue.issueType) {
+            base.regression = issue.regression;
+            base.severity = issue.severity;
+            base.bugType = issue.bugType;
+        } else if (issue.issueType === 'Story') {
+            base.storyPoints = issue.storyPoints || 0;
+            base.epicLink = issue.epicLink;
+            base.testCaseCreated = issue.testCaseCreated;
+        } else if (issue.issueType === 'Test') {
+            base.aiGeneratedTestCases = issue.aiGeneratedTestCases;
+            base.testType = issue.testType;
+        }
+
+        return base;
+    }
+
+    // Fetch all issues of specified types
+    async fetchAllIssues(issueTypes = ['Bug']) {
+        console.log(`🔄 Fetching all ${issueTypes.join(', ')} issues...`);
+        
+        let page = 0;
+        const maxPages = 100;
+        let allIssues = [];
+        let nextPageToken = null;
+
+        while (page < maxPages) {
+            console.log(`📄 Fetching page ${page + 1}...`);
+            const response = await this.jiraClient.getIssuesWithTokenPagination(issueTypes, null, 100, nextPageToken);
+            
+            allIssues.push(...response.issues);
+            console.log(`   Found ${response.issues.length} issues (${allIssues.length} total so far)`);
+
+            if (response.isLast || !response.nextPageToken) {
+                break;
+            }
+
+            nextPageToken = response.nextPageToken;
+            page++;
+        }
+
+        console.log(`✅ Completed fetch: ${allIssues.length} total issues`);
+        
+        return {
+            issues: allIssues,
+            total: allIssues.length,
+            metadata: {
+                issueTypes: issueTypes,
+                pages: page + 1
+            }
+        };
+    }
+
+    // Fetch issues updated since timestamp (for incremental sync)
+    async fetchUpdatedIssues(since, issueTypes = ['Bug']) {
+        console.log(`🔄 Fetching ${issueTypes.join(', ')} issues updated since ${since}...`);
+        
+        // For now, fetch all and filter - in production you'd modify the JQL
+        const response = await this.fetchAllIssues(issueTypes);
+        
+        // Filter to only issues updated since the timestamp
+        const updatedIssues = response.issues.filter(issue => {
+            const updated = new Date(issue.fields.updated);
+            const sinceTimestamp = new Date(since);
+            return updated > sinceTimestamp;
+        });
+
+        console.log(`✅ Found ${updatedIssues.length} updated issues out of ${response.issues.length} total`);
+        
+        return {
+            issues: updatedIssues,
+            total: updatedIssues.length,
+            metadata: {
+                ...response.metadata,
+                filteredSince: since
+            }
+        };
+    }
+
+    // Process multiple issue types from JIRA response
+    processIssuesData(jiraResponse) {
+        console.log(`🔄 Processing ${jiraResponse.issues.length} issues...`);
+        
+        return jiraResponse.issues.map(issue => {
+            // Extract common fields
+            const { FIELD_EXTRACTORS } = require('./jira-field-mappings.js');
+            
+            const baseIssue = {
+                key: issue.key,
+                project: issue.key.split('-')[0],
+                summary: issue.fields.summary || '',
+                status: FIELD_EXTRACTORS.getStatusName(issue.fields.status),
+                priority: issue.fields.priority?.name || null,
+                assignee: FIELD_EXTRACTORS.getUserDisplayName(issue.fields.assignee),
+                reporter: FIELD_EXTRACTORS.getUserDisplayName(issue.fields.reporter),
+                created: issue.fields.created,
+                updated: issue.fields.updated,
+                createdDate: new Date(issue.fields.created).toLocaleDateString(),
+                updatedDate: new Date(issue.fields.updated).toLocaleDateString(),
+                daysOpen: this.calculateDaysOpen(issue.fields.created),
+                
+                // Common custom fields
+                leadingTeam: FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10574),
+                system: FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10107),
+                sprintName: FIELD_EXTRACTORS.getSprintName(issue.fields.customfield_10020),
+                components: issue.fields.components || [],
+                labels: issue.fields.labels || [],
+                
+                // Issue type
+                issueType: FIELD_EXTRACTORS.getIssueTypeName(issue.fields.issuetype),
+                
+                // Resolution handling
+                resolutionDate: null,
+                resolutionDateFormatted: null
+            };
+
+            // Handle resolution date from changelog if available
+            if (issue.changelog?.histories) {
+                const deploymentDate = this.extractDeploymentDateFromChangelog(issue.changelog.histories);
+                if (deploymentDate) {
+                    baseIssue.resolutionDate = deploymentDate;
+                    baseIssue.resolutionDateFormatted = new Date(deploymentDate).toLocaleDateString();
+                }
+            }
+
+            // Add type-specific fields
+            if (baseIssue.issueType === 'Bug') {
+                baseIssue.regression = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10106);
+                baseIssue.severity = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10104);
+                baseIssue.bugType = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10578);
+            } else if (baseIssue.issueType === 'Story') {
+                baseIssue.storyPoints = FIELD_EXTRACTORS.getStoryPoints(issue.fields.customfield_10016);
+                baseIssue.epicLink = FIELD_EXTRACTORS.getEpicLink(issue.fields.customfield_10014);
+                baseIssue.testCaseCreated = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_XXXX); // TODO: Replace with real field ID
+            } else if (baseIssue.issueType === 'Test') {
+                baseIssue.aiGeneratedTestCases = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_YYYY); // TODO: Replace with real field ID
+                baseIssue.testType = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_ZZZZ); // TODO: Replace with real field ID
+            }
+
+            // Add description if available
+            if (issue.fields.description) {
+                baseIssue.description = this.convertAdfToPlainText(issue.fields.description);
+            } else {
+                baseIssue.description = '';
+            }
+
+            return baseIssue;
+        });
+    }
+
+    // Cache management for issues
+    loadCachedIssuesData() {
+        try {
+            const issuesFile = path.join(__dirname, 'issues-cache.json');
+            if (!fs.existsSync(issuesFile)) {
+                return null;
+            }
+            const content = fs.readFileSync(issuesFile, 'utf8');
+            return JSON.parse(content);
+        } catch (error) {
+            console.error('❌ Error loading cached issues data:', error);
+            return null;
+        }
+    }
+
+    saveCachedIssuesData(data) {
+        try {
+            const issuesFile = path.join(__dirname, 'issues-cache.json');
+            fs.writeFileSync(issuesFile, JSON.stringify(data, null, 2));
+            console.log(`💾 Saved ${data.issues.length} issues to cache file`);
+        } catch (error) {
+            console.error('❌ Error saving cached issues data:', error);
+            throw error;
+        }
     }
 
     // HTTP utility methods

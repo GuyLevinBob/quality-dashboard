@@ -121,6 +121,89 @@ class JiraClient {
     });
   }
 
+  // NEW: Get multiple issue types (bugs, stories, test cases)
+  async getIssues(issueTypes = ['Bug'], projectKey = null, maxResults = 100) {
+    let jql = this.buildJqlForIssueTypes(issueTypes, projectKey);
+    jql += ' ORDER BY created DESC';
+    
+    const endpoint = `/rest/api/3/search/jql`;
+    const { JIRA_FIELD_MAPPINGS, JIRA_API_CONFIG } = require('./jira-field-mappings.js');
+    const payload = {
+      jql: jql,
+      maxResults: maxResults,
+      expand: JIRA_API_CONFIG.EXPAND_OPTIONS,
+      fields: JIRA_API_CONFIG.getFieldsForIssueTypes(issueTypes).split(',')
+    };
+    
+    try {
+      const response = await this.makePostRequest(endpoint, payload);
+      return response;
+    } catch (error) {
+      console.error('Error fetching issues:', error);
+      throw error;
+    }
+  }
+  
+  // NEW: Get multiple issue types with pagination
+  async getIssuesWithTokenPagination(issueTypes = ['Bug'], projectKey = null, maxResults = 100, nextPageToken = null) {
+    let jql = this.buildJqlForIssueTypes(issueTypes, projectKey);
+    jql += ' ORDER BY created DESC';
+    
+    const endpoint = `/rest/api/3/search/jql`;
+    const { JIRA_FIELD_MAPPINGS, JIRA_API_CONFIG } = require('./jira-field-mappings.js');
+    const payload = {
+      jql: jql,
+      maxResults: maxResults,
+      expand: JIRA_API_CONFIG.EXPAND_OPTIONS,
+      fields: JIRA_API_CONFIG.getFieldsForIssueTypes(issueTypes).split(',')
+    };
+    
+    if (nextPageToken) {
+      payload.nextPageToken = nextPageToken;
+    }
+    
+    try {
+      const response = await this.makePostRequest(endpoint, payload);
+      return response;
+    } catch (error) {
+      console.error('Error fetching issues with pagination:', error);
+      throw error;
+    }
+  }
+  
+  // NEW: Build JQL query for different issue types
+  buildJqlForIssueTypes(issueTypes, projectKey = null) {
+    let jql = '';
+    
+    if (issueTypes.length === 0) {
+      throw new Error('At least one issue type must be specified');
+    }
+    
+    if (issueTypes.length === 1) {
+      jql = `type = "${issueTypes[0]}"`;
+      
+      // Add type-specific filters
+      if (issueTypes[0] === 'Bug') {
+        jql += ' AND "bug type[dropdown]" = Production';
+      }
+    } else {
+      const typeFilter = issueTypes.map(type => `"${type}"`).join(', ');
+      jql = `type in (${typeFilter})`;
+      
+      // For mixed types, add conditional filters
+      if (issueTypes.includes('Bug')) {
+        jql += ' AND (type != Bug OR "bug type[dropdown]" = Production)';
+      }
+    }
+    
+    if (projectKey) {
+      jql += ` AND project = "${projectKey}"`;
+    }
+    
+    return jql;
+  }
+
+  // PRESERVED: Original getBugs method (unchanged for backward compatibility)
   async getBugs(projectKey = null, maxResults = 100) {
     let jql = 'type = Bug AND "bug type[dropdown]" = Production';
     if (projectKey) {
