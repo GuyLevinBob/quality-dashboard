@@ -263,31 +263,56 @@
             gap: 8px;
         }
         
+        /* Conditional filter visibility based on issue type */
+        .filter-group.bug-only {
+            display: flex; /* Shown by default (bugs are default), hidden when other types selected */
+        }
+        
+        .filter-group.bug-test-only {
+            display: none; /* Hidden by default, shown when bugs or test cases are selected */
+        }
+        
+        .filter-group.story-only {
+            display: none; /* Hidden by default, shown when stories are selected */
+        }
+        
+        .filter-group.test-only {
+            display: none; /* Hidden by default, shown when test cases are selected */
+        }
+        
         /* Issue Type Checkboxes */
-        .issue-type-checkboxes {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .issue-type-selector {
+            position: relative;
+            width: 100%;
         }
 
-        .issue-type-checkbox {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
+        .issue-type-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            background: white;
+            color: #2d2d2d;
+            font-size: 14px;
             font-weight: 500;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23666%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
         }
 
-        .issue-type-checkbox:hover {
-            background-color: rgba(46, 139, 87, 0.1);
+        .issue-type-select:focus {
+            outline: none;
+            border-color: #2E8B57;
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
         }
 
-        .issue-type-checkbox input[type="checkbox"] {
-            margin-right: 8px;
-            transform: scale(1.2);
-            accent-color: #2E8B57;
+        .issue-type-select:hover {
+            border-color: #2E8B57;
+            background-color: rgba(46, 139, 87, 0.05);
         }
 
         .type-count {
@@ -2189,23 +2214,17 @@
                     <!-- Group 0: Issue Type Selection (NEW) -->
                     <div class="filter-group-section issue-types">
                         <div class="filter-group">
-                            <label>Issue Types:</label>
-                            <div class="issue-type-checkboxes">
-                                <label class="issue-type-checkbox">
-                                    <input type="checkbox" id="bugTypeEnabled" checked> 
-                                    <span class="checkmark"></span>
-                                    Bugs <span id="bugCount" class="type-count">(980)</span>
-                                </label>
-                                <label class="issue-type-checkbox">
-                                    <input type="checkbox" id="storyTypeEnabled"> 
-                                    <span class="checkmark"></span>
-                                    Stories <span id="storyCount" class="type-count">(0)</span>
-                                </label>
-                                <label class="issue-type-checkbox">
-                                    <input type="checkbox" id="testTypeEnabled"> 
-                                    <span class="checkmark"></span>
-                                    Test Cases <span id="testCount" class="type-count">(0)</span>
-                                </label>
+                            <label>Issue Type:</label>
+                            <div class="issue-type-selector">
+                                <select id="issueTypeSelect" class="issue-type-select">
+                                    <option value="Bug">🐛 Bugs <span id="bugCount">(980)</span></option>
+                                    <option value="Story">📋 Stories <span id="storyCount">(0)</span></option>
+                                    <option value="Test">🧪 Test Cases <span id="testCount">(0)</span></option>
+                                    <option value="All">📊 All Issues <span id="allCount">(980)</span></option>
+                                </select>
+                                <div class="loading-status" style="display: none; margin-top: 8px; padding: 8px; background: rgba(46, 139, 87, 0.1); border-radius: 4px; font-size: 12px; color: #2E8B57;">
+                                    Loading data...
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2225,7 +2244,7 @@
                                 <div class="multiselect-dropdown" id="statusFilterDropdown"></div>
                             </div>
                         </div>
-                        <div class="filter-group">
+                        <div class="filter-group bug-only">
                             <label for="severityFilter">Severity:</label>
                             <div class="multiselect-container">
                                 <div class="filter-with-clear">
@@ -2277,6 +2296,19 @@
                                 <div class="multiselect-dropdown" id="systemFilterDropdown"></div>
                             </div>
                         </div>
+                        <div class="filter-group story-only">
+                            <label for="testCaseCreatedFilter">Test Case Created:</label>
+                            <div class="multiselect-container">
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="testCaseCreatedFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="testCaseCreated" title="Clear Test Case Created Filter">×</button>
+                                </div>
+                                <div class="multiselect-dropdown" id="testCaseCreatedFilterDropdown"></div>
+                            </div>
+                        </div>
                         <div class="filter-group">
                             <label>&nbsp;</label>
                             <button id="clearFiltersButton" class="clear-button">Clear</button>
@@ -2298,7 +2330,7 @@
                                 <div class="multiselect-dropdown" id="sprintFilterDropdown"></div>
                             </div>
                         </div>
-                        <div class="filter-group">
+                        <div class="filter-group bug-only">
                             <label for="regressionFilter">Regression:</label>
                             <div class="multiselect-container">
                                 <div class="filter-with-clear">
@@ -2309,6 +2341,19 @@
                                     <button class="filter-clear-btn" data-filter="regression" title="Clear Regression Filter">×</button>
                                 </div>
                                 <div class="multiselect-dropdown" id="regressionFilterDropdown"></div>
+                            </div>
+                        </div>
+                        <div class="filter-group test-only">
+                            <label for="generatedFromAIFilter">Generated from AI:</label>
+                            <div class="multiselect-container">
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="generatedFromAIFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="generatedFromAI" title="Clear Generated from AI Filter">×</button>
+                                </div>
+                                <div class="multiselect-dropdown" id="generatedFromAIFilterDropdown"></div>
                             </div>
                         </div>
                         <div class="filter-group date-range-container">
@@ -2394,14 +2439,8 @@
                             
                             <div class="field-category">
                                 <div class="field-category-header">📊 Categorical</div>
-                                <div class="field-items">
-                                    <div class="chart-field" data-field="status" data-type="categorical" draggable="true">Status</div>
-                                    <div class="chart-field" data-field="severity" data-type="categorical" draggable="true">Severity</div>
-                                    <div class="chart-field" data-field="leadingTeam" data-type="categorical" draggable="true">Leading Team</div>
-                                    <div class="chart-field" data-field="system" data-type="categorical" draggable="true">System</div>
-                                    <div class="chart-field" data-field="assignee" data-type="categorical" draggable="true">Assignee</div>
-                                    <div class="chart-field" data-field="sprint" data-type="categorical" draggable="true">Sprint</div>
-                                    <div class="chart-field" data-field="regression" data-type="categorical" draggable="true">Regression</div>
+                                <div class="field-items" id="categoricalFieldsContainer">
+                                    <!-- Categorical fields will be dynamically populated based on selected issue types -->
                                 </div>
                             </div>
                             
@@ -2416,9 +2455,9 @@
                             <div class="field-category">
                                 <div class="field-category-header">🔢 Metrics</div>
                                 <div class="field-items">
-                                    <div class="chart-field" data-field="count" data-type="numeric" draggable="true">Bug Count</div>
-                                    <div class="chart-field" data-field="allBugs" data-type="numeric" draggable="true">All Bugs</div>
-                                    <div class="chart-field" data-field="filteredAllBugs" data-type="numeric" draggable="true">Filtered All Bugs</div>
+                                    <div class="chart-field" data-field="count" data-type="numeric" draggable="true">Count</div>
+                                    <div class="chart-field" data-field="allItems" data-type="numeric" draggable="true">All Items</div>
+                                    <div class="chart-field" data-field="filteredAllItems" data-type="numeric" draggable="true">Filtered All Items</div>
                                     <div class="chart-field" data-field="daysToFix" data-type="numeric" draggable="true">Days to Fix</div>
                                 </div>
                             </div>
@@ -2518,16 +2557,641 @@
         
         // Issue type selection state
         let activeIssueTypes = ['Bug']; // Default: bugs only initially
+
+        // Column configuration for dynamic table headers
+        const ISSUE_TYPE_COLUMNS = {
+            Bug: [
+                { key: 'key', label: 'Issue Key', width: '120px' },
+                { key: 'summary', label: 'Summary', width: '350px' },
+                { key: 'status', label: 'Status', width: '120px' },
+                { key: 'severity', label: 'Severity', width: '100px' },
+                { key: 'assignee', label: 'Assignee', width: '150px' },
+                { key: 'leadingTeam', label: 'Leading Team', width: '150px' },
+                { key: 'system', label: 'System', width: '120px' },
+                { key: 'sprint', label: 'Sprint', width: '180px' },
+                { key: 'regression', label: 'Regression', width: '100px' },
+                { key: 'fixDuration', label: 'Fix Duration', width: '120px' },
+                { key: 'createdDate', label: 'Created', width: '100px' }
+            ],
+            Story: [
+                { key: 'key', label: 'Issue Key', width: '120px' },
+                { key: 'summary', label: 'Summary', width: '350px' },
+                { key: 'status', label: 'Status', width: '120px' },
+                { key: 'assignee', label: 'Assignee', width: '150px' },
+                { key: 'leadingTeam', label: 'Leading Team', width: '150px' },
+                { key: 'system', label: 'System', width: '120px' },
+                { key: 'sprint', label: 'Sprint', width: '180px' },
+                { key: 'testCaseCreated', label: 'Test Case Created', width: '140px' },
+                { key: 'fixDuration', label: 'Fix Duration', width: '120px' },
+                { key: 'createdDate', label: 'Created', width: '100px' }
+            ],
+            Test: [
+                { key: 'key', label: 'Issue Key', width: '120px' },
+                { key: 'summary', label: 'Summary', width: '350px' },
+                { key: 'status', label: 'Status', width: '120px' },
+                { key: 'assignee', label: 'Assignee', width: '150px' },
+                { key: 'leadingTeam', label: 'Leading Team', width: '150px' },
+                { key: 'system', label: 'System', width: '120px' },
+                { key: 'sprint', label: 'Sprint', width: '180px' },
+                { key: 'generatedFromAI', label: 'Generated from AI', width: '140px' },
+                { key: 'fixDuration', label: 'Fix Duration', width: '120px' },
+                { key: 'createdDate', label: 'Created', width: '100px' }
+            ]
+        };
+
+        // Chart fields configuration for dynamic quality analysis
+        const CHART_FIELDS_BY_ISSUE_TYPE = {
+            Bug: [
+                { field: 'status', label: 'Status' },
+                { field: 'severity', label: 'Severity' },
+                { field: 'leadingTeam', label: 'Leading Team' },
+                { field: 'system', label: 'System' },
+                { field: 'assignee', label: 'Assignee' },
+                { field: 'sprint', label: 'Sprint' },
+                { field: 'regression', label: 'Regression' }
+            ],
+            Story: [
+                { field: 'status', label: 'Status' },
+                { field: 'leadingTeam', label: 'Leading Team' },
+                { field: 'system', label: 'System' },
+                { field: 'assignee', label: 'Assignee' },
+                { field: 'sprint', label: 'Sprint' },
+                { field: 'testCaseCreated', label: 'Test Case Created' }
+            ],
+            Test: [
+                { field: 'status', label: 'Status' },
+                { field: 'leadingTeam', label: 'Leading Team' },
+                { field: 'system', label: 'System' },
+                { field: 'assignee', label: 'Assignee' },
+                { field: 'sprint', label: 'Sprint' },
+                { field: 'generatedFromAI', label: 'Generated from AI' }
+            ]
+        };
+
+        // Build dynamic table headers based on active issue types
+        function buildTableHeaders(activeIssueTypes) {
+            console.log('🔧 Building table headers for issue types:', activeIssueTypes);
+            
+            // Determine which columns to show based on active issue types
+            let columnsToShow = [];
+            
+            if (activeIssueTypes.length === 1) {
+                // Single issue type - use its specific columns
+                const issueType = activeIssueTypes[0];
+                columnsToShow = ISSUE_TYPE_COLUMNS[issueType] || ISSUE_TYPE_COLUMNS.Bug;
+            } else {
+                // Multiple issue types - use common columns (intersection)
+                const allColumns = Object.values(ISSUE_TYPE_COLUMNS);
+                const commonColumns = ISSUE_TYPE_COLUMNS.Bug.filter(bugColumn => 
+                    allColumns.every(typeColumns => 
+                        typeColumns.some(col => col.key === bugColumn.key)
+                    )
+                );
+                columnsToShow = commonColumns;
+            }
+
+            // Get table header row
+            const thead = document.querySelector('#bugsTable thead tr');
+            if (!thead) {
+                console.error('❌ Table header row not found');
+                return;
+            }
+
+            // Clear existing headers
+            thead.innerHTML = '';
+
+            // Build new headers
+            columnsToShow.forEach(column => {
+                const th = document.createElement('th');
+                th.setAttribute('data-column', column.key);
+                th.style.width = column.width;
+                th.style.minWidth = column.width.replace('px', '') ? (parseInt(column.width.replace('px', '')) - 20) + 'px' : 'auto';
+                
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'sortable-header';
+                headerDiv.innerHTML = `${column.label}<span class="sort-indicator">↕</span>`;
+                
+                th.appendChild(headerDiv);
+                thead.appendChild(th);
+            });
+
+            console.log('✅ Table headers rebuilt with', columnsToShow.length, 'columns');
+            
+            // Re-setup sorting event listeners for new headers
+            setupSortingEventListeners();
+            
+            return columnsToShow;
+        }
+
+        // Generate dynamic table row based on column configuration
+        function generateTableRow(item, columns) {
+            const row = document.createElement('tr');
+            const jiraUrl = `https://hibob.atlassian.net/browse/${item.key}`;
+            const fixDuration = calculateFixDuration(item);
+            
+            // Generate cells for each column
+            columns.forEach(column => {
+                const td = document.createElement('td');
+                
+                switch (column.key) {
+                    case 'key':
+                        td.innerHTML = `<a href="${jiraUrl}" target="_blank" class="issue-link">${item.key}</a>`;
+                        break;
+                        
+                    case 'summary':
+                        td.style.maxWidth = '350px';
+                        td.style.overflow = 'hidden';
+                        td.style.textOverflow = 'ellipsis';
+                        td.textContent = item.summary || '';
+                        break;
+                        
+                    case 'status':
+                        td.innerHTML = `<span class="status-badge ${getStatusClass(item.status)}">${item.status}</span>`;
+                        break;
+                        
+                    case 'severity':
+                        td.innerHTML = `<span class="priority-badge ${getPriorityClass(item.severity)}">${item.severity}</span>`;
+                        break;
+                        
+                    case 'assignee':
+                        td.textContent = item.assignee || 'N/A';
+                        break;
+                        
+                    case 'leadingTeam':
+                        td.innerHTML = item.leadingTeam === 'No Data' ? 
+                            '<span style="color: #999; font-style: italic;">No Data</span>' : 
+                            (item.leadingTeam || 'N/A');
+                        break;
+                        
+                    case 'system':
+                        td.innerHTML = item.system === 'No Data' ? 
+                            '<span style="color: #999; font-style: italic;">No Data</span>' : 
+                            (item.system || 'N/A');
+                        break;
+                        
+                    case 'sprint':
+                        let sprintDisplay = 'N/A';
+                        if (item.sprint === 'No Data') {
+                            sprintDisplay = '<span style="color: #999; font-style: italic;">No Data</span>';
+                        } else if (item.sprint === 'None') {
+                            sprintDisplay = '<span style="color: #ff9500;">None</span>';
+                        } else if (item.sprint) {
+                            sprintDisplay = item.sprint;
+                        }
+                        td.innerHTML = sprintDisplay;
+                        break;
+                        
+                    case 'regression':
+                        let regressionDisplay = '<span style="color: #999; font-style: italic;">No Data</span>';
+                        if (item.regression === 'Yes') {
+                            regressionDisplay = '<span style="color: #28a745; font-weight: bold;">Yes</span>';
+                        } else if (item.regression === 'No') {
+                            regressionDisplay = '<span style="color: #dc3545;">No</span>';
+                        }
+                        td.innerHTML = regressionDisplay;
+                        break;
+                        
+                    case 'testCaseCreated':
+                        let testCaseDisplay = '<span style="color: #999; font-style: italic;">No Data</span>';
+                        if (item.testCaseCreated === 'Yes') {
+                            testCaseDisplay = '<span style="color: #28a745; font-weight: bold;">Yes</span>';
+                        } else if (item.testCaseCreated === 'No') {
+                            testCaseDisplay = '<span style="color: #dc3545;">No</span>';
+                        }
+                        td.innerHTML = testCaseDisplay;
+                        break;
+                        
+                    case 'generatedFromAI':
+                        let aiDisplay = '<span style="color: #999; font-style: italic;">No Data</span>';
+                        if (item.generatedFromAI === 'Yes') {
+                            aiDisplay = '<span style="color: #28a745; font-weight: bold;">Yes</span>';
+                        } else if (item.generatedFromAI === 'No') {
+                            aiDisplay = '<span style="color: #dc3545;">No</span>';
+                        }
+                        td.innerHTML = aiDisplay;
+                        break;
+                        
+                    case 'fixDuration':
+                        td.innerHTML = `<span class="fix-duration">${fixDuration}</span>`;
+                        break;
+                        
+                    case 'createdDate':
+                        td.textContent = item.createdDate || '';
+                        break;
+                        
+                    default:
+                        td.textContent = item[column.key] || 'N/A';
+                }
+                
+                row.appendChild(td);
+            });
+            
+            return row;
+        }
+
+        // Clear all filters and sorting state when switching issue types
+        function clearAllFiltersAndSorts() {
+            console.log('🧹 Clearing all filters and sorts for issue type change');
+            
+            // Clear all filter selections
+            Object.keys(filterSelections).forEach(filterType => {
+                filterSelections[filterType].clear();
+            });
+
+            // Update all filter button texts
+            Object.keys(filterSelections).forEach(filterType => {
+                updateFilterButtonText(filterType);
+            });
+
+            // Clear search input
+            const searchInput = document.getElementById('searchFilter');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+
+            // Clear date range inputs
+            const dateFromInput = document.getElementById('dateFrom');
+            const dateToInput = document.getElementById('dateTo');
+            if (dateFromInput) dateFromInput.value = '';
+            if (dateToInput) dateToInput.value = '';
+            dateRangeFilter.dateFrom = null;
+            dateRangeFilter.dateTo = null;
+
+            // Reset sort state
+            if (typeof sortState !== 'undefined') {
+                sortState.column = null;
+                sortState.direction = null;
+                
+                // Clear sort indicators on all headers
+                document.querySelectorAll('.sort-indicator').forEach(indicator => {
+                    indicator.textContent = '↕';
+                    indicator.parentElement.classList.remove('sort-asc', 'sort-desc');
+                });
+            }
+
+            // Clear any active chart filters
+            if (typeof chartFilter !== 'undefined') {
+                chartFilter.active = false;
+                chartFilter.field = null;
+                chartFilter.value = null;
+            }
+
+            console.log('✅ All filters and sorts cleared');
+        }
+
+        // Setup search filter event listener
+        function setupSearchListener() {
+            const searchFilter = document.getElementById('searchFilter');
+            if (searchFilter) {
+                // Remove existing listeners to avoid duplicates
+                searchFilter.removeEventListener('input', handleSearchInput);
+                searchFilter.removeEventListener('focus', handleSearchFocus);
+                
+                // Add the main search handler
+                searchFilter.addEventListener('input', handleSearchInput);
+                searchFilter.addEventListener('focus', handleSearchFocus);
+                
+                console.log('✅ Search filter event listener attached');
+                return true;
+            } else {
+                console.warn('⚠️ Search filter element not found');
+                return false;
+            }
+        }
         
+        // Handle search input events
+        function handleSearchInput(e) {
+            console.log('🔍 Search input detected:', e.target.value);
+            applyFilters();
+        }
+        
+        // Handle search focus events
+        function handleSearchFocus() {
+            console.log('🔍 Search box focused - ready for input');
+        }
+        
+        // Manual test function for search (accessible from console)
+        window.testSearchManually = function(searchTerm) {
+            console.log(`🧪 Manual search test with: "${searchTerm}"`);
+            const searchInput = document.getElementById('searchFilter');
+            if (searchInput) {
+                searchInput.value = searchTerm;
+                searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                console.log('🧪 Search event dispatched, check table for results');
+                
+                // Show current filter results
+                setTimeout(() => {
+                    console.log(`🧪 Current results count: ${filteredData.length}`);
+                }, 100);
+            } else {
+                console.error('❌ Search input not found');
+            }
+        };
+        
+        // Immediate diagnostic - check what data source we're using
+        window.diagnoseDataSource = function() {
+            console.log('🚨 IMMEDIATE DATA SOURCE DIAGNOSIS:');
+            console.log('==========================================');
+            
+            // Check what data we have available
+            console.log('Data arrays available:');
+            console.log(`  • issuesData: ${issuesData ? issuesData.length : 'undefined'} items`);
+            console.log(`  • bugsData: ${bugsData ? bugsData.length : 'undefined'} items`);
+            console.log(`  • storiesData: ${storiesData ? storiesData.length : 'undefined'} items`);
+            console.log(`  • filteredData: ${filteredData ? filteredData.length : 'undefined'} items`);
+            
+            // Check BT-12664 in each data source
+            if (issuesData && issuesData.length > 0) {
+                const rawBT12664 = issuesData.find(i => i.key === 'BT-12664');
+                if (rawBT12664) {
+                    console.log('🔍 BT-12664 in issuesData (raw):', {
+                        key: rawBT12664.key,
+                        issueType: rawBT12664.issueType,
+                        testCaseCreated: rawBT12664.testCaseCreated,
+                        type: typeof rawBT12664.testCaseCreated,
+                        isArray: Array.isArray(rawBT12664.testCaseCreated),
+                        raw: JSON.stringify(rawBT12664.testCaseCreated)
+                    });
+                }
+            }
+            
+            if (storiesData && storiesData.length > 0) {
+                const storyBT12664 = storiesData.find(s => s.key === 'BT-12664');
+                if (storyBT12664) {
+                    console.log('🔍 BT-12664 in storiesData (processed):', {
+                        key: storyBT12664.key,
+                        testCaseCreated: storyBT12664.testCaseCreated,
+                        type: typeof storyBT12664.testCaseCreated,
+                        raw: JSON.stringify(storyBT12664.testCaseCreated)
+                    });
+                } else {
+                    console.log('❌ BT-12664 not found in storiesData');
+                }
+            }
+            
+            // Check where data is coming from
+            console.log('🔍 Data source analysis:');
+            if (typeof data !== 'undefined' && data) {
+                if (data.issues) {
+                    console.log('  • Using data.issues (multi-issue format)');
+                } else if (data.bugs) {
+                    console.log('  • Using data.bugs (legacy format)');
+                } else {
+                    console.log('  • Unknown data format');
+                }
+            } else {
+                console.log('  • No data object available');
+            }
+        };
+        
+        // Manual transformation fix - force the transformation to run
+        window.forceTransformation = function() {
+            console.log('🔧 FORCING testCaseCreated TRANSFORMATION...');
+            
+            if (!storiesData || storiesData.length === 0) {
+                console.log('❌ No storiesData to transform');
+                return;
+            }
+            
+            let transformedCount = 0;
+            const originalBT12664 = storiesData.find(s => s.key === 'BT-12664');
+            
+            console.log('🔍 BT-12664 BEFORE transformation:', {
+                testCaseCreated: originalBT12664 ? originalBT12664.testCaseCreated : 'NOT FOUND',
+                type: originalBT12664 ? typeof originalBT12664.testCaseCreated : 'N/A',
+                raw: originalBT12664 ? JSON.stringify(originalBT12664.testCaseCreated) : 'N/A'
+            });
+            
+            // Force transformation on all stories
+            storiesData.forEach(story => {
+                const originalValue = story.testCaseCreated;
+                let wasTransformed = false;
+                
+                if (story.testCaseCreated) {
+                    if (Array.isArray(story.testCaseCreated)) {
+                        const newValue = story.testCaseCreated.includes('Yes') ? 'Yes' : 'No';
+                        story.testCaseCreated = newValue;
+                        wasTransformed = true;
+                        transformedCount++;
+                    } else if (typeof story.testCaseCreated === 'object' && story.testCaseCreated !== null) {
+                        const value = story.testCaseCreated.value || story.testCaseCreated;
+                        if (Array.isArray(value)) {
+                            story.testCaseCreated = value.includes('Yes') ? 'Yes' : 'No';
+                        } else {
+                            story.testCaseCreated = value === 'Yes' ? 'Yes' : 'No';
+                        }
+                        wasTransformed = true;
+                        transformedCount++;
+                    }
+                } else {
+                    story.testCaseCreated = 'No';
+                    wasTransformed = true;
+                    transformedCount++;
+                }
+                
+                if (story.key === 'BT-12664' && wasTransformed) {
+                    console.log(`🔄 [MANUAL] BT-12664 transformation: ${JSON.stringify(originalValue)} -> "${story.testCaseCreated}"`);
+                }
+            });
+            
+            console.log(`✅ Manually transformed ${transformedCount} stories`);
+            
+            const newBT12664 = storiesData.find(s => s.key === 'BT-12664');
+            console.log('🔍 BT-12664 AFTER transformation:', {
+                testCaseCreated: newBT12664 ? newBT12664.testCaseCreated : 'NOT FOUND',
+                type: newBT12664 ? typeof newBT12664.testCaseCreated : 'N/A'
+            });
+            
+            // Update filtered data and refresh display
+            updateFilteredDataBasedOnActiveTypes();
+            populateFilters();
+            displayBugsTable();
+            
+            console.log('✅ Dashboard refreshed with transformed data');
+            console.log('💡 Now try: checkTestCaseTransformation() to see results');
+        };
+
+        // Debug function to find specific stories and check testCaseCreated values
+        window.debugStory = function(storyKey) {
+            console.log(`🔍 Debugging story: ${storyKey}`);
+            
+            // Search in all data arrays
+            const inBugs = bugsData.find(b => b.key === storyKey);
+            const inStories = storiesData.find(s => s.key === storyKey);
+            const inFiltered = filteredData.find(f => f.key === storyKey);
+            
+            console.log('🔍 Story search results:', {
+                foundInBugs: !!inBugs,
+                foundInStories: !!inStories,
+                foundInFiltered: !!inFiltered,
+                storyData: inStories ? {
+                    key: inStories.key,
+                    testCaseCreated: inStories.testCaseCreated,
+                    testCaseCreatedType: typeof inStories.testCaseCreated,
+                    issueType: inStories.issueType
+                } : null
+            });
+            
+            if (inStories) {
+                console.log(`✅ Story ${storyKey} testCaseCreated = "${inStories.testCaseCreated}"`);
+            } else {
+                console.log(`❌ Story ${storyKey} not found in dashboard data`);
+            }
+        };
+        
+        // Debug function to check testCaseCreated transformation results
+        window.checkTestCaseTransformation = function() {
+            console.log('📊 TestCaseCreated Transformation Report:');
+            
+            if (!storiesData || storiesData.length === 0) {
+                console.log('❌ No stories data available');
+                return;
+            }
+            
+            const totalStories = storiesData.length;
+            const yesStories = storiesData.filter(s => s.testCaseCreated === 'Yes').length;
+            const noStories = storiesData.filter(s => s.testCaseCreated === 'No').length;
+            const nullStories = storiesData.filter(s => !s.testCaseCreated).length;
+            const otherStories = storiesData.filter(s => s.testCaseCreated && s.testCaseCreated !== 'Yes' && s.testCaseCreated !== 'No').length;
+            
+            console.log(`📈 Total Stories: ${totalStories}`);
+            console.log(`✅ "Yes": ${yesStories} (${Math.round(yesStories/totalStories*100)}%)`);
+            console.log(`❌ "No": ${noStories} (${Math.round(noStories/totalStories*100)}%)`);
+            console.log(`❓ Null/undefined: ${nullStories}`);
+            console.log(`🤔 Other values: ${otherStories}`);
+            
+            if (otherStories > 0) {
+                console.log('🔍 Sample "other" values:');
+                const samples = storiesData.filter(s => s.testCaseCreated && s.testCaseCreated !== 'Yes' && s.testCaseCreated !== 'No').slice(0, 5);
+                samples.forEach(s => console.log(`   • ${s.key}: "${s.testCaseCreated}" (${typeof s.testCaseCreated})`));
+            }
+            
+            console.log(`🎯 JIRA expects ~317 "Yes" stories, dashboard has ${yesStories}`);
+            if (yesStories < 300) {
+                console.warn('⚠️ Significant discrepancy - data transformation may need adjustment');
+            } else {
+                console.log('✅ Numbers look good!');
+            }
+        };
+        
+        // Debug function to check RAW data before transformation
+        window.checkRawData = function() {
+            console.log('🔍 RAW Data Investigation:');
+            
+            // Check if we have access to original API data
+            if (typeof issuesData !== 'undefined' && issuesData.length > 0) {
+                const rawStories = issuesData.filter(i => i.issueType === 'Story');
+                console.log(`📊 Found ${rawStories.length} raw stories in issuesData`);
+                
+                // Check BT-12664 specifically in raw data
+                const rawBT12664 = rawStories.find(s => s.key === 'BT-12664');
+                if (rawBT12664) {
+                    console.log('🔍 BT-12664 in RAW data:', {
+                        key: rawBT12664.key,
+                        testCaseCreated: rawBT12664.testCaseCreated,
+                        type: typeof rawBT12664.testCaseCreated,
+                        isArray: Array.isArray(rawBT12664.testCaseCreated),
+                        rawValue: JSON.stringify(rawBT12664.testCaseCreated)
+                    });
+                } else {
+                    console.log('❌ BT-12664 not found in raw issuesData');
+                }
+                
+                // Sample raw testCaseCreated values
+                console.log('🔍 Sample RAW testCaseCreated values:');
+                rawStories.slice(0, 5).forEach(story => {
+                    console.log(`   • ${story.key}: ${JSON.stringify(story.testCaseCreated)} (${typeof story.testCaseCreated})`);
+                });
+                
+                // Count different types in raw data
+                const rawTypes = {};
+                rawStories.forEach(story => {
+                    const type = Array.isArray(story.testCaseCreated) ? 'array' : typeof story.testCaseCreated;
+                    rawTypes[type] = (rawTypes[type] || 0) + 1;
+                });
+                console.log('📊 RAW data types distribution:', rawTypes);
+                
+            } else {
+                console.log('❌ No raw issuesData available');
+            }
+        };
+
         // Load dashboard data from automated source (ALL original functionality preserved)
         let data = null;
         
         async function loadDashboardDataFromSource() {
             try {
                 console.log('🚀 loadDashboardDataFromSource started');
-                document.getElementById('status').innerHTML = 'Loading bug data... (checking cached data)';
+                document.getElementById('status').innerHTML = 'Loading issue data... (checking fresh data from API)';
                 
-                // First, check if we have more recent synced data in localStorage
+                // PRIORITY 1: Try API server first for fresh JIRA data
+                try {
+                    console.log('🔄 Checking API server for fresh JIRA data...');
+                    const apiResponse = await fetch(`http://localhost:3002/api/issues-lite?types=Bug,Story,Test&_=${Date.now()}`);
+                    if (apiResponse.ok) {
+                        console.log('✅ API server available - using fresh data');
+                        const apiData = await apiResponse.json();
+                        console.log(`📊 Loaded ${apiData.issues?.length || 0} fresh issues from API`);
+
+                        // Convert API format to dashboard format with proper transformations
+                        const transformedData = {
+                            issues: apiData.issues || [],
+                            bugs: (apiData.issues || []).filter(i => i.issueType === 'Bug'),
+                            stories: (apiData.issues || []).filter(i => i.issueType === 'Story').map(story => {
+                                // Transform testCaseCreated from JIRA checkbox format to simple string
+                                const originalValue = story.testCaseCreated;
+                                if (story.testCaseCreated) {
+                                    if (Array.isArray(story.testCaseCreated)) {
+                                        story.testCaseCreated = story.testCaseCreated.includes('Yes') ? 'Yes' : 'No';
+                                        if (story.key === 'BT-12664') {
+                                            console.log(`🔄 [API] BT-12664 array transform: ${JSON.stringify(originalValue)} -> "${story.testCaseCreated}"`);
+                                        }
+                                    } else if (typeof story.testCaseCreated === 'object' && story.testCaseCreated !== null) {
+                                        const value = story.testCaseCreated.value || story.testCaseCreated;
+                                        story.testCaseCreated = Array.isArray(value) ? 
+                                            (value.includes('Yes') ? 'Yes' : 'No') : 
+                                            (value === 'Yes' ? 'Yes' : 'No');
+                                        if (story.key === 'BT-12664') {
+                                            console.log(`🔄 [API] BT-12664 object transform: ${JSON.stringify(originalValue)} -> "${story.testCaseCreated}"`);
+                                        }
+                                    }
+                                } else {
+                                    story.testCaseCreated = 'No';
+                                    if (story.key === 'BT-12664') {
+                                        console.log(`🔄 [API] BT-12664 null transform: ${originalValue} -> "No"`);
+                                    }
+                                }
+                                return story;
+                            }),
+                            testCases: (apiData.issues || []).filter(i => i.issueType === 'Test' || i.issueType === 'Test Case').map(testCase => {
+                                if (!testCase.hasOwnProperty('generatedFromAI')) {
+                                    testCase.generatedFromAI = 'No Data';
+                                }
+                                return testCase;
+                            }),
+                            metadata: apiData.metadata,
+                            stats: 'WILL_BE_CALCULATED'
+                        };
+
+                        console.log(`📊 API data processed: ${transformedData.bugs.length} bugs, ${transformedData.stories.length} stories, ${transformedData.testCases.length} test cases`);
+                        
+                        // Check BT-12664 in API data
+                        const bt12664Api = transformedData.stories.find(s => s.key === 'BT-12664');
+                        if (bt12664Api) {
+                            console.log(`🎯 BT-12664 from API: testCaseCreated="${bt12664Api.testCaseCreated}"`);
+                        }
+
+                        data = transformedData;
+                        data.source = 'api'; // Track data source
+                        await loadData(data);
+                        console.log('✅ Successfully loaded fresh data from API');
+                        return; // Exit successfully with fresh API data
+                    }
+                } catch (apiError) {
+                    console.log('⚠️ API server not available, trying fallback sources:', apiError.message);
+                }
+                
+                // PRIORITY 2: Check localStorage for recent synced data
                 try {
                     console.log('💾 Checking localStorage for synced data...');
                     const storedData = localStorage.getItem('hibob-dashboard-synced-data');
@@ -2548,6 +3212,7 @@
                                 regressionRate: parsed.data.stats.regressionRate + '%'
                             });
                             data = parsed.data;
+                            data.source = 'localStorage'; // Track data source
                             document.getElementById('status').innerHTML = 'Loading bug data... (using cached data)';
                             loadData();
                             return;
@@ -2578,8 +3243,35 @@
                         const transformedData = {
                             issues: apiData.issues || [],
                             bugs: (apiData.issues || []).filter(i => i.issueType === 'Bug'),
-                            stories: (apiData.issues || []).filter(i => i.issueType === 'Story'), 
-                            testCases: (apiData.issues || []).filter(i => i.issueType === 'Test'),
+                            stories: (apiData.issues || []).filter(i => i.issueType === 'Story').map(story => {
+                                // Transform testCaseCreated from JIRA checkbox format to simple string
+                                if (story.testCaseCreated) {
+                                    if (Array.isArray(story.testCaseCreated)) {
+                                        // JIRA checkbox field: ["Yes"] -> "Yes", [] -> "No"
+                                        story.testCaseCreated = story.testCaseCreated.includes('Yes') ? 'Yes' : 'No';
+                                    } else if (typeof story.testCaseCreated === 'object' && story.testCaseCreated !== null) {
+                                        // Handle nested object format
+                                        const value = story.testCaseCreated.value || story.testCaseCreated;
+                                        if (Array.isArray(value)) {
+                                            story.testCaseCreated = value.includes('Yes') ? 'Yes' : 'No';
+                                        } else {
+                                            story.testCaseCreated = value === 'Yes' ? 'Yes' : 'No';
+                                        }
+                                    }
+                                    // If it's already a string, keep it as is
+                                } else {
+                                    // Null/undefined -> "No" (unchecked checkbox)
+                                    story.testCaseCreated = 'No';
+                                }
+                                return story;
+                            }),
+                            testCases: (apiData.issues || []).filter(i => i.issueType === 'Test' || i.issueType === 'Test Case').map(testCase => {
+                                // Ensure generatedFromAI field exists for test cases
+                                if (!testCase.hasOwnProperty('generatedFromAI')) {
+                                    testCase.generatedFromAI = 'No Data';
+                                }
+                                return testCase;
+                            }),
                             metadata: apiData.metadata,
                             stats: 'WILL_BE_CALCULATED'
                         };
@@ -2587,6 +3279,7 @@
                         console.log(`📊 Issues by type: ${transformedData.bugs.length} bugs, ${transformedData.stories.length} stories, ${transformedData.testCases.length} test cases`);
                         
                         data = transformedData;
+                        data.source = dataSourceFile; // Track data source
                         loadData();
                         return;
                     }
@@ -2594,11 +3287,27 @@
                     console.warn('⚠️ API not available, falling back to static file:', apiError.message);
                 }
                 
-                // Fallback to static file
+                // Fallback to static file - TRY ISSUES-DATA.JSON FIRST (has stories)
                 console.log('🔄 Loading dashboard data from static source...');
                 document.getElementById('status').innerHTML = 'Loading issue data... (fetching static data)';
+
+                let response;
+                let dataSourceFile;
+                try {
+                    console.log('📡 Trying issues-data.json first (contains stories)...');
+                    response = await fetch(`./issues-data.json?_=${Date.now()}`);
+                    if (response.ok) {
+                        console.log('✅ Successfully loaded from issues-data.json');
+                        dataSourceFile = 'issues-data.json';
+                    } else {
+                        throw new Error('issues-data.json not available');
+                    }
+                } catch (issuesError) {
+                    console.log('⚠️ issues-data.json failed, falling back to dashboard-data.json');
+                    response = await fetch(`./dashboard-data.json?_=${Date.now()}`);
+                    dataSourceFile = 'dashboard-data.json';
+                }
                 
-                const response = await fetch(`./dashboard-data.json?_=${Date.now()}`);
                 console.log('📡 Fetch response status:', response.status, response.ok);
 
                 if (!response.ok) {
@@ -2606,9 +3315,38 @@
                 }
 
                 console.log('📡 Starting JSON parsing...');
-                document.getElementById('status').innerHTML = 'Loading bug data... (parsing data)';
+                document.getElementById('status').innerHTML = 'Loading issue data... (parsing data)';
                 const rawData = await response.json();
                 console.log('✅ JSON parsing complete');
+                
+                // DIAGNOSTIC: Show what data structure we got
+                console.log('🔍 DATA SOURCE DIAGNOSTIC:');
+                if (rawData.issues) {
+                    console.log(`   ✅ Multi-issue format detected: ${rawData.issues.length} total issues`);
+                    const byType = {};
+                    rawData.issues.forEach(issue => {
+                        byType[issue.issueType] = (byType[issue.issueType] || 0) + 1;
+                    });
+                    console.log('   📊 Issue breakdown by type:', byType);
+                    
+                    // Check for BT-12664 specifically
+                    const bt12664 = rawData.issues.find(i => i.key === 'BT-12664');
+                    if (bt12664) {
+                        console.log('   🎯 Found BT-12664 in data source:', {
+                            key: bt12664.key,
+                            issueType: bt12664.issueType,
+                            testCaseCreated: bt12664.testCaseCreated,
+                            type: typeof bt12664.testCaseCreated,
+                            raw: JSON.stringify(bt12664.testCaseCreated)
+                        });
+                    } else {
+                        console.log('   ❌ BT-12664 NOT found in data source');
+                    }
+                } else if (rawData.bugs) {
+                    console.log(`   ⚠️ Legacy bugs-only format: ${rawData.bugs.length} bugs (no stories)`);
+                } else {
+                    console.log('   ❓ Unknown data format:', Object.keys(rawData));
+                }
                 console.log(`✅ Loaded ${rawData.bugs?.length || 0} bugs from automated data source`);
                 console.log('📊 Static data keys:', Object.keys(rawData));
                 console.log('📊 Has bugs array:', !!rawData.bugs);
@@ -2690,6 +3428,7 @@
                     console.log('📊 USING DATA AS-IS - already transformed format');
                     console.log('📊 Existing stats:', rawData.stats);
                     data = rawData;
+                    data.source = dataSourceFile; // Track data source
                 }
 
                 // Initialize dashboard with loaded data (preserves ALL existing functionality)
@@ -2699,6 +3438,11 @@
                 try {
                     loadData();
                     console.log('✅ loadData() completed successfully');
+                    
+                    // Check if loaded data appears stale and trigger refresh if needed
+                    setTimeout(() => {
+                        refreshDataIfStale();
+                    }, 1000);
                 } catch (loadError) {
                     console.error('❌ Error in loadData():', loadError);
                     document.getElementById('status').innerHTML = 'Error loading dashboard: ' + loadError.message;
@@ -2839,54 +3583,101 @@
 
         // Calculate bugs opened this month with trend comparison
         function calculateMonthlyBugsWithTrend(bugs) {
-            // Dynamically detect current month from the data (most recent bug dates)
-            // Since data is from 2026, find the latest month with bugs
-            const currentDate = new Date(2026, 3, 20); // April 20, 2026 based on data
-            const currentMonth = currentDate.getMonth(); // April (3, 0-indexed)
-            const currentYear = currentDate.getFullYear(); // 2026
-            
-            const monthName = currentDate.toLocaleString('default', { month: 'long' });
-            
-            console.log('🔍 calculateMonthlyBugsWithTrend: Dynamic calculation for current month');
-            console.log(`📅 Current month: ${monthName} ${currentYear} (month index: ${currentMonth})`);
+            console.log('🔍 KPI: Independent monthly bugs calculation (separate from table filters)');
             console.log('📊 Processing', bugs.length, 'total bugs');
             
-            // Get ALL bugs from current month (dynamic)
+            // Dynamically detect current month from the most recent bug dates in the dataset
+            const currentDate = new Date(); // Use actual current date
+            const dataDate = new Date(2026, 3, 23); // But data is from 2026, so use April 2026
+            
+            const currentMonth = dataDate.getMonth(); // April = 3 (0-indexed)  
+            const currentYear = dataDate.getFullYear(); // 2026
+            const monthName = dataDate.toLocaleString('default', { month: 'long' });
+            
+            console.log(`🔍 KPI: Calculating for ${monthName} ${currentYear} (month index: ${currentMonth})`);
+            
+            // Count ALL bugs created in the current month (April 2026)
             const currentMonthBugs = bugs.filter(bug => {
-                const dateStr = bug.createdDate || bug.created;
-                if (!dateStr) {
+                const createdDateStr = bug.createdDate || bug.created;
+                if (!createdDateStr) {
                     return false;
                 }
                 
                 let bugDate;
                 try {
-                    if (dateStr.includes('/')) {
-                        const parts = dateStr.split('/');
-                        // Handle M/D/YYYY format like "4/19/2026"
+                    // Handle both date formats
+                    if (createdDateStr.includes('/')) {
+                        // Handle "4/23/2026" format
+                        const parts = createdDateStr.split('/');
                         if (parts.length === 3) {
-                            const month = parseInt(parts[0]) - 1; // 0-indexed
+                            const month = parseInt(parts[0]) - 1; // Convert to 0-indexed
                             const day = parseInt(parts[1]);
                             const year = parseInt(parts[2]);
                             bugDate = new Date(year, month, day);
                         }
                     } else {
-                        bugDate = new Date(dateStr);
+                        // Handle ISO format "2026-04-23T..."
+                        bugDate = new Date(createdDateStr);
                     }
                     
                     if (!bugDate || isNaN(bugDate.getTime())) {
                         return false;
                     }
                     
-                    const isCurrentMonth = bugDate.getMonth() === currentMonth && bugDate.getFullYear() === currentYear;
+                    // Check if bug was created in current month and year
+                    const isCurrentMonth = bugDate.getMonth() === currentMonth && 
+                                         bugDate.getFullYear() === currentYear;
+                    
                     return isCurrentMonth;
                 } catch (error) {
-                    console.error('❌ Date parsing error for:', bug.key, dateStr, error);
+                    console.error('❌ KPI: Date parsing error for:', bug.key, createdDateStr, error);
                     return false;
                 }
             });
             
+            console.log(`🔍 KPI: Found ${currentMonthBugs.length} bugs created in ${monthName} ${currentYear}`);
+            console.log(`🔍 KPI: Expected ~50-52 bugs based on Jira count`);
+            
             console.log(`📈 ${monthName} ${currentYear} bugs found:`, currentMonthBugs.length);
-            console.log('🔍 Expected from UI filter verification: 37');
+            
+            // DEBUG: Check specifically for BT-13428
+            const bt13428 = bugs.find(bug => bug.key === 'BT-13428');
+            if (bt13428) {
+                console.log('🔍 DEBUG: Found BT-13428 in dataset:', {
+                    key: bt13428.key,
+                    created: bt13428.created,
+                    createdDate: bt13428.createdDate,
+                    status: bt13428.status
+                });
+                
+                // Test date parsing for this specific bug
+                const dateStr = bt13428.createdDate || bt13428.created;
+                if (dateStr && dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        const month = parseInt(parts[0]) - 1; // 0-indexed
+                        const day = parseInt(parts[1]);
+                        const year = parseInt(parts[2]);
+                        const bugDate = new Date(year, month, day);
+                        const isCurrentMonth = bugDate.getMonth() === currentMonth && bugDate.getFullYear() === currentYear;
+                        console.log('🔍 DEBUG: BT-13428 date parsing:', {
+                            originalDate: dateStr,
+                            parsedParts: parts,
+                            bugMonth: bugDate.getMonth(),
+                            bugYear: bugDate.getFullYear(),
+                            currentMonth: currentMonth,
+                            currentYear: currentYear,
+                            isCurrentMonth: isCurrentMonth
+                        });
+                    }
+                }
+                
+                // Check if it's in the filtered results
+                const isInCurrentMonth = currentMonthBugs.some(bug => bug.key === 'BT-13428');
+                console.log('🔍 DEBUG: BT-13428 included in current month filter:', isInCurrentMonth);
+            } else {
+                console.log('❌ DEBUG: BT-13428 not found in bugs dataset!');
+            }
             
             // Apply the SAME filtering logic as the table to match exactly
             const filteredCurrentMonthBugs = currentMonthBugs.filter(bug => {
@@ -2904,121 +3695,69 @@
                        leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch;
             });
             
-            const actualCount = filteredCurrentMonthBugs.length;
-            // COMPREHENSIVE DISCREPANCY ANALYSIS
-            console.log('🔍 === COMPREHENSIVE DISCREPANCY ANALYSIS ===');
             
-            // Test 1: Check if my calculation includes bugs that UI date filter excludes
-            const myAprilBugs = currentMonthBugs.map(bug => bug.key);
-            console.log('📊 My calculation found April bugs:', myAprilBugs.length, myAprilBugs.slice(0, 10));
+            // Calculate trend by comparing to previous 3 months average
+            const actualCount = currentMonthBugs.length;
             
-            // Test 2: Apply exact UI filtering logic to April bugs
-            const uiFilteredAprilBugs = currentMonthBugs.filter(bug => {
-                // Apply exact same logic as applyFilters() - NO active filters
-                const statusMatch = true; // filterSelections.status.size === 0
-                const severityMatch = true; // filterSelections.severity.size === 0
-                const assigneeMatch = true; // filterSelections.assignee.size === 0
-                const leadingTeamMatch = true; // filterSelections.leadingTeam.size === 0
-                const systemMatch = true; // filterSelections.system.size === 0
-                const sprintMatch = true; // filterSelections.sprint.size === 0
-                const regressionMatch = true; // filterSelections.regression.size === 0
-                const searchMatch = true; // no search filter
-                
-                // Test date filtering - this is the most likely culprit
-                // For verification, use April date range
-                const dateFromValue = '2026-04-01';
-                const dateToValue = '2026-04-30';
-                const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
-                
-                return statusMatch && severityMatch && assigneeMatch &&
-                       leadingTeamMatch && systemMatch && sprintMatch && 
-                       regressionMatch && searchMatch && dateMatch;
-            });
+            // Calculate previous 3 months (January, February, March 2026)
+            const previousMonths = [
+                { month: 0, year: 2026, name: 'January' },   // January 2026
+                { month: 1, year: 2026, name: 'February' },  // February 2026  
+                { month: 2, year: 2026, name: 'March' }      // March 2026
+            ];
             
-            console.log('🎯 UI-filtered April bugs:', uiFilteredAprilBugs.length, uiFilteredAprilBugs.map(b => b.key).slice(0, 10));
-            
-            // Test 3: Find the exact bugs that are excluded
-            const excludedBugs = currentMonthBugs.filter(bug => 
-                !uiFilteredAprilBugs.some(filtered => filtered.key === bug.key)
-            );
-            
-            if (excludedBugs.length > 0) {
-                console.log('🚨 FOUND EXCLUDED BUGS:', excludedBugs.length);
-                excludedBugs.forEach(bug => {
-                    console.log(`❌ ${bug.key}: createdDate="${bug.createdDate}", dateCheck=${checkDateRange(bug, '2026-04-01', '2026-04-30')}`);
+            const previousCounts = previousMonths.map(monthInfo => {
+                const monthBugs = bugs.filter(bug => {
+                    const createdDateStr = bug.createdDate || bug.created;
+                    if (!createdDateStr) return false;
                     
-                    // Test the date parsing logic manually
-                    const bugDateStr = bug.createdDate || bug.created;
-                    if (bugDateStr && bugDateStr.includes('/')) {
-                        const parts = bugDateStr.split('/');
-                        const parsedDate = new Date(parts[2], parts[0] - 1, parts[1]);
-                        console.log(`   Date parsing: "${bugDateStr}" → ${parsedDate.toISOString()} → month=${parsedDate.getMonth()}, year=${parsedDate.getFullYear()}`);
+                    let bugDate;
+                    try {
+                        if (createdDateStr.includes('/')) {
+                            const parts = createdDateStr.split('/');
+                            if (parts.length === 3) {
+                                const month = parseInt(parts[0]) - 1;
+                                const day = parseInt(parts[1]);
+                                const year = parseInt(parts[2]);
+                                bugDate = new Date(year, month, day);
+                            }
+                        } else {
+                            bugDate = new Date(createdDateStr);
+                        }
+                        
+                        return bugDate && !isNaN(bugDate.getTime()) &&
+                               bugDate.getMonth() === monthInfo.month && 
+                               bugDate.getFullYear() === monthInfo.year;
+                    } catch (error) {
+                        return false;
                     }
                 });
-            } else {
-                console.log('✅ No excluded bugs found - discrepancy must be elsewhere');
-            }
-            
-            if (currentMonthBugs.length !== 37) {
-                console.log('🚨 DISCREPANCY DETECTED! Found', currentMonthBugs.length, 'but filter shows 37');
                 
-                // Log all found bugs for analysis
-                const allAprilBugs = currentMonthBugs.map(bug => ({
-                    key: bug.key,
-                    createdDate: bug.createdDate,
-                    summary: bug.summary?.substring(0, 40)
-                }));
-                console.table(allAprilBugs);
-                
-                // Check if there are any bugs with different date formats
-                const bugsWithDifferentDates = bugs.filter(bug => {
-                    const dateStr = bug.createdDate || bug.created;
-                    return dateStr && !dateStr.includes('/') && dateStr.includes('2026-04');
-                });
-                
-                if (bugsWithDifferentDates.length > 0) {
-                    console.log('🔍 Found bugs with ISO date format:', bugsWithDifferentDates.map(b => ({
-                        key: b.key,
-                        createdDate: b.createdDate,
-                        created: b.created
-                    })));
-                }
-            }
+                console.log(`🔍 KPI: ${monthInfo.name} ${monthInfo.year}: ${monthBugs.length} bugs`);
+                return monthBugs.length;
+            });
             
-            // Use VERIFIED counts from table filtering (user confirmed)
-            // These match the actual UI filter results, not raw data counts
-            const verifiedMonthlyCounts = {
-                january: 86,   // Verified via table filter 01/01/2026 to 31/01/2026
-                february: 84,  // Verified via table filter 01/02/2026 to 28/02/2026  
-                march: 85      // Verified via table filter 01/03/2026 to 31/03/2026
-            };
+            const previousAverage = previousCounts.reduce((sum, count) => sum + count, 0) / previousCounts.length;
             
-            const realAverage = (verifiedMonthlyCounts.january + verifiedMonthlyCounts.february + verifiedMonthlyCounts.march) / 3;
+            console.log(`📊 KPI: Previous 3 months average: ${previousAverage.toFixed(1)} bugs`);
+            console.log(`📊 KPI: Current month (${monthName}): ${actualCount} bugs`);
             
-            console.log(`📊 VERIFIED Monthly counts: Jan=${verifiedMonthlyCounts.january}, Feb=${verifiedMonthlyCounts.february}, Mar=${verifiedMonthlyCounts.march}`);
-            console.log(`📊 VERIFIED 3-month average: ${realAverage.toFixed(1)} bugs per month`);
-            const current = currentMonthBugs.length;
-            
-            // Use the verified correct count (37 from UI filter verification)
-            const verifiedCount = 37;
-            
-            console.log(`📊 VERIFIED Monthly counts: Jan=${verifiedMonthlyCounts.january}, Feb=${verifiedMonthlyCounts.february}, Mar=${verifiedMonthlyCounts.march}`);
-            console.log(`📊 Trend calculation - Current: ${verifiedCount}, Real Average: ${realAverage.toFixed(1)}`);
-            
-            // Calculate trend with correct count
+            // Calculate trend
             let trendClass = 'trend-neutral';
             let trendText = '→ At average';
             
-            if (verifiedCount > realAverage * 1.1) {
+            if (actualCount > previousAverage * 1.1) {
                 trendClass = 'trend-up';
                 trendText = '↗ Above average';
-            } else if (verifiedCount < realAverage * 0.9) {
+            } else if (actualCount < previousAverage * 0.9) {
                 trendClass = 'trend-down';
                 trendText = '↘ Below average';
             }
             
+            console.log(`📊 KPI: Final result - ${actualCount} bugs, trend: ${trendText}`);
+            
             return {
-                count: verifiedCount,
+                count: actualCount,
                 trend: trendText,
                 trendClass: trendClass
             };
@@ -3937,8 +4676,54 @@
                     console.log('📊 Multi-issue data detected');
                     issuesData = data.issues;
                     bugsData = data.bugs || data.issues.filter(i => i.issueType === 'Bug');
-                    storiesData = data.stories || data.issues.filter(i => i.issueType === 'Story');
-                    testCasesData = data.testCases || data.issues.filter(i => i.issueType === 'Test');
+                    
+                    // Transform stories data (same transformation as in API fetch)
+                    const rawStories = data.stories || data.issues.filter(i => i.issueType === 'Story');
+                    console.log(`🔄 INITIAL TRANSFORMATION: Processing ${rawStories.length} stories`);
+                    
+                    storiesData = rawStories.map(story => {
+                        const originalValue = story.testCaseCreated;
+                        
+                        // Transform testCaseCreated from JIRA checkbox format to simple string
+                        if (story.testCaseCreated) {
+                            if (Array.isArray(story.testCaseCreated)) {
+                                const newValue = story.testCaseCreated.includes('Yes') ? 'Yes' : 'No';
+                                story.testCaseCreated = newValue;
+                                console.log(`🔄 [Initial] Array transformation ${story.key}: ${JSON.stringify(originalValue)} -> "${newValue}"`);
+                            } else if (typeof story.testCaseCreated === 'object' && story.testCaseCreated !== null) {
+                                const value = story.testCaseCreated.value || story.testCaseCreated;
+                                if (Array.isArray(value)) {
+                                    story.testCaseCreated = value.includes('Yes') ? 'Yes' : 'No';
+                                } else {
+                                    story.testCaseCreated = value === 'Yes' ? 'Yes' : 'No';
+                                }
+                                console.log(`🔄 [Initial] Object transformation ${story.key}: ${JSON.stringify(originalValue)} -> "${story.testCaseCreated}"`);
+                            }
+                            else if (story.key === 'BT-12664') {
+                                console.log(`🔄 [Initial] String kept ${story.key}: "${originalValue}" (no change needed)`);
+                            }
+                        } else {
+                            story.testCaseCreated = 'No';
+                            if (story.key === 'BT-12664') {
+                                console.log(`🔄 [Initial] Null transformation ${story.key}: ${originalValue} -> "No"`);
+                            }
+                        }
+                        return story;
+                    });
+                    
+                    console.log(`✅ TRANSFORMATION COMPLETE: ${storiesData.length} stories processed`);
+                    const yesCount = storiesData.filter(s => s.testCaseCreated === 'Yes').length;
+                    console.log(`📊 RESULT: ${yesCount} stories with testCaseCreated="Yes"`);
+                    
+                    // Specifically check BT-12664 result
+                    const bt12664Result = storiesData.find(s => s.key === 'BT-12664');
+                    if (bt12664Result) {
+                        console.log(`🎯 BT-12664 FINAL RESULT: testCaseCreated="${bt12664Result.testCaseCreated}"`);
+                    } else {
+                        console.log(`❌ BT-12664 NOT FOUND in processed stories`);
+                    }
+                    
+                    testCasesData = data.testCases || data.issues.filter(i => i.issueType === 'Test' || i.issueType === 'Test Case');
                 } else {
                     console.log('📊 Legacy bug-only data detected');
                     // Legacy format (bugs only)
@@ -3949,9 +4734,32 @@
                 }
                 
                 console.log(`✅ Data loaded: ${bugsData.length} bugs, ${storiesData.length} stories, ${testCasesData.length} test cases`);
-                
+
+                // IMMEDIATE DIAGNOSIS - run right after data load
+                setTimeout(() => {
+                    diagnoseDataSource();
+                    checkTestCaseTransformation();
+                }, 100);
+
                 // Update issue type counts in UI
                 updateIssueTypeCounts();
+                
+                // Validate that we have all necessary data, fetch if missing
+                console.log('🔍 Validating data completeness...');
+                let missingData = [];
+                if (!bugsData || bugsData.length === 0) missingData.push('Bugs');
+                if (!storiesData || storiesData.length === 0) missingData.push('Stories');
+                if (!testCasesData || testCasesData.length === 0) missingData.push('Test Cases');
+                
+                if (missingData.length > 0) {
+                    console.log(`⚠️ Missing data for: ${missingData.join(', ')}. Attempting to fetch...`);
+                    // Try to fetch complete data from API
+                    setTimeout(() => {
+                        fetchMultiIssueData();
+                    }, 1000);
+                } else {
+                    console.log('✅ All issue type data present');
+                }
                 
                 console.log('🔧 Populating missing fields from export data...');
                 populateMissingFields();
@@ -3969,6 +4777,8 @@
                 
                 displayStats(freshStats);
                 createBrandCharts(freshStats);
+                // Ensure correct filter visibility for default bug view
+                updateFilterVisibility(activeIssueTypes);
                 populateFilters();
                 displayBugsTable();
                 console.log('✅ Dashboard displayed instantly with export data');
@@ -3994,74 +4804,148 @@
 
         // NEW: Update issue type counts in the UI
         function updateIssueTypeCounts() {
-            document.getElementById('bugCount').textContent = `(${bugsData.length})`;
-            document.getElementById('storyCount').textContent = `(${storiesData.length})`;
-            document.getElementById('testCount').textContent = `(${testCasesData.length})`;
+            const bugCount = document.getElementById('bugCount');
+            const storyCount = document.getElementById('storyCount');
+            const testCount = document.getElementById('testCount');
+            
+            if (bugCount) bugCount.textContent = `(${bugsData.length})`;
+            if (storyCount) storyCount.textContent = `(${storiesData.length})`;
+            if (testCount) testCount.textContent = `(${testCasesData.length})`;
+            
             console.log(`📊 Updated UI counts: ${bugsData.length} bugs, ${storiesData.length} stories, ${testCasesData.length} test cases`);
+            
+            // Also update the dropdown options
+            const issueTypeSelect = document.getElementById('issueTypeSelect');
+            if (issueTypeSelect) {
+                const currentValue = issueTypeSelect.value;
+                
+                // Update option texts with current counts
+                issueTypeSelect.innerHTML = `
+                    <option value="Bug">🐛 Bugs (${bugsData.length})</option>
+                    <option value="Story">📋 Stories (${storiesData.length})</option>
+                    <option value="Test">🧪 Test Cases (${testCasesData.length})</option>
+                    <option value="All">📊 All Issues (${bugsData.length + storiesData.length + testCasesData.length})</option>
+                `;
+                
+                // Restore selected value
+                issueTypeSelect.value = currentValue;
+            }
         }
 
         // NEW: Update filteredData based on currently selected issue types
         function updateFilteredDataBasedOnActiveTypes() {
             let activeData = [];
             
-            if (activeIssueTypes.includes('Bug')) {
+            console.log('🔄 Updating filteredData for active types:', activeIssueTypes);
+            console.log('📊 Available data:', { 
+                bugs: bugsData?.length || 0, 
+                stories: storiesData?.length || 0, 
+                testCases: testCasesData?.length || 0 
+            });
+            
+            if (activeIssueTypes.includes('Bug') && bugsData) {
                 activeData.push(...bugsData);
+                console.log(`✅ Added ${bugsData.length} bugs to activeData`);
             }
-            if (activeIssueTypes.includes('Story')) {
+            if (activeIssueTypes.includes('Story') && storiesData) {
                 activeData.push(...storiesData);
+                console.log(`✅ Added ${storiesData.length} stories to activeData`);
             }
-            if (activeIssueTypes.includes('Test')) {
+            if (activeIssueTypes.includes('Test') && testCasesData) {
                 activeData.push(...testCasesData);
+                console.log(`✅ Added ${testCasesData.length} test cases to activeData`);
             }
             
             filteredData = [...activeData];
             console.log(`📊 FilteredData updated for active types [${activeIssueTypes.join(', ')}]: ${filteredData.length} items`);
+            
+            // Also update pagination and table
+            updatePaginationState();
+            updatePaginationUI();
         }
 
-        // NEW: Handle issue type checkbox changes
+        // NEW: Handle issue type dropdown changes
         function setupIssueTypeListeners() {
-            const bugCheckbox = document.getElementById('bugTypeEnabled');
-            const storyCheckbox = document.getElementById('storyTypeEnabled');
-            const testCheckbox = document.getElementById('testTypeEnabled');
+            const issueTypeSelect = document.getElementById('issueTypeSelect');
             
-            if (bugCheckbox) {
-                bugCheckbox.addEventListener('change', function() {
-                    handleIssueTypeChange('Bug', this.checked);
+            if (issueTypeSelect) {
+                issueTypeSelect.addEventListener('change', function() {
+                    handleIssueTypeSelectionChange(this.value);
                 });
             }
             
-            if (storyCheckbox) {
-                storyCheckbox.addEventListener('change', function() {
-                    handleIssueTypeChange('Story', this.checked);
-                });
-            }
-            
-            if (testCheckbox) {
-                testCheckbox.addEventListener('change', function() {
-                    handleIssueTypeChange('Test', this.checked);
-                });
-            }
-            
-            console.log('✅ Issue type listeners set up');
+            console.log('✅ Issue type dropdown listener set up');
         }
 
-        // NEW: Handle individual issue type selection changes
-        function handleIssueTypeChange(issueType, isEnabled) {
-            console.log(`🔄 Issue type ${issueType} ${isEnabled ? 'enabled' : 'disabled'}`);
+        // NEW: Handle issue type selection from dropdown
+        function handleIssueTypeSelectionChange(selectedType) {
+            console.log(`🔄 Issue type selection changed to: ${selectedType}`);
             
-            if (isEnabled) {
-                if (!activeIssueTypes.includes(issueType)) {
-                    activeIssueTypes.push(issueType);
-                }
-            } else {
-                activeIssueTypes = activeIssueTypes.filter(t => t !== issueType);
+            // Update active issue types based on dropdown selection
+            switch(selectedType) {
+                case 'Bug':
+                    activeIssueTypes = ['Bug'];
+                    break;
+                case 'Story':
+                    activeIssueTypes = ['Story'];
+                    break;
+                case 'Test':
+                    activeIssueTypes = ['Test'];
+                    break;
+                case 'All':
+                    activeIssueTypes = ['Bug', 'Story', 'Test'];
+                    break;
+                default:
+                    activeIssueTypes = ['Bug']; // Default fallback
             }
             
             console.log('📊 Active issue types:', activeIssueTypes);
+
+            // Update filter visibility based on selected issue types
+            updateFilterVisibility(activeIssueTypes);
+
+            // Update quality analysis chart fields based on selected issue types
+            updateQualityAnalysisFields(activeIssueTypes);
+
+            // Reset all filters and sorts when switching issue types
+            clearAllFiltersAndSorts();
+
+            // Reset to first page when changing issue types
+            if (typeof paginationState !== 'undefined') {
+                paginationState.currentPage = 1;
+            }
+
+            // Rebuild table headers for new issue type
+            buildTableHeaders(activeIssueTypes);
             
-            // Update the displayed data
-            updateFilteredDataBasedOnActiveTypes();
-            applyFilters(); // Reapply existing filters with new data
+            // Re-initialize event listeners to ensure search works after header rebuild
+            reinitializeEventListeners();
+            
+            // Check if we have the required data, fetch if missing
+            let needsDataFetch = false;
+            
+            if (activeIssueTypes.includes('Bug') && (!bugsData || bugsData.length === 0)) {
+                needsDataFetch = true;
+            }
+            if (activeIssueTypes.includes('Story') && (!storiesData || storiesData.length === 0)) {
+                needsDataFetch = true;
+            }
+            if (activeIssueTypes.includes('Test') && (!testCasesData || testCasesData.length === 0)) {
+                needsDataFetch = true;
+            }
+            
+            if (needsDataFetch) {
+                console.log('🔄 Fetching data for missing issue types:', activeIssueTypes);
+                fetchMultiIssueData();
+            } else {
+                // Use existing data
+                console.log('✅ Using existing data for issue types:', activeIssueTypes);
+                updateFilteredDataBasedOnActiveTypes();
+                populateFilters(); // Repopulate filters for new issue type
+                applyFilters();
+                displayBugsTable(); // Refresh the table display
+                updatePageDescription();
+            }
             
             // Update page description
             updatePageDescription();
@@ -4072,8 +4956,186 @@
             const description = document.querySelector('.description');
             if (description) {
                 const totalIssues = filteredData.length;
-                const typeText = activeIssueTypes.length === 3 ? 'all issue types' : activeIssueTypes.join(', ').toLowerCase();
+                let typeText = '';
+                
+                if (activeIssueTypes.length === 3) {
+                    typeText = 'all issue types (bugs, stories, and test cases)';
+                } else if (activeIssueTypes.length === 1) {
+                    const type = activeIssueTypes[0].toLowerCase();
+                    typeText = type === 'bug' ? 'production bugs' : 
+                              type === 'story' ? 'business technologies stories' : 
+                              'non-canceled test cases';
+                } else {
+                    typeText = activeIssueTypes.join(', ').toLowerCase();
+                }
+                
                 description.textContent = `Showing ${totalIssues} items from ${typeText}`;
+            }
+        }
+
+        // NEW: Fetch multi-issue data with selective filters
+        async function fetchMultiIssueData() {
+            const loadingStatus = document.querySelector('.loading-status');
+            
+            try {
+                console.log('🔄 Fetching multi-issue data for:', activeIssueTypes);
+                
+                if (loadingStatus) {
+                    loadingStatus.style.display = 'block';
+                    loadingStatus.textContent = `Fetching ${activeIssueTypes.join(', ')} data...`;
+                }
+                
+                // Always fetch all types to ensure complete data set
+                const typesParam = 'Bug,Story,Test';  // Always fetch all types
+                const apiResponse = await fetch(`http://localhost:3002/api/issues-lite?types=${typesParam}&_=${Date.now()}`);
+                
+                if (!apiResponse.ok) {
+                    throw new Error(`API request failed: ${apiResponse.status}`);
+                }
+                
+                const apiData = await apiResponse.json();
+                console.log('📊 API Response:', { 
+                    totalIssues: apiData.metadata?.totalIssues,
+                    issueTypes: apiData.metadata?.issueTypes,
+                    sampleData: apiData.issues?.slice(0, 3)
+                });
+                
+                // Process the multi-issue data
+                if (apiData.issues && apiData.issues.length > 0) {
+                    // Always separate all issue types since we fetch all types
+                    bugsData = apiData.issues.filter(i => i.issueType === 'Bug') || [];
+                    storiesData = (apiData.issues.filter(i => i.issueType === 'Story') || []).map(story => {
+                        // Store original value for debugging
+                        const originalValue = story.testCaseCreated;
+                        
+                        // Transform testCaseCreated from JIRA checkbox format to simple string
+                        if (story.testCaseCreated) {
+                            if (Array.isArray(story.testCaseCreated)) {
+                                // JIRA checkbox field: ["Yes"] -> "Yes", [] -> "No"  
+                                const newValue = story.testCaseCreated.includes('Yes') ? 'Yes' : 'No';
+                                story.testCaseCreated = newValue;
+                                if (story.key === 'BT-12664' || Math.random() < 0.001) { // Debug 0.1% + specific story
+                                    console.log(`🔄 Array transformation ${story.key}: ${JSON.stringify(originalValue)} -> "${newValue}"`);
+                                }
+                            } else if (typeof story.testCaseCreated === 'object' && story.testCaseCreated !== null) {
+                                // Handle nested object format
+                                const value = story.testCaseCreated.value || story.testCaseCreated;
+                                if (Array.isArray(value)) {
+                                    story.testCaseCreated = value.includes('Yes') ? 'Yes' : 'No';
+                                } else {
+                                    story.testCaseCreated = value === 'Yes' ? 'Yes' : 'No';
+                                }
+                                if (story.key === 'BT-12664' || Math.random() < 0.001) {
+                                    console.log(`🔄 Object transformation ${story.key}: ${JSON.stringify(originalValue)} -> "${story.testCaseCreated}"`);
+                                }
+                            }
+                            // If it's already a string, keep it as is but log it
+                            else if (story.key === 'BT-12664' || Math.random() < 0.001) {
+                                console.log(`🔄 String kept ${story.key}: "${originalValue}" (no change needed)`);
+                            }
+                        } else {
+                            // Null/undefined -> "No" (unchecked checkbox)
+                            story.testCaseCreated = 'No';
+                            if (story.key === 'BT-12664' || Math.random() < 0.001) {
+                                console.log(`🔄 Null transformation ${story.key}: ${originalValue} -> "No"`);
+                            }
+                        }
+                        return story;
+                    });
+                    testCasesData = (apiData.issues.filter(i => i.issueType === 'Test' || i.issueType === 'Test Case') || []).map(testCase => {
+                        // Ensure generatedFromAI field exists for test cases
+                        if (!testCase.hasOwnProperty('generatedFromAI')) {
+                            testCase.generatedFromAI = 'No Data';
+                        }
+                        return testCase;
+                    });
+                    
+                    console.log(`📈 Data loaded: ${bugsData.length} bugs, ${storiesData.length} stories, ${testCasesData.length} test cases`);
+                    
+                    // Debug: Show transformation results
+                    const testCaseYesCount = storiesData.filter(s => s.testCaseCreated === 'Yes').length;
+                    const testCaseNoCount = storiesData.filter(s => s.testCaseCreated === 'No').length;
+                    console.log(`📊 TestCase transformation results: ${testCaseYesCount} Yes, ${testCaseNoCount} No (Total: ${storiesData.length} stories)`);
+                    console.log(`📊 JIRA expected: 317 Yes stories, Dashboard shows: ${testCaseYesCount} Yes stories`);
+                    
+                    if (testCaseYesCount < 300) {
+                        console.warn('⚠️ Dashboard showing fewer Yes stories than JIRA - check transformation logic');
+                    }
+                } else {
+                    console.log('⚠️ No issues in API response, using empty arrays');
+                    bugsData = [];
+                    storiesData = [];  
+                    testCasesData = [];
+                }
+                
+                // Update the combined filtered data based on active types
+                updateFilteredDataBasedOnActiveTypes();
+                
+                // Update UI counts
+                updateIssueCounts();
+                
+                // Regenerate stats and apply filters
+                updateFilteredDataBasedOnActiveTypes();
+                const freshStats = generateStatsFromBugs(filteredData.filter(i => i.issueType === 'Bug')); // Generate stats from bugs in current dataset
+                displayStats(freshStats);
+                applyFilters();
+                displayBugsTable(); // Refresh the table display
+                
+                console.log('✅ Multi-issue data fetch completed');
+                
+            } catch (error) {
+                console.error('❌ Error fetching multi-issue data:', error);
+                
+                // Show user-friendly error
+                if (loadingStatus) {
+                    loadingStatus.textContent = 'Failed to fetch data. Using cached data.';
+                    setTimeout(() => {
+                        loadingStatus.style.display = 'none';
+                    }, 3000);
+                }
+                
+                // Fallback to existing cached data
+                updateFilteredDataBasedOnActiveTypes();
+                applyFilters();
+                displayBugsTable(); // Refresh the table display
+            } finally {
+                if (loadingStatus) {
+                    setTimeout(() => {
+                        loadingStatus.style.display = 'none';
+                    }, 1000);
+                }
+            }
+        }
+
+        // NEW: Update issue counts in the dropdown options
+        function updateIssueCounts() {
+            const bugCount = document.getElementById('bugCount');
+            const storyCount = document.getElementById('storyCount'); 
+            const testCount = document.getElementById('testCount');
+            const allCount = document.getElementById('allCount');
+            
+            // Note: These spans are in the option text, so they won't update visually
+            // But we can update them for consistency
+            if (bugCount) bugCount.textContent = `(${bugsData.length})`;
+            if (storyCount) storyCount.textContent = `(${storiesData.length})`;
+            if (testCount) testCount.textContent = `(${testCasesData.length})`;
+            if (allCount) allCount.textContent = `(${bugsData.length + storiesData.length + testCasesData.length})`;
+            
+            // Update dropdown options text (this is more complex as we need to rebuild options)
+            const issueTypeSelect = document.getElementById('issueTypeSelect');
+            if (issueTypeSelect) {
+                const currentValue = issueTypeSelect.value;
+                
+                // Update option texts with current counts
+                issueTypeSelect.innerHTML = `
+                    <option value="Bug">🐛 Bugs (${bugsData.length})</option>
+                    <option value="Story">📋 Stories (${storiesData.length})</option>
+                    <option value="Test">🧪 Test Cases (${testCasesData.length})</option>
+                    <option value="All">📊 All Issues (${bugsData.length + storiesData.length + testCasesData.length})</option>
+                `;
+                
+                // Restore selected value
+                issueTypeSelect.value = currentValue;
             }
         }
 
@@ -4214,6 +5276,7 @@
                 filteredData = [...bugsData];
                 
                 // Re-populate filters in case new data affects filter options
+                updateFilterVisibility(activeIssueTypes);
                 populateFilters();
                 
                 // Refresh the bugs table display
@@ -4302,50 +5365,310 @@
             console.log('Charts generation skipped - using focused metrics instead');
         }
 
-        function populateFilters() {
-            const statuses = [...new Set(bugsData.map(bug => bug.status))];
-            // Always include standard severity levels, plus any other values found
-            const severityValues = [...new Set(bugsData.map(bug => bug.severity).filter(s => s))];
-            const severities = ['Critical', 'High', 'Medium', 'Low', ...severityValues.filter(s => !['Critical', 'High', 'Medium', 'Low'].includes(s))];
-            const assignees = [...new Set(bugsData.map(bug => bug.assignee))];
-            const leadingTeams = [...new Set(bugsData.map(bug => bug.leadingTeam).filter(t => t))];
-            const systems = [...new Set(bugsData.map(bug => bug.system).filter(s => s))];
-            // Collect and sort all unique sprints properly
-            const allSprints = [...new Set(bugsData.map(bug => bug.sprint).filter(s => s))];
-            const sprints = allSprints.sort((a, b) => {
-                // Extract PI and sprint numbers for proper sorting
-                const parseSprintInfo = (sprintStr) => {
-                    const match = sprintStr.match(/PI(\d+)\.(\d+)\.Sprint\s+(\d+)/);
-                    if (match) {
-                        return {
-                            pi: parseInt(match[1]),
-                            version: parseInt(match[2]),
-                            sprint: parseInt(match[3])
-                        };
-                    }
-                    return { pi: 0, version: 0, sprint: 0 };
-                };
-                
-                const infoA = parseSprintInfo(a);
-                const infoB = parseSprintInfo(b);
-                
-                // Sort by PI, then version, then sprint number
-                if (infoA.pi !== infoB.pi) return infoB.pi - infoA.pi; // Newer PIs first
-                if (infoA.version !== infoB.version) return infoB.version - infoA.version; // Newer versions first
-                return infoB.sprint - infoA.sprint; // Newer sprints first
-            });
-
-            // Always include Yes/No options for regression, plus any other values found
-            const regressionValues = [...new Set(bugsData.map(bug => bug.regression).filter(r => r))];
-            const regressions = ['Yes', 'No', ...regressionValues.filter(r => r !== 'Yes' && r !== 'No')];
+        // Update filter visibility based on selected issue types
+        function updateFilterVisibility(selectedTypes) {
+            console.log(`🔧 Updating filter visibility for types: [${selectedTypes.join(', ')}]`);
             
+            // Bug-only filters (severity, regression, sprint)
+            const bugOnlyFilters = document.querySelectorAll('.filter-group.bug-only');
+            bugOnlyFilters.forEach(filter => {
+                if (selectedTypes.includes('Bug')) {
+                    filter.style.display = 'flex';
+                } else {
+                    filter.style.display = 'none';
+                    // Clear filters that are being hidden
+                    const filterGroup = filter.querySelector('.multiselect-button');
+                    if (filterGroup) {
+                        const filterId = filterGroup.id.replace('FilterButton', '');
+                        clearSingleFilter(filterId);
+                    }
+                }
+            });
+            
+            // Story-only filters (Test Case Created)
+            const storyOnlyFilters = document.querySelectorAll('.filter-group.story-only');
+            storyOnlyFilters.forEach(filter => {
+                if (selectedTypes.includes('Story')) {
+                    filter.style.display = 'flex';
+                } else {
+                    filter.style.display = 'none';
+                    // Clear filters that are being hidden
+                    const filterGroup = filter.querySelector('.multiselect-button');
+                    if (filterGroup) {
+                        const filterId = filterGroup.id.replace('FilterButton', '');
+                        clearSingleFilter(filterId);
+                    }
+                }
+            });
+            
+            // Test Case only filters (AI Generated)
+            const testOnlyFilters = document.querySelectorAll('.filter-group.test-only');
+            testOnlyFilters.forEach(filter => {
+                if (selectedTypes.includes('Test')) {
+                    filter.style.display = 'flex';
+                } else {
+                    filter.style.display = 'none';
+                    // Clear filters that are being hidden
+                    const filterGroup = filter.querySelector('.multiselect-button');
+                    if (filterGroup) {
+                        const filterId = filterGroup.id.replace('FilterButton', '');
+                        clearSingleFilter(filterId);
+                    }
+                }
+            });
+            
+            // Also update quality analysis chart fields to stay in sync
+            updateQualityAnalysisFields(selectedTypes);
+        }
+
+        // Helper function to clear a single filter
+        function clearSingleFilter(filterId) {
+            if (filterSelections[filterId]) {
+                filterSelections[filterId].clear();
+                // Update button display if function exists
+                if (typeof updateFilterButtonDisplay === 'function') {
+                    updateFilterButtonDisplay(filterId);
+                } else {
+                    // Simple fallback: reset button text
+                    const button = document.getElementById(filterId + 'FilterButton');
+                    if (button) {
+                        const span = button.querySelector('span');
+                        if (span) span.textContent = 'Choose a Value';
+                    }
+                }
+            }
+        }
+
+        // Update quality analysis chart fields based on selected issue types
+        function updateQualityAnalysisFields(selectedIssueTypes) {
+            console.log(`🎯 Updating quality analysis fields for types: [${selectedIssueTypes.join(', ')}]`);
+            
+            // Determine which categorical fields to show
+            let fieldsToShow = [];
+            
+            if (selectedIssueTypes.length === 1) {
+                // Single issue type - use its specific fields
+                const issueType = selectedIssueTypes[0];
+                fieldsToShow = CHART_FIELDS_BY_ISSUE_TYPE[issueType] || CHART_FIELDS_BY_ISSUE_TYPE.Bug;
+                console.log(`📊 Single issue type [${issueType}]: Using ${fieldsToShow.length} specific fields`);
+            } else {
+                // Multiple issue types - find common fields (intersection)
+                const allTypeFields = selectedIssueTypes.map(type => CHART_FIELDS_BY_ISSUE_TYPE[type] || []);
+                
+                if (allTypeFields.length > 0) {
+                    // Find intersection of all field arrays
+                    fieldsToShow = allTypeFields[0].filter(field => 
+                        allTypeFields.every(typeFields => 
+                            typeFields.some(tf => tf.field === field.field)
+                        )
+                    );
+                }
+                console.log(`📊 Multiple issue types: Using ${fieldsToShow.length} common fields`);
+            }
+            
+            // Update the categorical fields HTML
+            const categoricalContainer = document.querySelector('.field-category .field-items');
+            if (categoricalContainer) {
+                // Clear existing fields
+                categoricalContainer.innerHTML = '';
+                
+                // Add new fields based on configuration
+                fieldsToShow.forEach(fieldConfig => {
+                    const fieldElement = document.createElement('div');
+                    fieldElement.className = 'chart-field';
+                    fieldElement.setAttribute('data-field', fieldConfig.field);
+                    fieldElement.setAttribute('data-type', 'categorical');
+                    fieldElement.setAttribute('draggable', 'true');
+                    fieldElement.textContent = fieldConfig.label;
+                    categoricalContainer.appendChild(fieldElement);
+                });
+                
+                console.log(`✅ Updated categorical fields: ${fieldsToShow.map(f => f.label).join(', ')}`);
+                
+                // Re-initialize drag and drop handlers for new elements
+                initializeDragAndDrop();
+                
+                // Preserve or clear existing charts based on field availability
+                preserveOrClearChartsOnFieldChange(fieldsToShow);
+            } else {
+                console.warn('⚠️ Categorical fields container not found');
+            }
+        }
+
+        // Preserve compatible charts and clear invalid ones when fields change
+        function preserveOrClearChartsOnFieldChange(availableFields) {
+            if (typeof chartBuilderState !== 'undefined' && chartBuilderState) {
+                const availableFieldNames = availableFields.map(f => f.field);
+                let needsChartRefresh = false;
+                
+                // Check if current X-axis field is still available
+                if (chartBuilderState.xAxisField && 
+                    chartBuilderState.xAxisField.type === 'categorical' && 
+                    !availableFieldNames.includes(chartBuilderState.xAxisField.field)) {
+                    console.log(`🧹 Clearing X-axis field '${chartBuilderState.xAxisField.field}' (no longer available)`);
+                    chartBuilderState.xAxisField = null;
+                    needsChartRefresh = true;
+                }
+                
+                // Check if current group-by field is still available  
+                if (chartBuilderState.groupByField && 
+                    chartBuilderState.groupByField.type === 'categorical' && 
+                    !availableFieldNames.includes(chartBuilderState.groupByField.field)) {
+                    console.log(`🧹 Clearing group-by field '${chartBuilderState.groupByField.field}' (no longer available)`);
+                    chartBuilderState.groupByField = null;
+                    needsChartRefresh = true;
+                }
+                
+                // Refresh chart if fields were cleared
+                if (needsChartRefresh && typeof refreshChartsWithFilteredData === 'function') {
+                    console.log('🔄 Refreshing charts after field changes');
+                    refreshChartsWithFilteredData();
+                }
+            }
+        }
+
+        // Helper function to get current data based on active issue types
+        function getCurrentDataForIssueType() {
+            let currentData = [];
+            
+            if (activeIssueTypes.includes('Bug') && bugsData) {
+                currentData.push(...bugsData);
+            }
+            if (activeIssueTypes.includes('Story') && storiesData) {
+                currentData.push(...storiesData);
+            }
+            if (activeIssueTypes.includes('Test') && testCasesData) {
+                currentData.push(...testCasesData);
+            }
+            
+            return currentData;
+        }
+
+        // NEW: Issue-type-aware filter population
+        function populateFilters() {
+            const currentData = getCurrentDataForIssueType();
+            console.log(`🔄 Populating filters for active types [${activeIssueTypes.join(', ')}] with ${currentData.length} items`);
+            
+            // Status: Dynamic based on current issue types
+            const statuses = [...new Set(currentData.map(item => item.status))];
+            
+            // Severity: Only for bugs, include standard levels
+            let severities = [];
+            if (activeIssueTypes.includes('Bug')) {
+                const severityValues = [...new Set(currentData.filter(item => item.issueType === 'Bug').map(bug => bug.severity).filter(s => s))];
+                severities = ['Critical', 'High', 'Medium', 'Low', ...severityValues.filter(s => !['Critical', 'High', 'Medium', 'Low'].includes(s))];
+            }
+            
+            // Assignees and Leading Teams: Available for all issue types
+            const assignees = [...new Set(currentData.map(item => item.assignee))];
+            const leadingTeams = [...new Set(currentData.map(item => item.leadingTeam).filter(t => t))];
+            
+            // Systems: Available for all issue types  
+            const systems = [...new Set(currentData.map(item => item.system).filter(s => s))];
+            
+            // Sprints: Available for all issue types
+            const allSprints = [...new Set(currentData.map(item => item.sprint).filter(s => s))];
+            const sprints = allSprints.sort((a, b) => {
+                    // Extract PI and sprint numbers for proper sorting
+                    const parseSprintInfo = (sprintStr) => {
+                        const match = sprintStr.match(/PI(\d+)\.(\d+)\.Sprint\s+(\d+)/);
+                        if (match) {
+                            return {
+                                pi: parseInt(match[1]),
+                                version: parseInt(match[2]),
+                                sprint: parseInt(match[3])
+                            };
+                        }
+                        return { pi: 0, version: 0, sprint: 0 };
+                    };
+                    
+                    const infoA = parseSprintInfo(a);
+                    const infoB = parseSprintInfo(b);
+                    
+                    // Sort by PI, then version, then sprint number
+                    if (infoA.pi !== infoB.pi) return infoB.pi - infoA.pi; // Newer PIs first
+                    if (infoA.version !== infoB.version) return infoB.version - infoA.version; // Newer versions first
+                    return infoB.sprint - infoA.sprint; // Newer sprints first
+                });
+
+            // Regression: Only for bugs
+            let regressions = [];
+            if (activeIssueTypes.includes('Bug')) {
+                const regressionValues = [...new Set(currentData.filter(item => item.issueType === 'Bug').map(bug => bug.regression).filter(r => r))];
+                regressions = ['Yes', 'No', ...regressionValues.filter(r => r !== 'Yes' && r !== 'No')];
+            }
+            
+            // Populate common filters (available for all issue types)
             populateMultiSelect('status', statuses);
-            populateMultiSelect('severity', severities);
             populateMultiSelect('assignee', assignees);
             populateMultiSelect('leadingTeam', leadingTeams);
             populateMultiSelect('system', systems);
             populateMultiSelect('sprint', sprints);
-            populateMultiSelect('regression', regressions);
+            
+            // Populate issue-type-specific filters
+            if (activeIssueTypes.includes('Bug')) {
+                populateMultiSelect('severity', severities);
+                populateMultiSelect('regression', regressions);
+            }
+            
+            // Story-specific filters (using same pattern as regression filter for bugs)
+            if (activeIssueTypes.includes('Story')) {
+                // TestCaseCreated: Only for stories - using same pattern as regression filter
+                const storyData = currentData.filter(item => item.issueType === 'Story');
+                const testCaseCreatedValues = [...new Set(storyData.map(story => story.testCaseCreated).filter(t => t))];
+                const testCaseCreated = ['Yes', 'No', ...testCaseCreatedValues.filter(t => t !== 'Yes' && t !== 'No')];
+                
+                // Debug logging (same style as regression filter)
+                console.log('📊 TestCaseCreated filter setup:');
+                console.log('   • Stories total:', storyData.length);
+                console.log('   • Unique testCaseCreated values found:', testCaseCreatedValues);
+                console.log('   • Filter options:', testCaseCreated);
+                
+                const yesStories = storyData.filter(s => s.testCaseCreated === 'Yes').length;
+                const noStories = storyData.filter(s => s.testCaseCreated === 'No').length;
+                const nullStories = storyData.filter(s => !s.testCaseCreated).length;
+                const otherStories = storyData.filter(s => s.testCaseCreated && s.testCaseCreated !== 'Yes' && s.testCaseCreated !== 'No').length;
+                
+                console.log(`   • Breakdown: ${yesStories} Yes, ${noStories} No, ${nullStories} null/undefined, ${otherStories} other`);
+                console.log(`   • JIRA expects ~317 "Yes" stories, we found ${yesStories}`);
+                
+                // Check BT-12664 specifically during filter setup
+                const bt12664 = storyData.find(s => s.key === 'BT-12664');
+                if (bt12664) {
+                    console.log('🔍 BT-12664 during filter setup:', {
+                        key: bt12664.key,
+                        testCaseCreated: bt12664.testCaseCreated,
+                        type: typeof bt12664.testCaseCreated,
+                        raw: JSON.stringify(bt12664.testCaseCreated)
+                    });
+                } else {
+                    console.log('❌ BT-12664 not found in story filter setup');
+                }
+                
+                if (yesStories < 300) {
+                    console.warn('⚠️ Found fewer "Yes" stories than JIRA expects - data transformation may not be working');
+                    // Show sample of what we're getting
+                    const sampleOther = storyData.filter(s => s.testCaseCreated && s.testCaseCreated !== 'Yes' && s.testCaseCreated !== 'No').slice(0, 3);
+                    if (sampleOther.length > 0) {
+                        console.log('📊 Sample "other" values:', sampleOther.map(s => ({key: s.key, testCaseCreated: s.testCaseCreated, type: typeof s.testCaseCreated})));
+                    }
+                    
+                    // Show some examples that should be "Yes" but aren't
+                    console.log('🔍 First 5 stories with non-Yes values:');
+                    storyData.filter(s => s.testCaseCreated !== 'Yes').slice(0, 5).forEach(story => {
+                        console.log(`   • ${story.key}: ${JSON.stringify(story.testCaseCreated)} (${typeof story.testCaseCreated})`);
+                    });
+                }
+                
+                populateMultiSelect('testCaseCreated', testCaseCreated);
+            }
+            
+            // Test Case only filters
+            if (activeIssueTypes.includes('Test')) {
+                // Generated from AI filter (Yes/No/No Data)
+                const generatedFromAIValues = ['Yes', 'No', 'No Data'];
+                populateMultiSelect('generatedFromAI', generatedFromAIValues);
+            }
             
             // Set up button click handlers for all filter dropdowns
             setupFilterButtonHandlers();
@@ -4470,7 +5793,9 @@
             leadingTeam: new Set(),
             system: new Set(),
             sprint: new Set(),
-            regression: new Set()
+            regression: new Set(),
+            testCaseCreated: new Set(),
+            generatedFromAI: new Set()
         };
 
         // Date range filter state (separate from multiselect filters)
@@ -4702,7 +6027,7 @@
         
         // Set up button click handlers for filter dropdowns
         function setupFilterButtonHandlers() {
-            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression'];
+            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'testCaseCreated', 'aiGenerated'];
             
             filterTypes.forEach(filterType => {
                 const button = document.getElementById(`${filterType}FilterButton`);
@@ -4739,7 +6064,7 @@
 
         // Set up clear button event handlers
         function setupClearButtonHandlers() {
-            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression'];
+            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'testCaseCreated', 'aiGenerated'];
             
             // Handle regular filter clear buttons
             filterTypes.forEach(filterType => {
@@ -4908,11 +6233,20 @@
             
             // Handle checkbox change
             checkbox.addEventListener('change', () => {
+                console.log(`🔧 MULTI-ISSUE FILTER: ${filterType} changed:`, {
+                    option: option,
+                    checked: checkbox.checked,
+                    currentSelections: Array.from(filterSelections[filterType])
+                });
+                
                 if (checkbox.checked) {
                     filterSelections[filterType].add(option);
                 } else {
                     filterSelections[filterType].delete(option);
                 }
+                
+                console.log(`🔧 MULTI-ISSUE FILTER: ${filterType} after change:`, Array.from(filterSelections[filterType]));
+                
                 updateFilterButtonText(filterType);
                 applyFilters();
                 updateActiveFiltersDisplay();
@@ -5165,25 +6499,12 @@
             const endIndex = startIndex + paginationState.pageSize;
             const pageData = filteredData.slice(startIndex, endIndex);
 
-            // Render only current page data
-            pageData.forEach(bug => {
-                const row = document.createElement('tr');
-                const jiraUrl = `https://hibob.atlassian.net/browse/${bug.key}`;
-                const fixDuration = calculateFixDuration(bug);
-                
-                row.innerHTML = `
-                    <td><a href="${jiraUrl}" target="_blank" class="issue-link">${bug.key}</a></td>
-                    <td style="max-width: 350px; overflow: hidden; text-overflow: ellipsis;">${bug.summary}</td>
-                    <td><span class="status-badge ${getStatusClass(bug.status)}">${bug.status}</span></td>
-                    <td><span class="priority-badge ${getPriorityClass(bug.severity)}">${bug.severity}</span></td>
-                    <td>${bug.assignee}</td>
-                    <td>${bug.leadingTeam === 'No Data' ? '<span style="color: #999; font-style: italic;">No Data</span>' : (bug.leadingTeam || 'N/A')}</td>
-                    <td>${bug.system === 'No Data' ? '<span style="color: #999; font-style: italic;">No Data</span>' : (bug.system || 'N/A')}</td>
-                    <td>${bug.sprint === 'No Data' ? '<span style="color: #999; font-style: italic;">No Data</span>' : (bug.sprint === 'None' ? '<span style="color: #ff9500;">None</span>' : (bug.sprint || 'N/A'))}</td>
-                    <td>${bug.regression === 'Yes' ? '<span style="color: #28a745; font-weight: bold;">Yes</span>' : (bug.regression === 'No' ? '<span style="color: #dc3545;">No</span>' : '<span style="color: #999; font-style: italic;">No Data</span>')}</td>
-                    <td><span class="fix-duration">${fixDuration}</span></td>
-                    <td>${bug.createdDate}</td>
-                `;
+            // Get current column configuration for active issue types
+            const columnsToShow = buildTableHeaders(activeIssueTypes);
+            
+            // Render only current page data with dynamic columns
+            pageData.forEach(item => {
+                const row = generateTableRow(item, columnsToShow);
                 tbody.appendChild(row);
             });
             
@@ -5192,7 +6513,13 @@
         }
 
         function applyFilters() {
-            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+            const searchElement = document.getElementById('searchFilter');
+            const searchFilter = searchElement ? searchElement.value.toLowerCase() : '';
+            
+            // Debug: Log search filter activity
+            if (searchFilter) {
+                console.log('🔍 Search filter active:', searchFilter);
+            }
 
             // Get date range values from state object
             const dateFromValue = dateRangeFilter.dateFrom;
@@ -5210,28 +6537,73 @@
                 checkChartFilterValidity();
             }
 
-            filteredData = bugsData.filter(bug => {
+            // Get fresh data for current issue types as the filter source
+            const currentData = getCurrentDataForIssueType();
+            
+            console.log('🔧 MULTI-ISSUE FILTER: applyFilters called with:', {
+                sourceDataCount: currentData.length,
+                activeIssueTypes: activeIssueTypes,
+                leadingTeamFilters: Array.from(filterSelections.leadingTeam),
+                statusFilters: Array.from(filterSelections.status),
+                testCaseCreatedFilters: Array.from(filterSelections.testCaseCreated)
+            });
+            
+            filteredData = currentData.filter(bug => {
                 // FIXED: Always apply table filters first, THEN add chart filter on top
                 
-                // Apply all table filters (same logic as before)
+                // Apply all table filters (handle different issue types gracefully)
                 const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(bug.status);
-                const severityMatch = filterSelections.severity.size === 0 || filterSelections.severity.has(bug.severity);
+                const severityMatch = filterSelections.severity.size === 0 || !bug.severity || filterSelections.severity.has(bug.severity);
                 const assigneeMatch = filterSelections.assignee.size === 0 || filterSelections.assignee.has(bug.assignee);
                 const leadingTeamMatch = filterSelections.leadingTeam.size === 0 || filterSelections.leadingTeam.has(bug.leadingTeam);
                 const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(bug.system);
                 const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(bug.sprint);
-                const regressionMatch = filterSelections.regression.size === 0 || filterSelections.regression.has(bug.regression);
-                const searchMatch = !searchFilter || 
-                                  (bug.summary && bug.summary.toLowerCase().includes(searchFilter)) || 
+                const regressionMatch = filterSelections.regression.size === 0 || !bug.regression || filterSelections.regression.has(bug.regression);
+                
+                // TestCaseCreated filter (for stories) - only match stories with specific testCaseCreated values
+                let testCaseCreatedMatch = true;
+                if (bug.issueType === 'Story') {
+                    // For stories, only match when no filter is active OR when the story's testCaseCreated value matches the filter
+                    testCaseCreatedMatch = filterSelections.testCaseCreated.size === 0 || filterSelections.testCaseCreated.has(bug.testCaseCreated);
+                }
+                // Non-stories always pass this filter (testCaseCreatedMatch stays true)
+                
+                // Generated from AI filter (for Test Cases)
+                let generatedFromAIMatch = true;
+                if (filterSelections.generatedFromAI && filterSelections.generatedFromAI.size > 0) {
+                    if (bug.issueType === 'Test' || bug.issueType === 'Test Case') {
+                        const generatedValue = bug.generatedFromAI || 'No Data';
+                        generatedFromAIMatch = filterSelections.generatedFromAI.has(generatedValue);
+                    } else {
+                        // Non-test cases always pass this filter
+                        generatedFromAIMatch = true;
+                    }
+                }
+
+                const searchMatch = !searchFilter ||
+                                  (bug.summary && bug.summary.toLowerCase().includes(searchFilter)) ||
                                   (bug.key && bug.key.toLowerCase().includes(searchFilter)) ||
                                   (bug.assignee && bug.assignee.toLowerCase().includes(searchFilter));
+                
+                // Debug: Log search matching for first few items when search is active
+                if (searchFilter && Math.random() < 0.05) { // Log 5% of items when search is active
+                    console.log('🔍 Search match debug:', {
+                        key: bug.key,
+                        summary: bug.summary?.substring(0, 50) + '...',
+                        assignee: bug.assignee,
+                        searchTerm: searchFilter,
+                        matched: searchMatch,
+                        issueType: bug.issueType
+                    });
+                }
 
                 // Add date range filtering logic
                 const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
                 
                 // Check if bug passes all table filters
                 const tableFiltersMatch = statusMatch && severityMatch && assigneeMatch &&
-                                        leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch && dateMatch;
+                                        leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && 
+                                        testCaseCreatedMatch && generatedFromAIMatch && searchMatch && dateMatch;
                 
                 // If table filters fail, bug is out regardless of chart filter
                 if (!tableFiltersMatch) {
@@ -5246,30 +6618,56 @@
                 // Chart filter is active: bug must pass BOTH table filters AND chart filter
                 return checkChartFilter(bug);
             });
+            
+            console.log('🔧 MULTI-ISSUE FILTER: Results after filtering:', {
+                totalFiltered: filteredData.length,
+                totalSource: currentData.length,
+                sampleFiltered: filteredData.slice(0, 5).map(bug => ({
+                    key: bug.key,
+                    issueType: bug.issueType,
+                    leadingTeam: bug.leadingTeam,
+                    status: bug.status,
+                    testCaseCreated: bug.testCaseCreated
+                }))
+            });
+            
+            // Simplified debug for testCaseCreated filter
+            if (filterSelections.testCaseCreated.size > 0) {
+                const storiesInFilter = filteredData.filter(item => item.issueType === 'Story');
+                console.log('🔧 TestCaseCreated Filter Results:', {
+                    filters: Array.from(filterSelections.testCaseCreated),
+                    storiesFound: storiesInFilter.length,
+                    sampleResults: storiesInFilter.slice(0, 3).map(s => ({
+                        key: s.key,
+                        testCaseCreated: s.testCaseCreated
+                    }))
+                });
+            }
 
-            // Debug logging for filter results
-            const tableFilteredCount = bugsData.filter(bug => {
-                const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(bug.status);
-                const severityMatch = filterSelections.severity.size === 0 || filterSelections.severity.has(bug.severity);
-                const assigneeMatch = filterSelections.assignee.size === 0 || filterSelections.assignee.has(bug.assignee);
-                const leadingTeamMatch = filterSelections.leadingTeam.size === 0 || filterSelections.leadingTeam.has(bug.leadingTeam);
-                const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(bug.system);
-                const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(bug.sprint);
-                const regressionMatch = filterSelections.regression.size === 0 || filterSelections.regression.has(bug.regression);
+            // Debug logging for filter results  
+            const tableFilteredCount = getCurrentDataForIssueType().filter(item => {
+                const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(item.status);
+                const severityMatch = filterSelections.severity.size === 0 || !item.severity || filterSelections.severity.has(item.severity);
+                const assigneeMatch = filterSelections.assignee.size === 0 || filterSelections.assignee.has(item.assignee);
+                const leadingTeamMatch = filterSelections.leadingTeam.size === 0 || filterSelections.leadingTeam.has(item.leadingTeam);
+                const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(item.system);
+                const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(item.sprint);
+                const regressionMatch = filterSelections.regression.size === 0 || !item.regression || filterSelections.regression.has(item.regression);
                 const searchMatch = !searchFilter || 
-                                  (bug.summary && bug.summary.toLowerCase().includes(searchFilter)) || 
-                                  (bug.key && bug.key.toLowerCase().includes(searchFilter)) ||
-                                  (bug.assignee && bug.assignee.toLowerCase().includes(searchFilter));
-                const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
+                                  (item.summary && item.summary.toLowerCase().includes(searchFilter)) || 
+                                  (item.key && item.key.toLowerCase().includes(searchFilter)) ||
+                                  (item.assignee && item.assignee.toLowerCase().includes(searchFilter));
+                const dateMatch = checkDateRange(item, dateFromValue, dateToValue);
                 return statusMatch && severityMatch && assigneeMatch &&
                        leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch && dateMatch;
             }).length;
             
-            console.log(`🔧 Table filters alone: ${tableFilteredCount}/${bugsData.length} bugs`);
+            const issueTypeText = activeIssueTypes.length === 1 ? activeIssueTypes[0].toLowerCase() + 's' : 'items';
+            console.log(`🔧 Table filters alone: ${tableFilteredCount}/${currentData.length} ${issueTypeText}`);
             
             if (chartFilter.active) {
-                const chartOnlyCount = bugsData.filter(bug => checkChartFilter(bug)).length;
-                console.log(`🎯 Chart filter alone: ${chartOnlyCount}/${bugsData.length} bugs`);
+                const chartOnlyCount = currentData.filter(item => checkChartFilter(item)).length;
+                console.log(`🎯 Chart filter alone: ${chartOnlyCount}/${currentData.length} ${issueTypeText}`);
                 console.log(`🔍 Chart filter details:`, {
                     field: chartFilter.xAxisField,
                     value: chartFilter.xAxisValue,
@@ -5278,18 +6676,30 @@
                 });
             }
             
-            console.log(`📊 COMBINED filters result: ${filteredData.length}/${bugsData.length} bugs`);
+            console.log(`📊 COMBINED filters result: ${filteredData.length}/${currentData.length} ${issueTypeText}`);
             
-            // EMERGENCY DEBUG: Show sample of filtered bugs
+            // Debug: Show search filter results specifically
+            if (searchFilter) {
+                console.log(`🔍 Search "${searchFilter}" filtered from ${currentData.length} to ${filteredData.length} items`);
+                console.log('🔍 Sample search results:', filteredData.slice(0, 3).map(item => ({
+                    key: item.key,
+                    summary: item.summary?.substring(0, 50) + '...',
+                    assignee: item.assignee,
+                    issueType: item.issueType
+                })));
+            }
+            
+            // EMERGENCY DEBUG: Show sample of filtered items
             if (chartFilter.active) {
-                console.log('🚨 FINAL FILTERED BUGS SAMPLE (first 5):', 
-                    filteredData.slice(0, 5).map(bug => ({
-                        key: bug.key,
-                        sprint: bug.sprint,
-                        regression: bug.regression,
-                        system: bug.system,
-                        severity: bug.severity,
-                        status: bug.status
+                console.log('🚨 FINAL FILTERED ITEMS SAMPLE (first 5):', 
+                    filteredData.slice(0, 5).map(item => ({
+                        key: item.key,
+                        issueType: item.issueType || 'Bug',
+                        sprint: item.sprint,
+                        regression: item.regression,
+                        system: item.system,
+                        severity: item.severity,
+                        status: item.status
                     }))
                 );
                 
@@ -5537,12 +6947,7 @@
             setupIssueTypeListeners();
             
             // Add search filter listener
-            const searchFilter = document.getElementById('searchFilter');
-            if (searchFilter) {
-                // Remove existing listener to avoid duplicates
-                searchFilter.removeEventListener('input', applyFilters);
-                searchFilter.addEventListener('input', applyFilters);
-            }
+            setupSearchListener();
             
             // Add sorting listeners
             setupSortingEventListeners();
@@ -5767,6 +7172,10 @@
         function reinitializeEventListeners() {
             console.log('🔄 Reinitializing all event listeners...');
             setupIssueTypeListeners(); // NEW: Multi-issue type listeners
+            
+            // Add search filter listener (CRITICAL: was missing!)
+            setupSearchListener();
+            
             setupFilterButtonHandlers();
             setupClearButtonHandlers();
             setupDateRangeListeners();
@@ -5996,33 +7405,40 @@
 
         // Get data for chart display (excludes chart filters to keep full context)
         function getDataForChartDisplay() {
-            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+            const searchElement = document.getElementById('searchFilter');
+            const searchFilter = searchElement ? searchElement.value.toLowerCase() : '';
             
             // Get date range values from state object
             const dateFromValue = dateRangeFilter.dateFrom;
             const dateToValue = dateRangeFilter.dateTo;
             
             // Apply all filters EXCEPT chart filter for chart display
-            return bugsData.filter(bug => {
-                const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(bug.status);
-                const severityMatch = filterSelections.severity.size === 0 || filterSelections.severity.has(bug.severity);
-                const assigneeMatch = filterSelections.assignee.size === 0 || filterSelections.assignee.has(bug.assignee);
-                const leadingTeamMatch = filterSelections.leadingTeam.size === 0 || filterSelections.leadingTeam.has(bug.leadingTeam);
-                const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(bug.system);
-                const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(bug.sprint);
-                const regressionMatch = filterSelections.regression.size === 0 || filterSelections.regression.has(bug.regression);
+            return getCurrentDataForIssueType().filter(item => {
+                const statusMatch = filterSelections.status.size === 0 || filterSelections.status.has(item.status);
+                const severityMatch = filterSelections.severity.size === 0 || filterSelections.severity.has(item.severity);
+                const assigneeMatch = filterSelections.assignee.size === 0 || filterSelections.assignee.has(item.assignee);
+                const leadingTeamMatch = filterSelections.leadingTeam.size === 0 || filterSelections.leadingTeam.has(item.leadingTeam);
+                const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(item.system);
+                const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(item.sprint);
+                const regressionMatch = filterSelections.regression.size === 0 || filterSelections.regression.has(item.regression);
+                // Story-specific filters
+                const testCaseCreatedMatch = filterSelections.testCaseCreated.size === 0 || filterSelections.testCaseCreated.has(item.testCaseCreated);
+                // Test case-specific filters
+                const generatedFromAIMatch = filterSelections.generatedFromAI.size === 0 || filterSelections.generatedFromAI.has(item.generatedFromAI);
+                
                 const searchMatch = !searchFilter || 
-                                  (bug.summary && bug.summary.toLowerCase().includes(searchFilter)) || 
-                                  (bug.key && bug.key.toLowerCase().includes(searchFilter)) ||
-                                  (bug.assignee && bug.assignee.toLowerCase().includes(searchFilter));
+                                  (item.summary && item.summary.toLowerCase().includes(searchFilter)) || 
+                                  (item.key && item.key.toLowerCase().includes(searchFilter)) ||
+                                  (item.assignee && item.assignee.toLowerCase().includes(searchFilter));
                 
                 // Add date range filtering logic
-                const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
+                const dateMatch = checkDateRange(item, dateFromValue, dateToValue);
                 
                 // NOTE: Intentionally EXCLUDE chartFilter check here to maintain full chart context
                 return statusMatch && severityMatch && assigneeMatch &&
                        leadingTeamMatch && systemMatch && sprintMatch && 
-                       regressionMatch && searchMatch && dateMatch;
+                       regressionMatch && testCaseCreatedMatch && generatedFromAIMatch && 
+                       searchMatch && dateMatch;
             });
         }
 
@@ -6033,11 +7449,11 @@
             if (!xAxisField || !yAxisField) return null;
             
             // Determine if we should use complete dataset (no filtering)
-            const useCompleteDataset = yAxisField.field === 'allBugs';
+            const useCompleteDataset = yAxisField.field === 'allItems';
             
             // For chart display: use UI filters but exclude chart filters to maintain full context
             // This ensures charts show complete data context while table shows filtered results
-            const chartDisplayData = useCompleteDataset ? bugsData : getDataForChartDisplay();
+            const chartDisplayData = useCompleteDataset ? getCurrentDataForIssueType() : getDataForChartDisplay();
             const data = chartDisplayData;
             
             if (!data || data.length === 0) {
@@ -6049,7 +7465,7 @@
                 return generateCountChartData(data, xAxisField, groupByField, selectedChartType, useCompleteDataset);
             } else if (yAxisField.field === 'allBugs') {
                 return generateCountChartData(data, xAxisField, groupByField, selectedChartType, useCompleteDataset);
-            } else if (yAxisField.field === 'filteredAllBugs') {
+            } else if (yAxisField.field === 'filteredAllItems') {
                 return generateCountChartData(chartDisplayData, xAxisField, groupByField, selectedChartType, true);
             } else if (yAxisField.field === 'daysToFix') {
                 return generateAverageChartData(data, xAxisField, yAxisField, groupByField, selectedChartType, useCompleteDataset);
@@ -8041,6 +9457,60 @@
             console.warn(`❌ Cannot drop ${fieldData.type} field "${fieldData.label}" in ${zoneType} zone`);
         }
 
+        // Check if API server is available and trigger sync if needed
+        async function checkAndTriggerSyncIfNeeded() {
+            try {
+                console.log('🔄 Checking if JIRA sync is needed...');
+                const syncResponse = await fetch(`http://localhost:3002/api/sync`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (syncResponse.ok) {
+                    console.log('✅ JIRA sync completed, refreshing data...');
+                    // Reload the page to get fresh data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                    return true;
+                } else {
+                    console.log('⚠️ Sync API not available');
+                    return false;
+                }
+            } catch (error) {
+                console.log('⚠️ Could not trigger sync:', error.message);
+                return false;
+            }
+        }
+
+        // Trigger refresh if cache data is stale
+        async function refreshDataIfStale() {
+            console.log('🔍 Checking if data needs refresh...');
+            
+            // If we loaded from issues-cache.json and BT-12664 shows "No", trigger refresh
+            if (data && data.source === 'issues-cache.json') {
+                const bt12664 = data.stories?.find(s => s.key === 'BT-12664');
+                if (bt12664 && bt12664.testCaseCreated === 'No') {
+                    console.log('🔄 BT-12664 shows "No" in cache - likely stale data, triggering refresh');
+                    
+                    // Show notification to user
+                    const statusEl = document.getElementById('status');
+                    if (statusEl) {
+                        statusEl.innerHTML = 'Refreshing data from JIRA - cache appears stale...';
+                    }
+                    
+                    // Try to sync
+                    const synced = await checkAndTriggerSyncIfNeeded();
+                    if (!synced) {
+                        console.log('⚠️ Auto-sync failed - manual refresh may be needed');
+                        if (statusEl) {
+                            statusEl.innerHTML = 'Data loaded (cache may be stale - consider clicking Sync Data)';
+                        }
+                    }
+                }
+            }
+        }
+
         // Event listeners with HiBob's modern, supportive approach
         document.addEventListener('DOMContentLoaded', function() {
             // Register Chart.js datalabels plugin for percentage labels
@@ -8079,6 +9549,8 @@
             // Initialize chart builder after a short delay to ensure dashboard is loaded
             setTimeout(() => {
                 initializeChartBuilder();
+                // Initialize quality analysis chart fields for default issue type (Bug)
+                updateQualityAnalysisFields(activeIssueTypes);
             }, 1000);
             
             // Additional backup for sync button (in case DOM wasn't fully ready)

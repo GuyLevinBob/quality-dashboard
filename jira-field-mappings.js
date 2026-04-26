@@ -15,11 +15,11 @@ const JIRA_FIELD_MAPPINGS = {
     // Story-specific fields
     STORY_POINTS: 'customfield_10016',     // Story Points field (Fibonacci points)
     EPIC_LINK: 'customfield_10014',        // Epic Link field  
-    TEST_CASE_CREATED: 'customfield_XXXX', // Test Case Created field (Yes/No) - NEEDS REAL FIELD ID
+    TEST_CASE_CREATED: 'customfield_11391', // Test Case Created field (Yes/No)
     
     // Test Case-specific fields
-    AI_GENERATED_TEST_CASES: 'customfield_YYYY', // AI Generated Test Cases field - NEEDS REAL FIELD ID
-    TEST_TYPE: 'customfield_ZZZZ',         // Test Type field - NEEDS REAL FIELD ID
+    AI_GENERATED_TEST_CASES: 'customfield_11392', // AI Generated Test Cases field (URL/text)
+    TEST_TYPE: 'customfield_11426',        // Test Type field (AI Generated Test Cases)
     
     // Standard JIRA fields
     ASSIGNEE: 'assignee',                  // Assignee object
@@ -60,15 +60,57 @@ const FIELD_EXTRACTORS = {
         return null;
     },
     
+    // Extract test case created checkbox field value
+    getTestCaseCreated: (fieldData) => {
+        if (!fieldData) return 'No';
+        
+        // Handle array format - JIRA checkbox fields
+        if (Array.isArray(fieldData)) {
+            // Check each item in array for "Yes" value
+            for (const item of fieldData) {
+                // Direct string match
+                if (typeof item === 'string' && item === 'Yes') {
+                    return 'Yes';
+                }
+                // Object format: [{value: "Yes", id: "11440", self: "..."}]
+                if (typeof item === 'object' && item !== null && item.value === 'Yes') {
+                    return 'Yes';
+                }
+            }
+            return 'No'; // Array exists but no "Yes" found
+        }
+        
+        // Handle single object format: {value: "Yes"}
+        if (typeof fieldData === 'object' && fieldData !== null && fieldData.value === 'Yes') {
+            return 'Yes';
+        }
+        
+        // Handle direct string values
+        if (typeof fieldData === 'string' && fieldData === 'Yes') {
+            return 'Yes';
+        }
+        
+        return 'No';
+    },
+    
     // Extract sprint name from sprint object
     getSprintName: (sprintField) => {
         if (!sprintField || !Array.isArray(sprintField) || sprintField.length === 0) {
             return null;
         }
         
-        // Get the most recent sprint (last in array)
-        const latestSprint = sprintField[sprintField.length - 1];
-        return latestSprint.name || null;
+        // Get the EARLIEST sprint by sorting by startDate, then take first
+        const sortedSprints = sprintField
+            .filter(sprint => sprint && sprint.startDate) // Only sprints with start dates
+            .sort((a, b) => new Date(a.startDate) - new Date(b.startDate)); // Sort by start date ascending
+        
+        if (sortedSprints.length > 0) {
+            return sortedSprints[0].name || null;
+        }
+        
+        // Fallback: if no startDate, take first sprint in array
+        const firstSprint = sprintField[0];
+        return firstSprint.name || null;
     },
     
     // Extract user display name

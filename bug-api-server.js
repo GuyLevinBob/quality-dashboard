@@ -226,35 +226,67 @@ class BugApiServer {
             
             console.log(`📊 Fetching issues for types: ${issueTypes.join(', ')}`);
             
-            // For now, use cached data if available, otherwise return empty
-            const data = this.loadCachedData();
+            let allIssues = [];
+            let actualIssueTypes = [];
+            let lastSync = null;
+            let jiraInstance = 'hibob.atlassian.net';
             
-            // TODO: This will need to be enhanced when we have multi-issue cache
-            // For now, only support bugs from existing cache
-            if (issueTypes.includes('Bug') && data && data.bugs) {
-                const lightweightBugs = data.bugs.map(bug => this.toLightweightIssue(bug));
-                
-                this.sendJson(res, {
-                    issues: lightweightBugs,
-                    metadata: {
-                        totalIssues: lightweightBugs.length,
-                        issueTypes: ['Bug'],
-                        lastSync: data.lastSync,
-                        jiraInstance: data.metadata?.jiraInstance || 'hibob.atlassian.net'
-                    }
-                });
-            } else {
-                // No cached data, need initial sync
-                this.sendJson(res, {
-                    issues: [],
-                    metadata: {
-                        totalIssues: 0,
-                        issueTypes: issueTypes,
-                        lastSync: null,
-                        needsInitialSync: true
-                    }
-                });
+            // Handle Bug requests - use dedicated bugs cache
+            if (issueTypes.includes('Bug')) {
+                const bugsData = this.loadCachedData();
+                if (bugsData && bugsData.bugs) {
+                    const bugsWithType = bugsData.bugs.map(bug => ({...bug, issueType: 'Bug'}));
+                    allIssues.push(...bugsWithType);
+                    actualIssueTypes.push('Bug');
+                    lastSync = bugsData.lastSync;
+                    jiraInstance = bugsData.metadata?.jiraInstance || jiraInstance;
+                    console.log(`✅ Added ${bugsData.bugs.length} bugs`);
+                }
             }
+            
+            // Handle Stories and Test Cases from multi-issue cache
+            if (issueTypes.includes('Story') || issueTypes.includes('Test')) {
+                const issuesData = this.loadCachedIssuesData();
+                if (issuesData && issuesData.issues) {
+                    const filteredIssues = issuesData.issues.filter(issue => {
+                        if (issueTypes.includes('Story') && issue.issueType === 'Story') {
+                            return true;
+                        }
+                        if (issueTypes.includes('Test') && (issue.issueType === 'Test' || issue.issueType === 'Test Case')) {
+                            return true;
+                        }
+                        return false;
+                    });
+                    
+                    allIssues.push(...filteredIssues);
+                    
+                    // Track unique issue types
+                    filteredIssues.forEach(issue => {
+                        if (!actualIssueTypes.includes(issue.issueType)) {
+                            actualIssueTypes.push(issue.issueType);
+                        }
+                    });
+                    
+                    lastSync = issuesData.lastSync || lastSync;
+                    jiraInstance = issuesData.metadata?.jiraInstance || jiraInstance;
+                    console.log(`✅ Added ${filteredIssues.length} stories/test cases`);
+                }
+            }
+            
+            // Convert to lightweight format
+            const lightweightIssues = allIssues.map(issue => this.toLightweightIssue(issue));
+            
+            console.log(`📊 Total issues returned: ${lightweightIssues.length} of types: ${actualIssueTypes.join(', ')}`);
+            
+            this.sendJson(res, {
+                issues: lightweightIssues,
+                metadata: {
+                    totalIssues: lightweightIssues.length,
+                    issueTypes: actualIssueTypes,
+                    lastSync: lastSync,
+                    jiraInstance: jiraInstance
+                }
+            });
             
         } catch (error) {
             console.error('❌ Error getting issues-lite:', error);
@@ -270,23 +302,40 @@ class BugApiServer {
         }
 
         try {
+            const fs = require('fs');
+            const debugLog = (message) => {
+                try {
+                    fs.appendFileSync('sprint-debug.log', `${new Date().toISOString()} - SYNC: ${message}\n`);
+                } catch (e) { /* ignore */ }
+            };
+            
+            debugLog('handleSyncIssues called');
+            
             const body = await this.readRequestBody(req);
             const { since, types } = JSON.parse(body || '{}');
             const issueTypes = types || ['Bug', 'Story', 'Test'];
             
             console.log('🔄 Starting multi-issue sync...', since ? `since ${since}` : 'full sync');
             console.log('📋 Issue types:', issueTypes.join(', '));
+            debugLog(`Starting sync for types: ${issueTypes.join(', ')}`);
             
             let allIssues;
             if (since) {
                 // Incremental sync - fetch issues updated since timestamp
+                debugLog('Using incremental sync');
                 allIssues = await this.fetchUpdatedIssues(since, issueTypes);
             } else {
                 // Full sync - fetch all issues of specified types
+                debugLog('Using full sync - calling fetchAllIssues');
                 allIssues = await this.fetchAllIssues(issueTypes);
             }
+            
+            debugLog(`Fetched ${allIssues?.issues?.length || 0} issues from JIRA`);
+            debugLog('About to call processIssuesData');
 
             const processedIssues = this.processIssuesData(allIssues);
+            
+            debugLog(`processIssuesData returned ${processedIssues?.length || 0} processed issues`);
             
             // Store in cache (for now, separate from bugs cache)
             const issueData = {
@@ -538,13 +587,14 @@ class BugApiServer {
             resolutionDateFormatted: bug.resolutionDateFormatted,
             daysOpen: bug.daysOpen,
             
-            // Custom fields
-            leadingTeam: bug.leadingTeam,
-            system: bug.system,
-            sprintName: bug.sprintName,
-            regression: bug.regression,
-            severity: bug.severity,
-            bugType: bug.bugType,
+                // Custom fields
+                leadingTeam: bug.leadingTeam,
+                system: bug.system,
+                sprintName: bug.sprintName,
+                sprint: bug.sprintName, // Dashboard compatibility
+                regression: bug.regression,
+                severity: bug.severity,
+                bugType: bug.bugType,
             
             // Additional data (lightweight)
             components: bug.components,
@@ -644,6 +694,44 @@ class BugApiServer {
         return null;
     }
 
+    // Extract date when issue status changed to a specific status (e.g., "Done")
+    extractStatusChangeDate(histories, targetStatus) {
+        if (!histories || !Array.isArray(histories)) {
+            return null;
+        }
+
+        // Look through all changelog entries, newest first
+        for (let i = histories.length - 1; i >= 0; i--) {
+            const history = histories[i];
+            
+            if (!history.items || !Array.isArray(history.items)) {
+                continue;
+            }
+
+            // Check if this history entry contains a status change to the target status
+            for (const item of history.items) {
+                if (item.field === 'status' && 
+                    (item.toString === targetStatus || item.to === targetStatus)) {
+                    return history.created;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // Calculate fix duration in days between two dates
+    calculateFixDuration(createdDate, resolvedDate) {
+        if (!createdDate || !resolvedDate) {
+            return null;
+        }
+
+        const created = new Date(createdDate);
+        const resolved = new Date(resolvedDate);
+        const diffTime = Math.abs(resolved - created);
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
     extractTextFromADF(adfDocument) {
         if (!adfDocument || !adfDocument.content) return '';
         
@@ -661,6 +749,71 @@ class BugApiServer {
     }
 
     // NEW: Multi-issue helper methods
+    
+    // Extract first sprint from changelog (used for stories and test cases)
+    extractFirstSprintFromChangelog(issue) {
+        const result = {
+            currentSprint: null,
+            firstSprint: null,
+            error: null
+        };
+
+        try {
+            // Get current sprint from custom field (customfield_10020 for sprint)
+            const currentSprintField = issue.fields.customfield_10020;
+            if (currentSprintField && currentSprintField.length > 0) {
+                const currentSprint = currentSprintField[currentSprintField.length - 1];
+                result.currentSprint = currentSprint.name;
+            }
+
+            // Extract sprint history from changelog
+            const changelog = issue.changelog;
+            if (changelog && changelog.histories) {
+                const sprintChanges = [];
+
+                changelog.histories.forEach(history => {
+                    history.items.forEach(item => {
+                        if (item.field === 'Sprint') {
+                            sprintChanges.push({
+                                date: history.created,
+                                from: item.fromString,
+                                to: item.toString
+                            });
+                        }
+                    });
+                });
+
+                // Sort by date to get first sprint
+                sprintChanges.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                if (sprintChanges.length > 0) {
+                    // First sprint is the first "to" value that's not null
+                    const firstChange = sprintChanges.find(change => change.to && change.to !== 'null');
+                    if (firstChange) {
+                        result.firstSprint = firstChange.to;
+                    }
+                }
+            }
+        } catch (error) {
+            result.error = error.message;
+        }
+
+        return result;
+    }
+
+    // Get display sprint with priority: First sprint > Current sprint > None
+    getDisplaySprintForIssue(sprintData) {
+        // Priority: First sprint > Current sprint > None
+        if (sprintData.firstSprint) {
+            return sprintData.firstSprint;
+        } else if (sprintData.currentSprint) {
+            return sprintData.currentSprint;
+        } else if (sprintData.error) {
+            return `Error: ${sprintData.error}`;
+        } else {
+            return null; // Will use existing logic as fallback
+        }
+    }
     
     // Convert any issue type to lightweight version
     toLightweightIssue(issue) {
@@ -685,6 +838,7 @@ class BugApiServer {
             leadingTeam: issue.leadingTeam,
             system: issue.system,
             sprintName: issue.sprintName,
+            sprint: issue.sprintName, // Dashboard compatibility
             components: issue.components,
             labels: issue.labels,
             
@@ -701,7 +855,8 @@ class BugApiServer {
             base.storyPoints = issue.storyPoints || 0;
             base.epicLink = issue.epicLink;
             base.testCaseCreated = issue.testCaseCreated;
-        } else if (issue.issueType === 'Test') {
+            base.fixDuration = issue.fixDuration || null;
+        } else if (issue.issueType === 'Test Case' || issue.issueType === 'Test') {
             base.aiGeneratedTestCases = issue.aiGeneratedTestCases;
             base.testType = issue.testType;
         }
@@ -775,7 +930,17 @@ class BugApiServer {
     processIssuesData(jiraResponse) {
         console.log(`🔄 Processing ${jiraResponse.issues.length} issues...`);
         
-        return jiraResponse.issues.map(issue => {
+        // File-based logging for debugging sync issues
+        const fs = require('fs');
+        const debugLog = (message) => {
+            try {
+                fs.appendFileSync('sprint-debug.log', `${new Date().toISOString()} - ${message}\n`);
+            } catch (e) { /* ignore */ }
+        };
+        
+        debugLog(`Starting processIssuesData with ${jiraResponse.issues.length} issues`);
+        
+        const result = jiraResponse.issues.map(issue => {
             // Extract common fields
             const { FIELD_EXTRACTORS } = require('./jira-field-mappings.js');
             
@@ -796,7 +961,6 @@ class BugApiServer {
                 // Common custom fields
                 leadingTeam: FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10574),
                 system: FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10107),
-                sprintName: FIELD_EXTRACTORS.getSprintName(issue.fields.customfield_10020),
                 components: issue.fields.components || [],
                 labels: issue.fields.labels || [],
                 
@@ -808,12 +972,35 @@ class BugApiServer {
                 resolutionDateFormatted: null
             };
 
+            // UNIFIED Sprint logic for ALL issue types
+            // getSprintName now returns the earliest sprint by startDate (fixed above)
+            const issueType = FIELD_EXTRACTORS.getIssueTypeName(issue.fields.issuetype);
+            debugLog(`Processing ${issueType} ${issue.key} with unified earliest sprint logic`);
+            
+            const earliestSprint = FIELD_EXTRACTORS.getSprintName(issue.fields.customfield_10020);
+            baseIssue.sprintName = earliestSprint;
+            baseIssue.sprint = earliestSprint; // Dashboard compatibility
+
             // Handle resolution date from changelog if available
             if (issue.changelog?.histories) {
-                const deploymentDate = this.extractDeploymentDateFromChangelog(issue.changelog.histories);
-                if (deploymentDate) {
-                    baseIssue.resolutionDate = deploymentDate;
-                    baseIssue.resolutionDateFormatted = new Date(deploymentDate).toLocaleDateString();
+                let resolutionDate = null;
+                
+                if (baseIssue.issueType === 'Story' && baseIssue.status === 'Done') {
+                    // For stories, look for when they moved to "Done" status
+                    resolutionDate = this.extractStatusChangeDate(issue.changelog.histories, 'Done');
+                } else if (baseIssue.issueType === 'Bug') {
+                    // For bugs, look for deployment status
+                    resolutionDate = this.extractDeploymentDateFromChangelog(issue.changelog.histories);
+                }
+                
+                if (resolutionDate) {
+                    baseIssue.resolutionDate = resolutionDate;
+                    baseIssue.resolutionDateFormatted = new Date(resolutionDate).toLocaleDateString();
+                    
+                    // Calculate fix duration for Done stories
+                    if (baseIssue.issueType === 'Story' && baseIssue.status === 'Done') {
+                        baseIssue.fixDuration = this.calculateFixDuration(baseIssue.created, resolutionDate);
+                    }
                 }
             }
 
@@ -825,10 +1012,24 @@ class BugApiServer {
             } else if (baseIssue.issueType === 'Story') {
                 baseIssue.storyPoints = FIELD_EXTRACTORS.getStoryPoints(issue.fields.customfield_10016);
                 baseIssue.epicLink = FIELD_EXTRACTORS.getEpicLink(issue.fields.customfield_10014);
-                baseIssue.testCaseCreated = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_XXXX); // TODO: Replace with real field ID
-            } else if (baseIssue.issueType === 'Test') {
-                baseIssue.aiGeneratedTestCases = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_YYYY); // TODO: Replace with real field ID
-                baseIssue.testType = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_ZZZZ); // TODO: Replace with real field ID
+                
+                // Debug specific stories that should be "Yes" according to CSV
+                const rawTestCaseField = issue.fields[JIRA_FIELD_MAPPINGS.TEST_CASE_CREATED];
+                
+                // Debug BT-13419 specifically
+                if (baseIssue.key === 'BT-13419') {
+                    console.log(`🔍 MULTI-ISSUE SYNC - BT-13419 RAW FIELD:`, JSON.stringify(rawTestCaseField, null, 2));
+                }
+                
+                baseIssue.testCaseCreated = FIELD_EXTRACTORS.getTestCaseCreated(rawTestCaseField);
+                
+                // Debug BT-13419 extraction result
+                if (baseIssue.key === 'BT-13419') {
+                    console.log(`🔍 MULTI-ISSUE SYNC - BT-13419 EXTRACTION RESULT: "${baseIssue.testCaseCreated}"`);
+                }
+            } else if (baseIssue.issueType === 'Test Case' || baseIssue.issueType === 'Test') {
+                baseIssue.aiGeneratedTestCases = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_11392);
+                baseIssue.testType = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields[JIRA_FIELD_MAPPINGS.TEST_TYPE]);
             }
 
             // Add description if available
@@ -840,6 +1041,17 @@ class BugApiServer {
 
             return baseIssue;
         });
+        
+        debugLog(`Completed processIssuesData - processed ${result.length} issues`);
+        
+        // Count how many stories/test cases were processed
+        const storiesAndTests = result.filter(issue => 
+            issue.issueType === 'Story' || issue.issueType === 'Test Case' || issue.issueType === 'Test'
+        ).length;
+        
+        debugLog(`Summary: ${result.length} total issues, ${storiesAndTests} stories/test cases processed with first sprint logic`);
+        
+        return result;
     }
 
     // Cache management for issues
