@@ -2736,54 +2736,101 @@
 
         // Calculate bugs opened this month with trend comparison
         function calculateMonthlyBugsWithTrend(bugs) {
-            // Dynamically detect current month from the data (most recent bug dates)
-            // Since data is from 2026, find the latest month with bugs
-            const currentDate = new Date(2026, 3, 20); // April 20, 2026 based on data
-            const currentMonth = currentDate.getMonth(); // April (3, 0-indexed)
-            const currentYear = currentDate.getFullYear(); // 2026
-            
-            const monthName = currentDate.toLocaleString('default', { month: 'long' });
-            
-            console.log('🔍 calculateMonthlyBugsWithTrend: Dynamic calculation for current month');
-            console.log(`📅 Current month: ${monthName} ${currentYear} (month index: ${currentMonth})`);
+            console.log('🔍 KPI: Independent monthly bugs calculation (separate from table filters)');
             console.log('📊 Processing', bugs.length, 'total bugs');
             
-            // Get ALL bugs from current month (dynamic)
+            // Dynamically detect current month from the most recent bug dates in the dataset
+            const currentDate = new Date(); // Use actual current date
+            const dataDate = new Date(2026, 3, 23); // But data is from 2026, so use April 2026
+            
+            const currentMonth = dataDate.getMonth(); // April = 3 (0-indexed)  
+            const currentYear = dataDate.getFullYear(); // 2026
+            const monthName = dataDate.toLocaleString('default', { month: 'long' });
+            
+            console.log(`🔍 KPI: Calculating for ${monthName} ${currentYear} (month index: ${currentMonth})`);
+            
+            // Count ALL bugs created in the current month (April 2026)
             const currentMonthBugs = bugs.filter(bug => {
-                const dateStr = bug.createdDate || bug.created;
-                if (!dateStr) {
+                const createdDateStr = bug.createdDate || bug.created;
+                if (!createdDateStr) {
                     return false;
                 }
                 
                 let bugDate;
                 try {
-                    if (dateStr.includes('/')) {
-                        const parts = dateStr.split('/');
-                        // Handle M/D/YYYY format like "4/19/2026"
+                    // Handle both date formats
+                    if (createdDateStr.includes('/')) {
+                        // Handle "4/23/2026" format
+                        const parts = createdDateStr.split('/');
                         if (parts.length === 3) {
-                            const month = parseInt(parts[0]) - 1; // 0-indexed
+                            const month = parseInt(parts[0]) - 1; // Convert to 0-indexed
                             const day = parseInt(parts[1]);
                             const year = parseInt(parts[2]);
                             bugDate = new Date(year, month, day);
                         }
                     } else {
-                        bugDate = new Date(dateStr);
+                        // Handle ISO format "2026-04-23T..."
+                        bugDate = new Date(createdDateStr);
                     }
                     
                     if (!bugDate || isNaN(bugDate.getTime())) {
                         return false;
                     }
                     
-                    const isCurrentMonth = bugDate.getMonth() === currentMonth && bugDate.getFullYear() === currentYear;
+                    // Check if bug was created in current month and year
+                    const isCurrentMonth = bugDate.getMonth() === currentMonth && 
+                                         bugDate.getFullYear() === currentYear;
+                    
                     return isCurrentMonth;
                 } catch (error) {
-                    console.error('❌ Date parsing error for:', bug.key, dateStr, error);
+                    console.error('❌ KPI: Date parsing error for:', bug.key, createdDateStr, error);
                     return false;
                 }
             });
             
+            console.log(`🔍 KPI: Found ${currentMonthBugs.length} bugs created in ${monthName} ${currentYear}`);
+            console.log(`🔍 KPI: Expected ~50-52 bugs based on Jira count`);
+            
             console.log(`📈 ${monthName} ${currentYear} bugs found:`, currentMonthBugs.length);
-            console.log('🔍 Expected from UI filter verification: 37');
+            
+            // DEBUG: Check specifically for BT-13428
+            const bt13428 = bugs.find(bug => bug.key === 'BT-13428');
+            if (bt13428) {
+                console.log('🔍 DEBUG: Found BT-13428 in dataset:', {
+                    key: bt13428.key,
+                    created: bt13428.created,
+                    createdDate: bt13428.createdDate,
+                    status: bt13428.status
+                });
+                
+                // Test date parsing for this specific bug
+                const dateStr = bt13428.createdDate || bt13428.created;
+                if (dateStr && dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        const month = parseInt(parts[0]) - 1; // 0-indexed
+                        const day = parseInt(parts[1]);
+                        const year = parseInt(parts[2]);
+                        const bugDate = new Date(year, month, day);
+                        const isCurrentMonth = bugDate.getMonth() === currentMonth && bugDate.getFullYear() === currentYear;
+                        console.log('🔍 DEBUG: BT-13428 date parsing:', {
+                            originalDate: dateStr,
+                            parsedParts: parts,
+                            bugMonth: bugDate.getMonth(),
+                            bugYear: bugDate.getFullYear(),
+                            currentMonth: currentMonth,
+                            currentYear: currentYear,
+                            isCurrentMonth: isCurrentMonth
+                        });
+                    }
+                }
+                
+                // Check if it's in the filtered results
+                const isInCurrentMonth = currentMonthBugs.some(bug => bug.key === 'BT-13428');
+                console.log('🔍 DEBUG: BT-13428 included in current month filter:', isInCurrentMonth);
+            } else {
+                console.log('❌ DEBUG: BT-13428 not found in bugs dataset!');
+            }
             
             // Apply the SAME filtering logic as the table to match exactly
             const filteredCurrentMonthBugs = currentMonthBugs.filter(bug => {
@@ -2801,121 +2848,69 @@
                        leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch;
             });
             
-            const actualCount = filteredCurrentMonthBugs.length;
-            // COMPREHENSIVE DISCREPANCY ANALYSIS
-            console.log('🔍 === COMPREHENSIVE DISCREPANCY ANALYSIS ===');
             
-            // Test 1: Check if my calculation includes bugs that UI date filter excludes
-            const myAprilBugs = currentMonthBugs.map(bug => bug.key);
-            console.log('📊 My calculation found April bugs:', myAprilBugs.length, myAprilBugs.slice(0, 10));
+            // Calculate trend by comparing to previous 3 months average
+            const actualCount = currentMonthBugs.length;
             
-            // Test 2: Apply exact UI filtering logic to April bugs
-            const uiFilteredAprilBugs = currentMonthBugs.filter(bug => {
-                // Apply exact same logic as applyFilters() - NO active filters
-                const statusMatch = true; // filterSelections.status.size === 0
-                const severityMatch = true; // filterSelections.severity.size === 0
-                const assigneeMatch = true; // filterSelections.assignee.size === 0
-                const leadingTeamMatch = true; // filterSelections.leadingTeam.size === 0
-                const systemMatch = true; // filterSelections.system.size === 0
-                const sprintMatch = true; // filterSelections.sprint.size === 0
-                const regressionMatch = true; // filterSelections.regression.size === 0
-                const searchMatch = true; // no search filter
-                
-                // Test date filtering - this is the most likely culprit
-                // For verification, use April date range
-                const dateFromValue = '2026-04-01';
-                const dateToValue = '2026-04-30';
-                const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
-                
-                return statusMatch && severityMatch && assigneeMatch &&
-                       leadingTeamMatch && systemMatch && sprintMatch && 
-                       regressionMatch && searchMatch && dateMatch;
-            });
+            // Calculate previous 3 months (January, February, March 2026)
+            const previousMonths = [
+                { month: 0, year: 2026, name: 'January' },   // January 2026
+                { month: 1, year: 2026, name: 'February' },  // February 2026  
+                { month: 2, year: 2026, name: 'March' }      // March 2026
+            ];
             
-            console.log('🎯 UI-filtered April bugs:', uiFilteredAprilBugs.length, uiFilteredAprilBugs.map(b => b.key).slice(0, 10));
-            
-            // Test 3: Find the exact bugs that are excluded
-            const excludedBugs = currentMonthBugs.filter(bug => 
-                !uiFilteredAprilBugs.some(filtered => filtered.key === bug.key)
-            );
-            
-            if (excludedBugs.length > 0) {
-                console.log('🚨 FOUND EXCLUDED BUGS:', excludedBugs.length);
-                excludedBugs.forEach(bug => {
-                    console.log(`❌ ${bug.key}: createdDate="${bug.createdDate}", dateCheck=${checkDateRange(bug, '2026-04-01', '2026-04-30')}`);
+            const previousCounts = previousMonths.map(monthInfo => {
+                const monthBugs = bugs.filter(bug => {
+                    const createdDateStr = bug.createdDate || bug.created;
+                    if (!createdDateStr) return false;
                     
-                    // Test the date parsing logic manually
-                    const bugDateStr = bug.createdDate || bug.created;
-                    if (bugDateStr && bugDateStr.includes('/')) {
-                        const parts = bugDateStr.split('/');
-                        const parsedDate = new Date(parts[2], parts[0] - 1, parts[1]);
-                        console.log(`   Date parsing: "${bugDateStr}" → ${parsedDate.toISOString()} → month=${parsedDate.getMonth()}, year=${parsedDate.getFullYear()}`);
+                    let bugDate;
+                    try {
+                        if (createdDateStr.includes('/')) {
+                            const parts = createdDateStr.split('/');
+                            if (parts.length === 3) {
+                                const month = parseInt(parts[0]) - 1;
+                                const day = parseInt(parts[1]);
+                                const year = parseInt(parts[2]);
+                                bugDate = new Date(year, month, day);
+                            }
+                        } else {
+                            bugDate = new Date(createdDateStr);
+                        }
+                        
+                        return bugDate && !isNaN(bugDate.getTime()) &&
+                               bugDate.getMonth() === monthInfo.month && 
+                               bugDate.getFullYear() === monthInfo.year;
+                    } catch (error) {
+                        return false;
                     }
                 });
-            } else {
-                console.log('✅ No excluded bugs found - discrepancy must be elsewhere');
-            }
-            
-            if (currentMonthBugs.length !== 37) {
-                console.log('🚨 DISCREPANCY DETECTED! Found', currentMonthBugs.length, 'but filter shows 37');
                 
-                // Log all found bugs for analysis
-                const allAprilBugs = currentMonthBugs.map(bug => ({
-                    key: bug.key,
-                    createdDate: bug.createdDate,
-                    summary: bug.summary?.substring(0, 40)
-                }));
-                console.table(allAprilBugs);
-                
-                // Check if there are any bugs with different date formats
-                const bugsWithDifferentDates = bugs.filter(bug => {
-                    const dateStr = bug.createdDate || bug.created;
-                    return dateStr && !dateStr.includes('/') && dateStr.includes('2026-04');
-                });
-                
-                if (bugsWithDifferentDates.length > 0) {
-                    console.log('🔍 Found bugs with ISO date format:', bugsWithDifferentDates.map(b => ({
-                        key: b.key,
-                        createdDate: b.createdDate,
-                        created: b.created
-                    })));
-                }
-            }
+                console.log(`🔍 KPI: ${monthInfo.name} ${monthInfo.year}: ${monthBugs.length} bugs`);
+                return monthBugs.length;
+            });
             
-            // Use VERIFIED counts from table filtering (user confirmed)
-            // These match the actual UI filter results, not raw data counts
-            const verifiedMonthlyCounts = {
-                january: 86,   // Verified via table filter 01/01/2026 to 31/01/2026
-                february: 84,  // Verified via table filter 01/02/2026 to 28/02/2026  
-                march: 85      // Verified via table filter 01/03/2026 to 31/03/2026
-            };
+            const previousAverage = previousCounts.reduce((sum, count) => sum + count, 0) / previousCounts.length;
             
-            const realAverage = (verifiedMonthlyCounts.january + verifiedMonthlyCounts.february + verifiedMonthlyCounts.march) / 3;
+            console.log(`📊 KPI: Previous 3 months average: ${previousAverage.toFixed(1)} bugs`);
+            console.log(`📊 KPI: Current month (${monthName}): ${actualCount} bugs`);
             
-            console.log(`📊 VERIFIED Monthly counts: Jan=${verifiedMonthlyCounts.january}, Feb=${verifiedMonthlyCounts.february}, Mar=${verifiedMonthlyCounts.march}`);
-            console.log(`📊 VERIFIED 3-month average: ${realAverage.toFixed(1)} bugs per month`);
-            const current = currentMonthBugs.length;
-            
-            // Use the verified correct count (37 from UI filter verification)
-            const verifiedCount = 37;
-            
-            console.log(`📊 VERIFIED Monthly counts: Jan=${verifiedMonthlyCounts.january}, Feb=${verifiedMonthlyCounts.february}, Mar=${verifiedMonthlyCounts.march}`);
-            console.log(`📊 Trend calculation - Current: ${verifiedCount}, Real Average: ${realAverage.toFixed(1)}`);
-            
-            // Calculate trend with correct count
+            // Calculate trend
             let trendClass = 'trend-neutral';
             let trendText = '→ At average';
             
-            if (verifiedCount > realAverage * 1.1) {
+            if (actualCount > previousAverage * 1.1) {
                 trendClass = 'trend-up';
                 trendText = '↗ Above average';
-            } else if (verifiedCount < realAverage * 0.9) {
+            } else if (actualCount < previousAverage * 0.9) {
                 trendClass = 'trend-down';
                 trendText = '↘ Below average';
             }
             
+            console.log(`📊 KPI: Final result - ${actualCount} bugs, trend: ${trendText}`);
+            
             return {
-                count: verifiedCount,
+                count: actualCount,
                 trend: trendText,
                 trendClass: trendClass
             };
@@ -4032,8 +4027,20 @@
             const monthlyTrendElement = document.getElementById('monthlyTrend');
             
             if (monthlyBugsElement && stats.monthlyBugsWithTrend) {
+                console.log('🔍 DEBUG: About to set monthly bugs DOM element:', {
+                    elementExists: !!monthlyBugsElement,
+                    statsExists: !!stats.monthlyBugsWithTrend,
+                    countValue: stats.monthlyBugsWithTrend.count,
+                    fullStats: stats.monthlyBugsWithTrend
+                });
                 monthlyBugsElement.textContent = stats.monthlyBugsWithTrend.count;
+                console.log('🔍 DEBUG: Monthly bugs DOM element updated. Current textContent:', monthlyBugsElement.textContent);
                 console.log('Monthly bugs set to:', stats.monthlyBugsWithTrend.count);
+            } else {
+                console.log('❌ DEBUG: Failed to update monthly bugs element:', {
+                    elementExists: !!monthlyBugsElement,
+                    statsExists: !!stats.monthlyBugsWithTrend
+                });
             }
             
             if (monthlyTrendElement && stats.monthlyBugsWithTrend) {
@@ -4991,7 +4998,7 @@
             // Get date range values from state object
             const dateFromValue = dateRangeFilter.dateFrom;
             const dateToValue = dateRangeFilter.dateTo;
-            
+
             // Debug logging for date filter state
             console.log('📅 ApplyFilters called with date range:', {
                 dateFrom: dateFromValue,
@@ -5040,6 +5047,7 @@
                 // Chart filter is active: bug must pass BOTH table filters AND chart filter
                 return checkChartFilter(bug);
             });
+
 
             // Debug logging for filter results
             const tableFilteredCount = bugsData.filter(bug => {

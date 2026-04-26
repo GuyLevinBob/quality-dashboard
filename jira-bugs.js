@@ -171,35 +171,47 @@ class JiraClient {
     }
   }
   
-  // NEW: Build JQL query for different issue types
+  // NEW: Build JQL query for different issue types with selective filters
   buildJqlForIssueTypes(issueTypes, projectKey = null) {
-    let jql = '';
-    
     if (issueTypes.length === 0) {
       throw new Error('At least one issue type must be specified');
     }
     
-    if (issueTypes.length === 1) {
-      jql = `type = "${issueTypes[0]}"`;
-      
-      // Add type-specific filters
-      if (issueTypes[0] === 'Bug') {
-        jql += ' AND "bug type[dropdown]" = Production';
-      }
-    } else {
-      const typeFilter = issueTypes.map(type => `"${type}"`).join(', ');
-      jql = `type in (${typeFilter})`;
-      
-      // For mixed types, add conditional filters
-      if (issueTypes.includes('Bug')) {
-        jql += ' AND (type != Bug OR "bug type[dropdown]" = Production)';
-      }
+    let conditions = [];
+    
+    // Build conditions for each issue type with specific filters
+    if (issueTypes.includes('Bug')) {
+      conditions.push('type = Bug AND "bug type[dropdown]" = Production');
     }
     
+    if (issueTypes.includes('Story')) {
+      // Stories: Exclude Canceled and Rejected statuses  
+      conditions.push('type = Story AND status NOT IN (Canceled, Rejected)');
+    }
+    
+    if (issueTypes.includes('Test')) {
+      // Test Cases: Use "Test Case" as the exact type name, exclude Canceled/Rejected
+      conditions.push('type = "Test Case" AND status NOT IN (Canceled, Rejected)');
+    }
+    
+    // Build the base JQL without ORDER BY first
+    let baseJql = '';
+    if (conditions.length === 1) {
+      baseJql = conditions[0];
+    } else if (conditions.length > 1) {
+      // Wrap individual conditions in parentheses when combining with OR
+      baseJql = conditions.map(c => `(${c})`).join(' OR ');
+    }
+    
+    // Add additional project filter if specified (applies to all types)
     if (projectKey) {
-      jql += ` AND project = "${projectKey}"`;
+      baseJql = `(${baseJql}) AND project = "${projectKey}"`;
     }
     
+    // Return the base JQL without ORDER BY - let the calling method handle ordering
+    const jql = baseJql;
+    
+    console.log(`🔍 JQL Query: ${jql}`);
     return jql;
   }
 
