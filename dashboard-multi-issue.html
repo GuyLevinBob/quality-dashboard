@@ -22,7 +22,7 @@
         }
         
         .container {
-            max-width: 2200px; /* Significantly increased for much more space */
+            max-width: 2400px; /* Increased from 2200px to accommodate larger charts */
             margin: 0 auto;
             padding: 0 20px; /* Add side padding for better spacing */
         }
@@ -30,7 +30,7 @@
         /* Ultra-wide screen optimization with enhanced modern effects */
         @media (min-width: 2400px) {
             .container {
-                max-width: 2400px; /* Even wider for ultra-wide monitors */
+                max-width: 2600px; /* Increased from 2400px for ultra-wide monitors */
                 padding: 0 40px;
             }
             
@@ -43,7 +43,7 @@
                 backdrop-filter: blur(25px);
                 -webkit-backdrop-filter: blur(25px);
                 border-radius: 20px;
-                min-height: 520px; /* Increased to accommodate rotated labels */
+                min-height: 700px; /* Increased from 520px to 700px for better visibility */
                 padding: 40px;
             }
             
@@ -1357,6 +1357,46 @@
             transform: scale(1.01);
             box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
         }
+
+        /* Enhanced drop zone states for field compatibility */
+        .drop-zone.drag-over-valid {
+            border-color: #10B981;
+            background: rgba(16, 185, 129, 0.08);
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25);
+            animation: pulse-glow-valid 1s ease-in-out infinite alternate;
+        }
+
+        .drop-zone.drag-over-invalid {
+            border-color: #EF4444;
+            background: rgba(239, 68, 68, 0.08);
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25);
+            animation: pulse-glow-invalid 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-glow-valid {
+            from { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25); }
+            to { box-shadow: 0 6px 30px rgba(16, 185, 129, 0.35); }
+        }
+
+        @keyframes pulse-glow-invalid {
+            from { box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25); }
+            to { box-shadow: 0 6px 30px rgba(239, 68, 68, 0.35); }
+        }
+
+        /* Add helper text for drop zones */
+        .drop-zone-helper {
+            font-size: 0.7em;
+            color: #9CA3AF;
+            margin-top: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .drop-zone:hover .drop-zone-helper {
+            opacity: 1;
+        }
         
         .drop-zone-header {
             font-weight: 600;
@@ -1413,7 +1453,7 @@
             border: 1px solid rgba(238, 22, 79, 0.1);
             display: grid;
             place-items: center;
-            min-height: 400px; /* Much larger chart preview area */
+            min-height: 800px; /* Increased to 800px for larger charts */
             position: relative; /* For absolute positioned canvas */
             box-shadow: 
                 0 8px 32px rgba(238, 22, 79, 0.08),
@@ -1430,6 +1470,55 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.9);
             transform: translateY(-2px);
             border-color: rgba(238, 22, 79, 0.15);
+        }
+
+        /* Scrollable Chart Container */
+        .chart-scroll-container {
+            width: 100%;
+            height: 700px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(238, 22, 79, 0.1);
+            position: relative;
+        }
+
+
+        .chart-scroll-container::-webkit-scrollbar {
+            height: 12px;
+        }
+
+        .chart-scroll-container::-webkit-scrollbar-track {
+            background: rgba(238, 22, 79, 0.1);
+            border-radius: 6px;
+        }
+
+        .chart-scroll-container::-webkit-scrollbar-thumb {
+            background: rgba(238, 22, 79, 0.4);
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+
+        .chart-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(238, 22, 79, 0.6);
+        }
+
+        /* Scroll Instructions */
+        .scroll-instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(58, 58, 55, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            z-index: 5;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            pointer-events: none;
         }
 
         /* Modern canvas styling with subtle shadow */
@@ -1472,6 +1561,136 @@
         /* Custom styling for Chart.js legend with trend lines */
         .chart-preview-area canvas + div {
             font-family: 'Lato', sans-serif;
+        }
+
+        /* Zoom Controls Styling */
+        .zoom-indicator {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(58, 58, 55, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            font-family: 'Lato', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.15s ease;
+        }
+
+        .zoom-percentage {
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .zoom-reset-btn {
+            background: rgba(238, 22, 79, 0.8);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .zoom-reset-btn:hover {
+            background: rgba(238, 22, 79, 1);
+            transform: scale(1.1);
+        }
+
+        .zoom-in-btn, .zoom-out-btn {
+            background: rgba(52, 152, 219, 0.8);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            margin: 0 2px;
+        }
+
+        .zoom-in-btn:hover, .zoom-out-btn:hover {
+            background: rgba(52, 152, 219, 1);
+            transform: scale(1.1);
+        }
+
+        .zoom-in-btn:disabled, .zoom-out-btn:disabled {
+            background: rgba(128, 128, 128, 0.5);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Pan cursor states */
+        .chart-preview-area.zoomed canvas {
+            cursor: grab;
+            touch-action: pan-x; /* Enable horizontal panning on touch devices */
+        }
+
+        .chart-preview-area.panning canvas {
+            cursor: grabbing;
+            touch-action: pan-x;
+        }
+
+        /* Subtle pan hint for zoomed charts */
+        .chart-preview-area.zoomed::before {
+            content: '↔️ Click & drag to pan';
+            position: absolute;
+            top: 50px;
+            right: 16px;
+            background: rgba(238, 22, 79, 0.9);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.7em;
+            font-family: 'Lato', sans-serif;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+            z-index: 9;
+            pointer-events: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .chart-preview-area.zoomed:hover::before {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+        /* Mobile responsiveness for zoom controls */
+        @media (max-width: 768px) {
+            .zoom-indicator {
+                top: 12px;
+                right: 12px;
+                padding: 6px 10px;
+                font-size: 0.8em;
+            }
+
+            .zoom-reset-btn {
+                width: 22px;
+                height: 22px;
+                font-size: 12px;
+            }
+
         }
 
         /* Chart Options Styling */
@@ -1598,9 +1817,8 @@
         }
 
         .graph-icon {
-            width: 80px;
-            height: 60px;
-            object-fit: contain;
+            font-size: 60px;
+            display: inline-block;
             transition: all 0.3s ease;
         }
 
@@ -2117,6 +2335,8 @@
     <!-- Chart Builder Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script>
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
@@ -2484,16 +2704,19 @@
                                 <div class="drop-zone" id="x-axis-zone" data-zone="x-axis">
                                     <div class="drop-zone-header">X-Axis</div>
                                     <div class="drop-zone-content">Drop a field here</div>
+                                    <div class="drop-zone-helper">Categorical & temporal fields only</div>
                                 </div>
-                                
+
                                 <div class="drop-zone" id="y-axis-zone" data-zone="y-axis">
                                     <div class="drop-zone-header">Y-Axis</div>
                                     <div class="drop-zone-content">Drop a field here</div>
+                                    <div class="drop-zone-helper">Metrics fields only (Count, Days to Fix, etc.)</div>
                                 </div>
-                                
+
                                 <div class="drop-zone optional" id="group-by-zone" data-zone="group-by">
                                     <div class="drop-zone-header">Group By (Optional)</div>
                                     <div class="drop-zone-content">Drop a field to split data</div>
+                                    <div class="drop-zone-helper">Categorical fields only</div>
                                 </div>
                             </div>
                             
@@ -2520,12 +2743,29 @@
                             <div class="chart-preview-area">
                                 <div class="chart-preview-placeholder">
                                     <div class="preview-icon">
-                                        <img src="./graph-icon.png" alt="Graph icon" class="graph-icon">
+                                        <span class="graph-icon">📊</span>
                                     </div>
                                     <div class="preview-text">Your chart will appear here</div>
                                     <div class="preview-subtext">Start by dragging fields from the left panel</div>
                                 </div>
-                                <canvas id="chart-preview-canvas" style="display: none; grid-area: 1 / 1; width: 100%; height: 100%;"></canvas>
+                                
+                                <!-- Scrollable Chart Container -->
+                                <div class="chart-scroll-container" id="chart-scroll-container" style="display: none;">
+                                    <canvas id="chart-preview-canvas"></canvas>
+                                </div>
+                                
+                                <!-- Zoom Controls -->
+                                <div class="zoom-indicator" id="zoom-indicator" style="display: none;">
+                                    <button class="zoom-out-btn" title="Zoom out">−</button>
+                                    <span class="zoom-percentage">100%</span>
+                                    <button class="zoom-in-btn" title="Zoom in">+</button>
+                                    <button class="zoom-reset-btn" title="Reset zoom">⌂</button>
+                                </div>
+                                
+                                <!-- Scroll Instructions Overlay -->
+                                <div class="scroll-instructions" id="scroll-instructions" style="display: none;">
+                                    Use horizontal scrollbar or mouse wheel to navigate
+                                </div>
                             </div>
                             
                             <div class="chart-actions">
@@ -3128,6 +3368,7 @@
                 try {
                     console.log('🔄 Checking API server for fresh JIRA data...');
                     const apiResponse = await fetch(`http://localhost:3002/api/issues-lite?types=Bug,Story,Test&_=${Date.now()}`);
+                    
                     if (apiResponse.ok) {
                         console.log('✅ API server available - using fresh data');
                         const apiData = await apiResponse.json();
@@ -3234,6 +3475,7 @@
                 // Try to load from new multi-issue API first
                 try {
                     const apiResponse = await fetch(`http://localhost:3002/api/issues-lite?types=Bug,Story,Test&_=${Date.now()}`);
+                    
                     if (apiResponse.ok) {
                         console.log('✅ Successfully fetched from multi-issue API');
                         const apiData = await apiResponse.json();
@@ -7290,6 +7532,12 @@
             savedCharts: [],
             sortingOptions: {
                 xAxisSort: 'default'
+            },
+            zoomState: {
+                isZoomed: false,
+                zoomLevel: 1.0,
+                minZoom: 0.1,
+                maxZoom: 10.0
             }
         };
 
@@ -7365,22 +7613,47 @@
             });
         }
 
-        // Handle drag over
+        // Handle drag over with field compatibility validation
         function handleDragOver(e) {
             e.preventDefault();
-            e.currentTarget.classList.add('drag-over');
+            const zone = e.currentTarget;
+            const zoneType = zone.dataset.zone;
+            
+            try {
+                // Get field data from drag operation
+                const fieldDataString = e.dataTransfer.getData('text/plain');
+                if (fieldDataString) {
+                    const fieldData = JSON.parse(fieldDataString);
+                    
+                    // Remove any existing drag states
+                    zone.classList.remove('drag-over', 'drag-over-valid', 'drag-over-invalid');
+                    
+                    // Apply appropriate visual feedback based on compatibility
+                    if (validateFieldDrop(fieldData, zoneType)) {
+                        zone.classList.add('drag-over-valid');
+                    } else {
+                        zone.classList.add('drag-over-invalid');
+                    }
+                } else {
+                    // Fallback to default behavior if field data isn't available
+                    zone.classList.add('drag-over');
+                }
+            } catch (error) {
+                // Fallback to default behavior on error
+                zone.classList.add('drag-over');
+            }
         }
 
         // Handle drag leave
         function handleDragLeave(e) {
-            e.currentTarget.classList.remove('drag-over');
+            e.currentTarget.classList.remove('drag-over', 'drag-over-valid', 'drag-over-invalid');
         }
 
         // Handle drop
         function handleDrop(e) {
             e.preventDefault();
             const zone = e.currentTarget;
-            zone.classList.remove('drag-over');
+            zone.classList.remove('drag-over', 'drag-over-valid', 'drag-over-invalid');
             
             try {
                 const fieldData = JSON.parse(e.dataTransfer.getData('text/plain'));
@@ -7398,12 +7671,24 @@
             }
         }
 
-        // Validate field drop
+        // Validate field drop - Updated with axis restrictions
         function validateFieldDrop(fieldData, zoneType) {
-            // Allow any field in any zone - we'll aggregate appropriately
-            if (zoneType === 'x-axis') return true;
-            if (zoneType === 'y-axis') return true; // ANY field can be Y-axis (we'll count/aggregate)
-            if (zoneType === 'group-by') return fieldData.type === 'categorical';
+            // X-axis: Only categorical and temporal fields allowed
+            if (zoneType === 'x-axis') {
+                return fieldData.type === 'categorical' || fieldData.type === 'temporal';
+            }
+            
+            // Y-axis: Only metrics/numeric fields allowed  
+            if (zoneType === 'y-axis') {
+                const metricsFields = ['count', 'allItems', 'filteredAllItems', 'daysToFix'];
+                return fieldData.type === 'numeric' || metricsFields.includes(fieldData.field);
+            }
+            
+            // Group-by: Only categorical fields (unchanged)
+            if (zoneType === 'group-by') {
+                return fieldData.type === 'categorical';
+            }
+            
             return false;
         }
 
@@ -8946,9 +9231,18 @@
             const canvas = document.getElementById('chart-preview-canvas');
             const placeholder = document.querySelector('.chart-preview-placeholder');
             
-            // Show canvas, hide placeholder
-            canvas.style.display = 'block';
+            // Show scroll container, hide placeholder
+            const scrollContainer = document.getElementById('chart-scroll-container');
+            scrollContainer.style.display = 'block';
             placeholder.style.display = 'none';
+            
+            // Reset zoom state and container before creating new chart
+            chartBuilderState.zoomState.zoomLevel = 1.0;
+            chartBuilderState.zoomState.isZoomed = false;
+            
+            if (scrollContainer) {
+                scrollContainer.scrollLeft = 0;
+            }
             
             // Apply chart-type specific CSS classes for enhanced styling
             canvas.className = ''; // Reset classes
@@ -8970,6 +9264,16 @@
             // Apply modern gradients to chart data
             applyGradientsToChartData(chartData, canvas);
             
+            // Calculate and apply proper canvas dimensions for current zoom level
+            const dataPointCount = chartData.labels ? chartData.labels.length : 0;
+            const optimalWidth = calculateOptimalCanvasWidth(chartBuilderState.zoomState.zoomLevel, dataPointCount);
+            
+            // Set canvas dimensions explicitly (required for non-responsive mode)
+            canvas.width = optimalWidth;
+            canvas.height = 700;
+            canvas.style.width = optimalWidth + 'px';
+            canvas.style.height = '700px';
+            
             // Create new chart
             const ctx = canvas.getContext('2d');
             
@@ -8978,9 +9282,17 @@
                 type: chartBuilderState.selectedChartType,
                 data: chartData,
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
+                    responsive: false,           // Disable responsive to control width manually
+                    maintainAspectRatio: false, // Allow custom dimensions
                     devicePixelRatio: window.devicePixelRatio || 2, // Improve sharpness on high-DPI displays
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 10,
+                            top: 10,
+                            bottom: 10
+                        }
+                    },
                     onClick: handleChartClick,
                     interaction: {
                         intersect: false,
@@ -9062,7 +9374,7 @@
                                 textStrokeColor: '#333333',
                                 textStrokeWidth: 1
                             }
-                        } : {})
+                        } : {}),
                     },
                     scales: chartBuilderState.selectedChartType === 'pie' || chartBuilderState.selectedChartType === 'doughnut' ? {} : {
                         x: {
@@ -9092,7 +9404,7 @@
                                 padding: 12,
                                 maxRotation: 45,
                                 minRotation: 0,
-                                maxTicksLimit: 12,
+                                maxTicksLimit: Math.max(5, Math.floor(chartBuilderState.zoomState.zoomLevel * 20)), // Adjust tick density based on zoom
                                 callback: function(value, index, values) {
                                     // Truncate very long labels and add ellipsis for better readability
                                     const label = this.getLabelForValue(value);
@@ -9138,12 +9450,321 @@
                 console.error('Chart creation failed:', error);
                 
                 // Show placeholder again if chart creation fails
+                const scrollContainer = document.getElementById('chart-scroll-container');
                 placeholder.style.display = 'flex';
-                canvas.style.display = 'none';
+                scrollContainer.style.display = 'none';
                 return;
             }
             
+            // Initialize zoom state and handlers
+            if (chartBuilderState.currentChart) {
+                // Initialize zoom indicator and pan state handlers
+                setTimeout(() => {
+                    console.log('📊 Chart initialized with zoom & pan functionality');
+                    
+                    // Verify pan configuration is active
+                    if (chartBuilderState.currentChart && chartBuilderState.currentChart.options.plugins.zoom) {
+                        console.log('📊 Pan enabled:', chartBuilderState.currentChart.options.plugins.zoom.pan.enabled);
+                        console.log('📊 Pan mode:', chartBuilderState.currentChart.options.plugins.zoom.pan.mode);
+                        
+                        console.log('📊 Chart initialized successfully');
+                    }
+                }, 100); // Small delay to ensure chart is fully initialized
+            }
+            
             updateActionButtons();
+            
+            // Initialize zoom controls after chart creation  
+            setTimeout(() => {
+                initializeZoomControls();
+            }, 150); // Small delay to ensure chart is fully ready
+        }
+
+        // Initialize zoom controls and event listeners
+        function initializeZoomControls() {
+            const zoomIndicator = document.getElementById('zoom-indicator');
+            const scrollInstructions = document.getElementById('scroll-instructions');
+            const chartPreviewArea = document.querySelector('.chart-preview-area');
+            const scrollContainer = document.getElementById('chart-scroll-container');
+            
+            if (!chartBuilderState.currentChart) {
+                // Hide zoom controls if no chart
+                if (zoomIndicator) zoomIndicator.style.display = 'none';
+                if (scrollInstructions) scrollInstructions.style.display = 'none';
+                chartPreviewArea?.classList.remove('zoomed');
+                return;
+            }
+            
+            // Show zoom controls
+            if (zoomIndicator) {
+                zoomIndicator.style.display = 'flex';
+                console.log('✅ Zoom controls should now be visible');
+            }
+            
+            // Add event listeners for zoom buttons
+            const zoomInBtn = document.querySelector('.zoom-in-btn');
+            const zoomOutBtn = document.querySelector('.zoom-out-btn');
+            const zoomResetBtn = document.querySelector('.zoom-reset-btn');
+            
+            if (zoomInBtn) {
+                zoomInBtn.onclick = () => handleZoomIn();
+            }
+            
+            if (zoomOutBtn) {
+                zoomOutBtn.onclick = () => handleZoomOut();
+            }
+            
+            if (zoomResetBtn) {
+                zoomResetBtn.onclick = () => handleZoomReset();
+            }
+            
+            
+            // Update initial zoom state
+            updateZoomIndicator();
+        }
+
+        // Test function to manually verify scrolling works
+        function testScrolling() {
+            const canvas = document.getElementById('chart-preview-canvas');
+            const container = document.querySelector('.chart-scroll-container');
+            
+            if (canvas && container) {
+                console.log('🧪 TESTING MANUAL SCROLL');
+                canvas.style.width = '1600px';
+                console.log(`📊 Manual test: Container ${container.clientWidth}px, Canvas ${canvas.style.width}`);
+                setTimeout(() => {
+                    console.log(`📊 After timeout: Scrollable? ${container.scrollWidth > container.clientWidth}`);
+                }, 100);
+            }
+        }
+        
+        // Expose test function globally for debugging
+        window.testScrolling = testScrolling;
+
+        // Calculate optimal canvas width based on zoom level and data points
+        function calculateOptimalCanvasWidth(zoomLevel, dataPointCount) {
+            // Get actual container width
+            const container = document.querySelector('.chart-scroll-container');
+            const containerWidth = container ? container.clientWidth : 800;
+            
+            console.log(`📏 Container width: ${containerWidth}px, Data points: ${dataPointCount}, Zoom: ${zoomLevel}`);
+            
+            if (dataPointCount === 0) return containerWidth;
+            
+            let calculatedWidth;
+            
+            // Simple zoom calculation that ensures visible changes
+            if (zoomLevel <= 1.0) {
+                // At 100% and below: fit container (shows all data)
+                calculatedWidth = Math.max(400, containerWidth * zoomLevel);
+            } else {
+                // Above 100%: expand significantly to enable scrolling
+                // The more zoom, the wider the canvas gets
+                calculatedWidth = Math.max(containerWidth, containerWidth * zoomLevel * 1.5);
+            }
+            
+            console.log(`📐 Calculated width: ${calculatedWidth}px (container: ${containerWidth}px * zoom: ${zoomLevel})`);
+            
+            return calculatedWidth;
+        }
+
+        // Handle zoom in button
+        function handleZoomIn() {
+            if (!chartBuilderState.currentChart) return;
+            
+            console.log(`🔍 ZOOM IN CLICKED - Current zoom: ${(chartBuilderState.zoomState.zoomLevel * 100).toFixed(0)}%`);
+            
+            // Increase zoom level (our custom zoom, not Chart.js)
+            const newZoom = Math.min(chartBuilderState.zoomState.zoomLevel * 1.2, chartBuilderState.zoomState.maxZoom);
+            chartBuilderState.zoomState.zoomLevel = newZoom;
+            
+            console.log(`🔍 Zoom In: ${(newZoom * 100).toFixed(0)}%`);
+            
+            // Test canvas width change directly
+            const canvas = document.getElementById('chart-preview-canvas');
+            console.log(`🎨 Canvas BEFORE: width=${canvas.style.width}, clientWidth=${canvas.clientWidth}px`);
+            
+            // Recreate chart with new width and density
+            recreateChartWithZoom(newZoom);
+            
+            setTimeout(() => {
+                console.log(`🎨 Canvas AFTER: width=${canvas.style.width}, clientWidth=${canvas.clientWidth}px`);
+            }, 200);
+        }
+
+        // Handle zoom out button  
+        function handleZoomOut() {
+            if (!chartBuilderState.currentChart) return;
+            
+            // Decrease zoom level (our custom zoom, not Chart.js)
+            const newZoom = Math.max(chartBuilderState.zoomState.zoomLevel / 1.2, chartBuilderState.zoomState.minZoom);
+            chartBuilderState.zoomState.zoomLevel = newZoom;
+            
+            console.log(`🔍 Zoom Out: ${(newZoom * 100).toFixed(0)}%`);
+            
+            // Recreate chart with new width and density
+            recreateChartWithZoom(newZoom);
+        }
+
+        // Handle zoom reset button
+        function handleZoomReset() {
+            if (!chartBuilderState.currentChart) return;
+            
+            // Reset to 100% zoom
+            chartBuilderState.zoomState.zoomLevel = 1.0;
+            chartBuilderState.zoomState.isZoomed = false;
+            
+            // Recreate chart with original dimensions
+            recreateChartWithZoom(1.0);
+        }
+
+        // Recreate chart with new zoom level and canvas width
+        function recreateChartWithZoom(zoomLevel) {
+            if (!chartBuilderState.currentChart) return;
+            
+            const canvas = document.getElementById('chart-preview-canvas');
+            const container = document.querySelector('.chart-scroll-container');
+            
+            // Store current scroll position ratio for smooth transitions
+            const scrollRatio = container && container.scrollWidth > container.clientWidth 
+                ? container.scrollLeft / (container.scrollWidth - container.clientWidth) 
+                : 0;
+            
+            // Get current chart data and configuration
+            const currentConfig = {
+                type: chartBuilderState.currentChart.config.type,
+                data: chartBuilderState.currentChart.config.data,
+                options: chartBuilderState.currentChart.config.options
+            };
+            
+            const dataPointCount = currentConfig.data.labels ? currentConfig.data.labels.length : 0;
+            
+            // Calculate new canvas width
+            const newWidth = calculateOptimalCanvasWidth(zoomLevel, dataPointCount);
+            
+            console.log(`📊 Recreating chart: ${newWidth}px width for ${dataPointCount} data points at ${(zoomLevel * 100).toFixed(0)}% zoom`);
+            
+            // Destroy current chart first
+            chartBuilderState.currentChart.destroy();
+            chartBuilderState.currentChart = null;
+            
+            // Set explicit canvas dimensions BEFORE creating new chart
+            canvas.width = newWidth;
+            canvas.height = 700;
+            canvas.style.width = newWidth + 'px';
+            canvas.style.height = '700px';
+            
+            console.log(`🎨 Canvas dimensions set to: ${canvas.style.width} x ${canvas.style.height}`);
+            
+            // Create new chart with same configuration but ensure non-responsive sizing
+            currentConfig.options.responsive = false;
+            currentConfig.options.maintainAspectRatio = false;
+            
+            const ctx = canvas.getContext('2d');
+            chartBuilderState.currentChart = new Chart(ctx, currentConfig);
+            
+            console.log(`✅ Chart created with responsive: ${currentConfig.options.responsive}, maintainAspectRatio: ${currentConfig.options.maintainAspectRatio}`);
+            
+            // Update zoom state
+            chartBuilderState.zoomState.isZoomed = Math.abs(zoomLevel - 1.0) > 0.01;
+            
+            // Update zoom indicator
+            updateZoomIndicator();
+            
+            // Force container to recognize new canvas size and test scrolling
+            container.style.overflowX = 'auto';
+            
+            // Test scrollbar visibility
+            console.log(`🔄 Testing scroll: Container width=${container.clientWidth}px, Canvas width=${canvas.clientWidth}px`);
+            
+            // Restore scroll position proportionally
+            setTimeout(() => {
+                console.log(`📏 Container: ${container.clientWidth}px, Canvas: ${canvas.clientWidth}px, Scrollable: ${canvas.clientWidth > container.clientWidth}`);
+                
+                if (container && canvas.clientWidth > container.clientWidth) {
+                    const newScrollMax = canvas.clientWidth - container.clientWidth;
+                    container.scrollLeft = scrollRatio * newScrollMax;
+                }
+            }, 100);
+        }
+
+        // Create chart with current chart builder data (helper function)
+        function createChartWithCurrentData() {
+            // Store current zoom state before calling createChart
+            const currentZoom = chartBuilderState.zoomState.zoomLevel;
+            const currentIsZoomed = chartBuilderState.zoomState.isZoomed;
+            
+            // Use existing createChart logic but with current state
+            if (chartBuilderState.xAxisField && chartBuilderState.yAxisField) {
+                createChart();
+                
+                // Restore zoom state after chart creation
+                chartBuilderState.zoomState.zoomLevel = currentZoom;
+                chartBuilderState.zoomState.isZoomed = currentIsZoomed;
+            }
+        }
+
+
+
+
+        // Update zoom indicator display
+        function updateZoomIndicator() {
+            const zoomIndicator = document.getElementById('zoom-indicator');
+            const zoomPercentage = document.querySelector('.zoom-percentage');
+            const zoomInBtn = document.querySelector('.zoom-in-btn');
+            const zoomOutBtn = document.querySelector('.zoom-out-btn');
+            const zoomResetBtn = document.querySelector('.zoom-reset-btn');
+            const scrollInstructions = document.getElementById('scroll-instructions');
+            const chartPreviewArea = document.querySelector('.chart-preview-area');
+            
+            const zoomLevel = chartBuilderState.zoomState.zoomLevel;
+            const isZoomed = Math.abs(zoomLevel - 1.0) > 0.01; // Any zoom != 100%
+            
+            // Ensure zoom controls are visible
+            if (zoomIndicator && chartBuilderState.currentChart) {
+                zoomIndicator.style.display = 'flex';
+            }
+            
+            // Update percentage display
+            if (zoomPercentage) {
+                zoomPercentage.textContent = `${Math.round(zoomLevel * 100)}%`;
+                console.log(`🎯 Zoom indicator updated: ${Math.round(zoomLevel * 100)}%`);
+            }
+            
+            // Update button states
+            if (zoomInBtn) {
+                zoomInBtn.disabled = zoomLevel >= chartBuilderState.zoomState.maxZoom;
+            }
+            
+            if (zoomOutBtn) {
+                zoomOutBtn.disabled = zoomLevel <= chartBuilderState.zoomState.minZoom;
+            }
+            
+            if (zoomResetBtn) {
+                zoomResetBtn.disabled = !isZoomed;
+                zoomResetBtn.title = isZoomed ? 'Reset zoom' : 'No zoom to reset';
+            }
+            
+            // Show scroll instructions for ANY zoom level != 100%
+            if (chartPreviewArea) {
+                if (isZoomed) {
+                    chartPreviewArea.classList.add('zoomed');
+                    if (scrollInstructions) {
+                        scrollInstructions.style.display = 'block';
+                        console.log('📜 Scroll instructions should be visible');
+                    }
+                } else {
+                    chartPreviewArea.classList.remove('zoomed');
+                    if (scrollInstructions) scrollInstructions.style.display = 'none';
+                }
+            }
+            
+            // Debug scroll container
+            const scrollContainer = document.getElementById('chart-scroll-container');
+            if (scrollContainer && chartBuilderState.currentChart) {
+                const canvas = document.getElementById('chart-preview-canvas');
+                console.log(`📊 Container width: ${scrollContainer.clientWidth}px, Canvas width: ${canvas.style.width}, Scrollable: ${scrollContainer.scrollWidth > scrollContainer.clientWidth}`);
+            }
         }
 
         // Update chart preview
@@ -9152,6 +9773,11 @@
                 createChart();
             }
         }
+
+        // Zoom Controls Functions
+
+        // Update zoom percentage indicator
+        
 
         // Update chart options visibility based on chart type - DISABLED FOR NOW
         function updateChartOptionsVisibility() {
@@ -9248,6 +9874,10 @@
             chartBuilderState.yAxisField = null;
             chartBuilderState.groupByField = null;
             
+            // Reset zoom state
+            chartBuilderState.zoomState.isZoomed = false;
+            chartBuilderState.zoomState.zoomLevel = 1.0;
+            
             // Reset UI
             document.querySelectorAll('.drop-zone').forEach(zone => {
                 zone.classList.remove('has-field');
@@ -9257,9 +9887,9 @@
             });
             
             // Hide chart, show placeholder
-            const canvas = document.getElementById('chart-preview-canvas');
+            const scrollContainer = document.getElementById('chart-scroll-container');
             const placeholder = document.querySelector('.chart-preview-placeholder');
-            canvas.style.display = 'none';
+            scrollContainer.style.display = 'none';
             placeholder.style.display = 'flex';
             
             console.log('🧹 Chart cleared - placeholder should be centered');
@@ -9276,7 +9906,15 @@
                 }
             }
             
+            // Reset scroll position (reuse existing scrollContainer variable)
+            if (scrollContainer) {
+                scrollContainer.scrollLeft = 0;
+            }
+            
             updateActionButtons();
+            
+            // Reset zoom controls
+            initializeZoomControls();
         }
 
         // Save chart
@@ -9547,9 +10185,24 @@
             console.log('🗑️ Chart deleted');
         }
 
-        // Show drop validation error
+        // Show drop validation error with helpful messaging
         function showDropValidationError(fieldData, zoneType) {
-            console.warn(`❌ Cannot drop ${fieldData.type} field "${fieldData.label}" in ${zoneType} zone`);
+            let message = '';
+            
+            if (zoneType === 'x-axis') {
+                message = `❌ "${fieldData.label}" cannot be used on X-axis. Please use categorical fields (Status, Severity, etc.) or temporal fields (Created Date, Updated Date).`;
+            } else if (zoneType === 'y-axis') {
+                message = `❌ "${fieldData.label}" cannot be used on Y-axis. Please use metrics fields (Count, All Items, Days to Fix).`;
+            } else if (zoneType === 'group-by') {
+                message = `❌ "${fieldData.label}" cannot be used for grouping. Please use categorical fields only.`;
+            } else {
+                message = `❌ Cannot drop ${fieldData.type} field "${fieldData.label}" in ${zoneType} zone`;
+            }
+            
+            console.warn(message);
+            
+            // Show temporary visual feedback (optional - could add toast notification here)
+            showSubtleMessage(message.replace('❌ ', ''), 'warning');
         }
 
         // Check if API server is available and trigger sync if needed
@@ -9614,6 +10267,8 @@
                 console.log('✅ Chart.js datalabels plugin registered');
             }
             
+            
+            
             // Hide Sync Data button on GitHub Pages (non-functional without API server)
             if (window.location.hostname.includes('github.io')) {
                 console.log('🌐 GitHub Pages detected - hiding Sync Data button');
@@ -9630,6 +10285,7 @@
             }
             
             loadDashboardDataFromSource(); // Load from automated source, then initialize all functionality
+            
             
             // BACKUP: Attach date range listeners directly in DOMContentLoaded as fallback
             setTimeout(() => {
