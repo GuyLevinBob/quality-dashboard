@@ -58,7 +58,7 @@ function exportSafeData() {
         };
 
         // Write sanitized data file
-        const outputFile = path.join(__dirname, 'dashboard-safe-data.json');
+        const outputFile = path.join(__dirname, 'data', 'exports', 'dashboard-safe-data.json');
         fs.writeFileSync(outputFile, JSON.stringify(safeData, null, 2));
 
         console.log('✅ Safe data exported successfully!');

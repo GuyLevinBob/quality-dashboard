@@ -8,7 +8,7 @@ const { JIRA_FIELD_MAPPINGS, FIELD_EXTRACTORS } = require('./jira-field-mappings
 class BugApiServer {
     constructor(port = 3002) {
         this.port = port;
-        this.dataFile = path.join(__dirname, 'bugs-cache.json');
+        this.dataFile = path.join(__dirname, '..', 'bugs-cache.json');
         this.jiraClient = null;
         this.initializeJiraClient();
     }
@@ -1061,7 +1061,7 @@ class BugApiServer {
     // Cache management for issues
     loadCachedIssuesData() {
         try {
-            const issuesFile = path.join(__dirname, 'issues-cache.json');
+            const issuesFile = path.join(__dirname, '..', 'data', 'cache', 'issues-cache.json');
             if (!fs.existsSync(issuesFile)) {
                 return null;
             }
@@ -1075,7 +1075,7 @@ class BugApiServer {
 
     saveCachedIssuesData(data) {
         try {
-            const issuesFile = path.join(__dirname, 'issues-cache.json');
+            const issuesFile = path.join(__dirname, '..', 'data', 'cache', 'issues-cache.json');
             fs.writeFileSync(issuesFile, JSON.stringify(data, null, 2));
             console.log(`💾 Saved ${data.issues.length} issues to cache file`);
         } catch (error) {

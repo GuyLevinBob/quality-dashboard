@@ -1,4 +1,4 @@
-const { JiraClient } = require('./jira-bugs.js');
+const { JiraClient } = require('../../api/jira-bugs.js');
 const fs = require('fs');
 const path = require('path');
 

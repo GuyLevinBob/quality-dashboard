@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Startup script for the refactored bug dashboard
-const { BugApiServer } = require('./bug-api-server.js');
+const { BugApiServer } = require('./api/bug-api-server.js');
 const { spawn } = require('child_process');
 const path = require('path');
 

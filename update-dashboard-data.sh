@@ -28,8 +28,8 @@ if [ "$AUTO_MODE" = true ]; then
 fi
 
 # Check if we're in the correct directory
-if [ ! -f "bug-api-server.js" ]; then
-    echo "❌ Error: bug-api-server.js not found. Please run this script from the project root directory."
+if [ ! -f "api/bug-api-server.js" ]; then
+    echo "❌ Error: api/bug-api-server.js not found. Please run this script from the project root directory."
     exit 1
 fi
 
@@ -50,7 +50,7 @@ if lsof -ti:3002 > /dev/null; then
     fi
 else
     echo "🚀 Starting local API server..."
-    node bug-api-server.js &
+    node api/bug-api-server.js &
     SERVER_PID=$!
     EXISTING_SERVER=false
     echo "✅ API server started (PID: $SERVER_PID)"

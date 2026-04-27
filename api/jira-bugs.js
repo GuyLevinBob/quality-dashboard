@@ -5,7 +5,7 @@ const path = require('path');
 // Simple .env file parser
 function loadEnv() {
   try {
-    const envPath = path.join(__dirname, '.env');
+    const envPath = path.join(__dirname, '..', '.env');
     const envContent = fs.readFileSync(envPath, 'utf8');
     const env = {};
     

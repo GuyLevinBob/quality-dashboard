@@ -30,7 +30,7 @@ async function runDailyUpdate() {
         
         // Step 3: Copy to dashboard data file
         console.log('\n📋 Step 3: Updating dashboard data file...');
-        fs.copyFileSync('dashboard-safe-data.json', 'dashboard-data.json');
+        fs.copyFileSync('data/exports/dashboard-safe-data.json', 'dashboard-data.json');
         console.log('✅ Dashboard data file updated');
         
         // Step 4: Check if there are changes
