@@ -269,6 +269,60 @@ function applyFilters() {
 - **Field Coverage**: Shows data completeness per field
 - **Missing Data Detection**: Highlights null/empty fields
 - **Data Quality Metrics**: Completeness percentages
+- **Chart Zoom Functionality**: Interactive zoom and horizontal scrolling for detailed chart analysis
+
+##### Chart Zoom Feature (Added April 2026):
+**Purpose**: Enhanced chart navigation for detailed analysis of Quality Analysis data
+
+**Features**:
+- **Zoom Controls**: 
+  - **Zoom In** (`+`): Increase chart magnification up to 1000%
+  - **Zoom Out** (`-`): Decrease chart magnification down to 10%
+  - **Reset** (`⌂`): Return to default 100% view
+  - **Zoom Indicator**: Live percentage display (e.g., "150%")
+
+- **Horizontal Navigation**:
+  - **Seamless Scrollbar**: Appears automatically when zoomed beyond container width
+  - **Data Coverage**: Navigate through all data points when zoomed
+  - **Position Preservation**: Maintains scroll position during zoom level changes
+  - **Smooth Transitions**: No jarring jumps when adjusting zoom levels
+
+**Technical Implementation**:
+- **Canvas Resizing**: Dynamic width calculation based on zoom level and data point count
+- **Non-Responsive Mode**: Chart.js configured for manual dimension control
+- **Scroll Synchronization**: Preserves relative scroll position during chart recreation
+- **State Management**: Zoom level tracking in `chartBuilderState.zoomState`
+
+**User Interface**:
+```html
+<!-- Zoom Controls (appears when chart is active) -->
+<div class="zoom-indicator" id="zoom-indicator">
+    <button class="zoom-out-btn" title="Zoom out">—</button>
+    <span class="zoom-percentage">100%</span>
+    <button class="zoom-in-btn" title="Zoom in">+</button>
+    <button class="zoom-reset-btn" title="Reset zoom">⌂</button>
+</div>
+```
+
+**Zoom Algorithm**:
+```javascript
+function calculateOptimalCanvasWidth(zoomLevel, dataPointCount) {
+    const containerWidth = container.clientWidth || 800;
+    if (zoomLevel <= 1.0) {
+        // At 100% and below: fit container
+        return Math.max(400, containerWidth * zoomLevel);
+    } else {
+        // Above 100%: expand significantly to enable scrolling
+        return Math.max(containerWidth, containerWidth * zoomLevel * 1.5);
+    }
+}
+```
+
+**Benefits**:
+- **Detailed Analysis**: Examine dense data points with precision
+- **Accessibility**: Better readability for charts with many data points
+- **User Experience**: Intuitive zoom controls similar to image viewers
+- **Data Exploration**: Navigate large datasets without losing context
 
 ---
 
