@@ -3165,7 +3165,7 @@
                             }),
                             testCases: (apiData.issues || []).filter(i => i.issueType === 'Test' || i.issueType === 'Test Case').map(testCase => {
                                 if (!testCase.hasOwnProperty('generatedFromAI')) {
-                                    testCase.generatedFromAI = 'No Data';
+                                    testCase.generatedFromAI = 'No';
                                 }
                                 return testCase;
                             }),
@@ -3268,7 +3268,7 @@
                             testCases: (apiData.issues || []).filter(i => i.issueType === 'Test' || i.issueType === 'Test Case').map(testCase => {
                                 // Ensure generatedFromAI field exists for test cases
                                 if (!testCase.hasOwnProperty('generatedFromAI')) {
-                                    testCase.generatedFromAI = 'No Data';
+                                    testCase.generatedFromAI = 'No';
                                 }
                                 return testCase;
                             }),
@@ -4107,11 +4107,12 @@
             try {
                 // Step 1: Trigger fresh JIRA fetch
                 console.log('🔄 Starting sync with local API server...');
-                console.log(`📡 API endpoint: ${API_BASE}/api/sync`);
-                
-                const syncResponse = await fetch(`${API_BASE}/api/sync`, {
+                console.log(`📡 API endpoint: ${API_BASE}/api/sync-issues`);
+
+                const syncResponse = await fetch(`${API_BASE}/api/sync-issues`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ issueTypes: ["Bug", "Story", "Test"] })
                 });
                 
                 if (!syncResponse.ok) {
@@ -4121,7 +4122,7 @@
                 console.log('✅ JIRA sync completed, fetching processed data...');
                 
                 // Step 2: Get fresh processed data
-                const dataResponse = await fetch(`${API_BASE}/api/bugs-lite`);
+                const dataResponse = await fetch(`${API_BASE}/api/issues-lite?types=Bug,Story,Test`);
                 if (!dataResponse.ok) {
                     throw new Error(`Data fetch failed: ${dataResponse.status}`);
                 }
@@ -4129,7 +4130,7 @@
                 const apiResponse = await dataResponse.json();
                 
                 // Step 3: Transform API response to dashboard format with proper field mapping
-                const transformedBugs = apiResponse.bugs.map(bug => ({
+                const transformedBugs = apiResponse.issues.map(bug => ({
                     key: bug.key,
                     project: bug.project,
                     summary: bug.summary,
@@ -4156,10 +4157,11 @@
                 }));
 
                 const freshData = {
-                    bugs: transformedBugs,
+                    issues: transformedBugs,
+                    bugs: transformedBugs, // Keep for backwards compatibility with existing functions
                     metadata: {
                         exported: new Date().toISOString(),
-                        totalBugs: apiResponse.metadata.totalBugs,
+                        totalBugs: apiResponse.metadata.totalIssues || transformedBugs.length,
                         projects: ["BT"],
                         jiraInstance: apiResponse.metadata.jiraInstance
                     },
@@ -4167,7 +4169,7 @@
                 };
                 
                 data = freshData;
-                console.log(`✅ Loaded ${data.bugs.length} fresh bugs from local API`);
+                console.log(`✅ Loaded ${data.issues.length} fresh issues from local API`);
                 
                 // Save synced data to localStorage so it persists across refreshes
                 try {
@@ -5045,7 +5047,7 @@
                     testCasesData = (apiData.issues.filter(i => i.issueType === 'Test' || i.issueType === 'Test Case') || []).map(testCase => {
                         // Ensure generatedFromAI field exists for test cases
                         if (!testCase.hasOwnProperty('generatedFromAI')) {
-                            testCase.generatedFromAI = 'No Data';
+                            testCase.generatedFromAI = 'No';
                         }
                         return testCase;
                     });
@@ -5665,8 +5667,20 @@
             
             // Test Case only filters
             if (activeIssueTypes.includes('Test')) {
-                // Generated from AI filter (Yes/No/No Data)
-                const generatedFromAIValues = ['Yes', 'No', 'No Data'];
+                // Generated from AI filter - simplified to Yes/No only
+                const testCaseData = currentData.filter(item => item.issueType === 'Test' || item.issueType === 'Test Case');
+                const generatedFromAIValues = ['Yes', 'No'];
+                
+                // Debug logging for AI Generated field
+                console.log('🤖 AI Generated filter setup:');
+                console.log('   • Test Cases total:', testCaseData.length);
+                console.log('   • Filter options:', generatedFromAIValues);
+                
+                const yesTests = testCaseData.filter(t => t.generatedFromAI === 'Yes').length;
+                const noTests = testCaseData.filter(t => t.generatedFromAI === 'No' || !t.generatedFromAI).length;
+                
+                console.log(`   • Breakdown: ${yesTests} Yes, ${noTests} No (includes empty/template values)`);
+                
                 populateMultiSelect('generatedFromAI', generatedFromAIValues);
             }
             
@@ -6622,7 +6636,7 @@
                 let generatedFromAIMatch = true;
                 if (filterSelections.generatedFromAI && filterSelections.generatedFromAI.size > 0) {
                     if (bug.issueType === 'Test' || bug.issueType === 'Test Case') {
-                        const generatedValue = bug.generatedFromAI || 'No Data';
+                        const generatedValue = bug.generatedFromAI || 'No';
                         generatedFromAIMatch = filterSelections.generatedFromAI.has(generatedValue);
                     } else {
                         // Non-test cases always pass this filter
@@ -7505,7 +7519,7 @@
                 // Story-specific filters
                 const testCaseCreatedMatch = filterSelections.testCaseCreated.size === 0 || filterSelections.testCaseCreated.has(item.testCaseCreated);
                 // Test case-specific filters
-                const generatedFromAIMatch = filterSelections.generatedFromAI.size === 0 || filterSelections.generatedFromAI.has(item.generatedFromAI);
+                const generatedFromAIMatch = filterSelections.generatedFromAI.size === 0 || filterSelections.generatedFromAI.has(item.generatedFromAI || 'No');
                 
                 const searchMatch = !searchFilter || 
                                   (item.summary && item.summary.toLowerCase().includes(searchFilter)) || 

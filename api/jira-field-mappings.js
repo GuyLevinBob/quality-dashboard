@@ -143,6 +143,36 @@ const FIELD_EXTRACTORS = {
         // Epic link can be a string (epic key) or object
         if (typeof epicLinkField === 'string') return epicLinkField;
         return epicLinkField.key || epicLinkField.name || null;
+    },
+    
+    // Extract AI Generated Test Cases field value based on Test Type field
+    getAIGeneratedTestCases: (aiFieldData, testTypeFieldData) => {
+        // The real indicator is the testType field, not the URL field
+        // testType "Yes" = AI Generated "Yes", anything else = "No"
+        const testTypeValue = FIELD_EXTRACTORS.getCustomFieldValue(testTypeFieldData);
+        return testTypeValue === 'Yes' ? 'Yes' : 'No';
+    },
+    
+    // Legacy method - kept for backward compatibility but not used for Test Cases
+    validateAIGeneratedValue: (value) => {
+        if (!value || value === null || value === undefined) return 'No';
+        
+        // Convert to string for comparison
+        const stringValue = String(value).trim();
+        
+        // Handle explicit "None" values and empty strings
+        if (stringValue === '' || stringValue.toLowerCase() === 'none') {
+            return 'No';
+        }
+        
+        // Handle template/default URLs that should be treated as "No"
+        const templateUrl = 'https://chatgpt.com/g/g-68ff4338eb9081918af1a4c6baa91300-test-case-agent';
+        if (stringValue === templateUrl) {
+            return 'No';
+        }
+        
+        // Any other non-empty value indicates AI was used
+        return 'Yes';
     }
 };
 

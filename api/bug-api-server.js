@@ -1029,11 +1029,18 @@ class BugApiServer {
                     console.log(`🔍 MULTI-ISSUE SYNC - BT-13419 EXTRACTION RESULT: "${baseIssue.testCaseCreated}"`);
                 }
             } else if (baseIssue.issueType === 'Test Case' || baseIssue.issueType === 'Test') {
-                const aiGeneratedValue = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_11392);
-                // Convert URL field to Yes/No/No Data format for dashboard filter
-                baseIssue.generatedFromAI = aiGeneratedValue && aiGeneratedValue.trim() !== '' ? 'Yes' : 'No';
-                baseIssue.aiGeneratedTestCases = aiGeneratedValue; // Keep original URL for reference
+                // Extract testType first
                 baseIssue.testType = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields[JIRA_FIELD_MAPPINGS.TEST_TYPE]);
+                
+                // Use testType field to determine AI Generated status
+                baseIssue.generatedFromAI = FIELD_EXTRACTORS.getAIGeneratedTestCases(
+                    issue.fields.customfield_11392, 
+                    issue.fields[JIRA_FIELD_MAPPINGS.TEST_TYPE]
+                );
+                
+                // Keep original raw value for reference (for debugging/audit)
+                const rawAIValue = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_11392);
+                baseIssue.aiGeneratedTestCases = rawAIValue || null;
             }
 
             // Add description if available
