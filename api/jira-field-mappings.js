@@ -13,7 +13,7 @@ const JIRA_FIELD_MAPPINGS = {
     BUG_TYPE: 'customfield_10578',         // Bug Type dropdown (e.g., "Production")
     
     // Story-specific fields
-    STORY_POINTS: 'customfield_10016',     // Story Points field (Fibonacci points)
+    STORY_POINTS: 'customfield_10032',     // Story Points field (Fibonacci points) - CORRECTED!
     EPIC_LINK: 'customfield_10014',        // Epic Link field  
     TEST_CASE_CREATED: 'customfield_11391', // Test Case Created field (Yes/No)
     

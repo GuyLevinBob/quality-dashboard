@@ -8,9 +8,10 @@
 5. [Filtering System](#filtering-system)
 6. [API Endpoints](#api-endpoints)
 7. [Dashboard Features](#dashboard-features)
-8. [Recent Fixes (April 2026)](#recent-fixes-april-2026)
-9. [Troubleshooting](#troubleshooting)
-10. [Future Development](#future-development)
+8. [Testing Coverage Analytics](#testing-coverage-analytics)
+9. [Recent Fixes (April 2026)](#recent-fixes-april-2026)
+10. [Troubleshooting](#troubleshooting)
+11. [Future Development](#future-development)
 
 ---
 
@@ -97,6 +98,7 @@ const JIRA_FIELD_MAPPINGS = {
     LEADING_TEAM: 'customfield_10574',        // Dropdown: Team assignment
     SYSTEM: 'customfield_10107',              // Dropdown: System/Component
     SPRINT: 'customfield_10020',              // Array: Sprint assignments
+    STORY_POINTS: 'customfield_10032',        // Number: Story points (CORRECTED April 27, 2026)
     REGRESSION: 'customfield_10617',          // Dropdown: Yes/No regression
     SEVERITY: 'customfield_10616',            // Dropdown: Critical/High/Medium/Low
     TEST_CASE_CREATED: 'customfield_11391',   // Checkbox: Yes/No array
@@ -223,6 +225,39 @@ function applyFilters() {
 - **Purpose**: Heavy issue details with changelog
 - **Usage**: Drill-down analysis for specific issues
 
+#### `GET /api/testing-coverage`
+- **Purpose**: Specialized endpoint for Testing Coverage Analytics
+- **Function**: Returns stories filtered for testing coverage analysis
+- **Filtering Criteria**:
+  - Issue type: Story only
+  - Story Points: ≥0.5 points
+  - Teams: MIS - GTM, MIS - GTC, MIS - CORP, MIS - Platform
+  - Status: Not cancelled or rejected
+- **Response Format**:
+  ```json
+  {
+    "stories": [...],  // Filtered stories array
+    "total": 866,      // Total qualifying stories
+    "metadata": {
+      "teamBreakdown": {
+        "MIS - CORP": 338,
+        "MIS - GTM": 210,
+        "MIS - GTC": 309,
+        "MIS - Platform": 9
+      },
+      "testCaseBreakdown": {
+        "No": 780,
+        "Yes": 86
+      },
+      "filtering": {
+        "inputStories": 4361,
+        "outputStories": 866,
+        "filterEfficiency": "20%"
+      }
+    }
+  }
+  ```
+
 ### API Response Format:
 ```javascript
 {
@@ -252,11 +287,12 @@ function applyFilters() {
 
 #### Chart Types:
 1. **Issue Type Distribution** (Pie Chart)
-2. **Status Distribution** (Stacked Bar Chart)
+2. **Status Distribution** (Stacked Bar Chart)  
 3. **Severity Analysis** (Horizontal Bar Chart)
 4. **Sprint Analysis** (Timeline Chart)
 5. **Test Case Created Analysis** (Stories only)
 6. **AI Generated Analysis** (Test Cases only)
+7. **Testing Coverage Analytics** (Dedicated section with KPIs and team breakdowns)
 
 #### Interactive Features:
 - **Dynamic Filtering**: Real-time filter application
@@ -326,6 +362,264 @@ function calculateOptimalCanvasWidth(zoomLevel, dataPointCount) {
 
 ---
 
+## Testing Coverage Analytics
+
+### Overview
+The Testing Coverage Analytics feature provides comprehensive insights into test case creation for stories across MIS teams. It tracks which stories have associated test cases created and provides team-by-team breakdowns.
+
+### Key Features:
+
+#### Data Source & Filtering
+- **Source**: Dedicated `/api/testing-coverage` endpoint
+- **Scope**: Stories with ≥0.5 story points across MIS teams
+- **Team Coverage**: MIS - GTM, MIS - GTC, MIS - CORP, MIS - Platform
+- **Status Filter**: Excludes cancelled/rejected stories
+
+#### Visual Components:
+
+##### Overall Coverage KPI
+- **Main Metric**: Overall testing coverage percentage
+- **Display**: Large prominently displayed card with gradient styling
+- **Calculation**: (Stories with test cases / Total eligible stories) × 100%
+- **Example**: "15% Overall Testing Coverage (86 of 866 eligible stories)"
+
+##### Team-Specific KPIs
+- **MIS - CORP**: Individual coverage percentage and count
+- **MIS - GTM**: Individual coverage percentage and count  
+- **MIS - GTC**: Individual coverage percentage and count
+- **MIS - Platform**: Individual coverage percentage and count
+- **Visual Design**: Cards with team-specific styling and hover effects
+
+##### Coverage Details Table
+- **Expandable Interface**: "Show Coverage Details" button
+- **Sortable Columns**: Key, Summary, Team, Story Points, Test Case Created, Sprint
+- **Interactive Filtering**: Filter by sprint selection
+- **Data Export**: Supports CSV export functionality
+
+#### Sprint-Based Filtering
+- **Sprint Selector**: Multi-select dropdown for sprint filtering
+- **"All Sprints" Option**: View data across all time periods
+- **Dynamic Updates**: Real-time filtering of coverage data
+- **Sprint Statistics**: Shows filtered vs total story counts
+
+#### Brand Alignment (HiBob Design System)
+- **Color Scheme**: 
+  - Primary: Cherry Syrup (#EE164F)
+  - Secondary: Orange Juice (#FAA32B)
+  - Background: Black Coffee (#3A3A37)
+- **Typography**:
+  - Headers: Archivo Black
+  - Subheaders: Domine
+  - Body text: Lato
+- **Design Elements**:
+  - Organic rounded shapes
+  - Gradient overlays
+  - Subtle shadows and hover effects
+
+### Technical Implementation:
+
+#### Frontend Integration (`dashboard-multi-issue.html`):
+```javascript
+// Global data management
+let testingCoverageData = [];
+
+// Load testing coverage data
+async function loadTestingCoverageData() {
+    try {
+        const response = await fetch(`${API_BASE}/api/testing-coverage`);
+        const data = await response.json();
+        testingCoverageData = data.stories;
+        console.log(`✅ Loaded ${testingCoverageData.length} testing coverage stories`);
+        return true;
+    } catch (error) {
+        console.error('❌ Failed to load testing coverage data:', error);
+        // Fallback to manual filtering from existing data
+        return false;
+    }
+}
+
+// Calculate coverage metrics
+function calculateTestingCoverage(filteredData = testingCoverageData) {
+    const storiesWithTestCases = filteredData.filter(story => 
+        story.testCaseCreated === 'Yes'
+    );
+    return Math.round((storiesWithTestCases.length / filteredData.length) * 100);
+}
+```
+
+#### Backend Processing (`api/bug-api-server.js`):
+```javascript
+async handleTestingCoverage(req, res) {
+    try {
+        const issuesData = this.loadCachedIssuesData();
+        const allStories = issuesData.issues.filter(issue => 
+            issue.issueType === 'Story'
+        );
+        
+        // Apply testing coverage filters
+        const filteredStories = allStories.filter(story => {
+            const storyPoints = parseFloat(story.storyPoints) || 0;
+            const isEligiblePoints = storyPoints >= 0.5;
+            const isValidStatus = !['Canceled', 'Reject', 'Rejected'].includes(story.status);
+            const isValidTeam = ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform']
+                .includes(story.leadingTeam);
+            
+            return isEligiblePoints && isValidStatus && isValidTeam;
+        });
+        
+        // Generate analytics
+        const teamBreakdown = {};
+        const testCaseBreakdown = {};
+        
+        filteredStories.forEach(story => {
+            const team = story.leadingTeam || 'No Team';
+            teamBreakdown[team] = (teamBreakdown[team] || 0) + 1;
+            
+            const testCase = story.testCaseCreated || 'No';
+            testCaseBreakdown[testCase] = (testCaseBreakdown[testCase] || 0) + 1;
+        });
+        
+        this.sendJson(res, {
+            stories: filteredStories,
+            total: filteredStories.length,
+            metadata: {
+                teamBreakdown,
+                testCaseBreakdown,
+                filtering: {
+                    inputStories: allStories.length,
+                    outputStories: filteredStories.length,
+                    filterEfficiency: Math.round((filteredStories.length / allStories.length) * 100) + '%'
+                }
+            }
+        });
+    } catch (error) {
+        this.sendError(res, 500, 'Testing coverage endpoint failed', error.message);
+    }
+}
+```
+
+### Data Analysis Insights:
+
+#### Coverage Statistics (Current):
+- **Total Eligible Stories**: 866 stories (≥0.5 points, MIS teams)
+- **Stories with Test Cases**: 86 stories (15% coverage)
+- **Team Distribution**:
+  - MIS - CORP: 338 stories (39% of total)
+  - MIS - GTC: 309 stories (36% of total)
+  - MIS - GTM: 210 stories (24% of total)
+  - MIS - Platform: 9 stories (1% of total)
+
+#### Quality Metrics:
+- **Data Completeness**: 100% (all stories have test case status)
+- **Filter Efficiency**: 20% (866 out of 4,361 total stories)
+- **Team Coverage**: All 4 MIS teams included
+
+### Usage Guidelines:
+
+#### For Product Managers:
+- **Coverage Tracking**: Monitor test case creation across teams
+- **Sprint Planning**: Identify stories needing test case attention
+- **Team Performance**: Compare testing practices between teams
+
+#### For QA Teams:
+- **Gap Analysis**: Identify stories without test cases
+- **Sprint Focus**: Prioritize test case creation by sprint
+- **Compliance**: Ensure testing standards are met
+
+#### For Engineering Managers:
+- **Process Improvement**: Track testing culture adoption
+- **Resource Planning**: Allocate QA resources based on coverage gaps
+- **Quality Metrics**: Measure testing maturity over time
+
+### Enhanced User Interface (April 27, 2026)
+
+#### Testing Coverage Details Section Improvements:
+
+##### Interactive Table Controls:
+- **Hide/Show Details Toggle**: 
+  - Functional "Hide Details ▲" button that properly collapses and expands the details table
+  - Button text updates dynamically: "Hide Details ▲" ↔ "Show Coverage Details ▼"
+  - State synchronized between header button and section toggle button
+  
+- **Optimized Table Layout**:
+  - **Fixed Right-Side Spacing**: Eliminated blank space to the right of the table
+  - **Proper Scroller Alignment**: Vertical scrollbar aligned to the right edge
+  - **Responsive Container**: Table container uses full width with proper overflow handling
+  - **Custom Scrollbar Styling**: Enhanced visual appearance of the scrollbar
+
+##### Advanced Column Sorting:
+- **Multi-Column Support**: All table columns are sortable (Key, Summary, Team, Story Points, Test Case Created, Sprint, Status)
+- **Bi-Directional Sorting**: Click once for ascending (↑), click again for descending (↓)
+- **Type-Aware Sorting**:
+  - **Numeric Fields**: Story Points sorted as numbers, not strings
+  - **Boolean Fields**: Test Case Created sorted as Yes/No with proper priority
+  - **String Fields**: Case-insensitive alphabetical sorting
+- **Visual Indicators**: Sort arrows (↕ ↑ ↓) with active column highlighting
+- **State Preservation**: Sort state maintained during filtering operations
+
+##### Enhanced Jira Integration:
+- **Clickable Story Keys**: Each story key is a direct link to the corresponding Jira issue
+- **External Link Behavior**: Links open in new tabs (`target="_blank"`)
+- **Consistent Styling**: Links styled to match existing issue link patterns
+- **URL Format**: `https://hibob.atlassian.net/browse/{story.key}`
+
+#### Advanced KPI Tile Filtering:
+
+##### Combined Filter Logic:
+- **Intelligent Team + Sprint Filtering**:
+  - **"All Sprints" Mode**: Team filter applies across all time periods
+  - **Specific Sprint Mode**: Applies both team AND sprint filters simultaneously
+  - **Expected Behavior**: Platform team in "PI3.26.Sprint 1 (30/3 -27/4) 2" shows 2 stories (not 9 or 55)
+
+##### KPI Tile Interactions:
+- **Team-Specific Tiles**: Each team KPI tile (CORP, GTM, GTC, Platform) functions as a filter button
+- **Overall Coverage Tile**: Resets team filter while preserving sprint selection
+- **Visual Feedback**: Active filters highlighted with `active-filter` class styling
+- **State Management**: Filter states persist across table operations and sorting
+
+##### Sprint Filter Integration:
+- **Dropdown Synchronization**: Sprint selection properly retained during team filtering
+- **Auto-Sync Logic**: Automatic detection and correction of sprint filter desynchronization
+- **State Persistence**: Sprint selection survives page operations and filter combinations
+- **UI Consistency**: Dropdown button text always matches internal filter state
+
+#### Technical Implementation Details:
+
+##### Bug Fixes Applied (April 27, 2026):
+1. **Hide Details Button**: Added missing `onclick` attribute to table header button
+2. **Sprint Filter Parameter Bug**: Fixed `applyCombinedCoverageFilters` default parameter from `null` to `undefined`
+3. **Sort State Preservation**: Modified `updateCoverageDetailsTable` to preserve sort state when displaying sorted data
+4. **Event Listener Duplication**: Prevented duplicate click handlers on KPI tiles
+5. **Filter Race Conditions**: Eliminated table override issues during combined filtering operations
+
+##### Enhanced Debug Functions:
+```javascript
+// Available in browser console for troubleshooting
+testSprintSelection(sprintName)     // Test sprint dropdown selection
+testSorting()                       // Test table sorting functionality  
+testSortingWithFilters()           // Test sorting with active filters
+testUserScenario()                 // Complete user workflow test
+resetAllFilters()                  // Clear all filters and reset state
+checkDropdownSetup()               // Verify dropdown configuration
+testSprintPreservation()           // Test sprint filter preservation
+```
+
+##### Performance Optimizations:
+- **Conditional Table Updates**: Skip unnecessary table refreshes during filtered operations
+- **Event Handler Management**: Proper cleanup and prevention of duplicate listeners
+- **State Caching**: `window.lastFilteredResults` caching to prevent redundant filtering
+- **DOM Query Optimization**: Cached element references for frequently accessed components
+
+### Future Enhancements:
+- **Trend Analysis**: Historical coverage tracking over time
+- **Alert System**: Notifications for low coverage sprints
+- **Automated Reporting**: Scheduled coverage reports
+- **Integration**: Connect with test execution platforms
+- **Advanced Filtering**: Date range filters for sprint-based analysis
+- **Export Enhancements**: Filtered data export with applied sorting
+
+---
+
 ## Recent Fixes (April 2026)
 
 ### Issue: Incorrect Test Case Created Count
@@ -357,10 +651,19 @@ baseIssue.sprintName = earliestSprint;
 baseIssue.sprint = earliestSprint;
 ```
 
+### Issue: Incorrect Story Points Field Mapping
+**Problem**: Testing Coverage Analytics showed only 34 stories instead of expected ~866
+**Root Cause**: Story points field mapping pointed to wrong JIRA custom field
+- **Incorrect Field**: `customfield_10016` (always returned null)
+- **Correct Field**: `customfield_10032` (contains actual story points)
+**Solution**: Updated field mapping in `jira-field-mappings.js`
+**Result**: Now correctly returns 866 eligible stories with proper story points
+
 ### Data Impact:
-- **Total Issues Processed**: 6,078
+- **Total Issues Processed**: 6,111
 - **Stories Fixed**: Test Case Created field corrected for all stories
 - **Sprint Logic**: Fixed for 1,535 issues across all types
+- **Story Points**: Corrected field mapping affects 866 stories in testing coverage
 - **Data Accuracy**: Now matches JIRA source data exactly
 
 ---
@@ -484,7 +787,7 @@ JIRA_API_TOKEN=your-api-token-here
     "issueType": "Story",
     
     // Story-specific fields
-    "storyPoints": 0,
+    "storyPoints": 2,        // From customfield_10032 (corrected April 27, 2026)
     "epicLink": "BT-13092",
     "testCaseCreated": "Yes",
     "resolutionDate": "2026-04-23T17:37:57.899+0300",
@@ -539,11 +842,12 @@ This documentation provides comprehensive context for understanding and maintain
 
 ### Key Success Metrics:
 - **Data Accuracy**: 319 Stories with "Test Case Created = Yes" (matches JIRA)
-- **Performance**: Full sync of 6,078 issues in ~68 seconds
+- **Testing Coverage**: 866 eligible stories for coverage analysis (correct filtering)
+- **Performance**: Full sync of 6,111 issues in ~70 seconds
 - **Reliability**: Zero data loss with automatic backups
-- **Usability**: Real-time filtering and interactive dashboards
+- **Usability**: Real-time filtering and interactive dashboards with dedicated analytics
 
 ---
 
-*Last Updated: April 26, 2026*
-*System Version: Multi-Dashboard v2.0 (Post-Field-Extraction-Fixes)*
+*Last Updated: April 27, 2026*
+*System Version: Multi-Dashboard v2.2 (Enhanced Testing Coverage UI + Interactive KPI Filtering + Advanced Sorting)*

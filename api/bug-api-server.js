@@ -71,6 +71,7 @@ class BugApiServer {
             console.log(`   POST /api/sync-issues - Multi-issue type sync from Jira (NEW)`);
             console.log(`   GET  /api/bugs/:id/details - Get bug details`);
             console.log(`   GET  /api/issues/:id/details - Get issue details (NEW)`);
+            console.log(`   GET  /api/testing-coverage - Get testing coverage analytics (NEW)`);
             console.log(`   GET  /health - Health check`);
         });
         
@@ -111,6 +112,8 @@ class BugApiServer {
             } else if (method === 'GET' && pathname.startsWith('/api/issues/') && pathname.endsWith('/details')) {
                 const issueId = pathname.split('/')[3];
                 await this.handleGetIssueDetails(req, res, issueId);
+            } else if (method === 'GET' && pathname === '/api/testing-coverage') {
+                await this.handleTestingCoverage(req, res);
             } else if (method === 'GET' && pathname === '/health') {
                 this.handleHealth(req, res);
             } else {
@@ -423,6 +426,222 @@ class BugApiServer {
         } catch (error) {
             console.error(`❌ Error getting bug details for ${bugId}:`, error);
             this.sendError(res, 500, 'Failed to get bug details', error.message);
+        }
+    }
+
+    // NEW: GET /api/testing-coverage - Return filtered stories for testing coverage analytics  
+    async handleTestingCoverage(req, res) {
+        try {
+            console.log('🎯 Testing coverage endpoint called');
+            
+            // Load stories from existing cache (same as handleGetIssuesLite)
+            const issuesData = this.loadCachedIssuesData();
+            let allStories = [];
+            
+            if (issuesData && issuesData.issues) {
+                allStories = issuesData.issues.filter(issue => issue.issueType === 'Story');
+                console.log(`📊 Found ${allStories.length} stories in existing cache`);
+                
+                // Sample data inspection - check ALL field names
+                const sampleStories = allStories.slice(0, 3);
+                console.log(`📋 Sample story data with ALL fields:`, sampleStories.map(s => {
+                    const fields = {};
+                    Object.keys(s).forEach(key => {
+                        if (key.toLowerCase().includes('point') || 
+                            key.toLowerCase().includes('team') || 
+                            key.toLowerCase().includes('status') ||
+                            key === 'key') {
+                            fields[key] = s[key];
+                        }
+                    });
+                    return fields;
+                }));
+                
+                // Team distribution
+                const teamCounts = {};
+                allStories.forEach(s => {
+                    const team = s.leadingTeam || 'No Team';
+                    teamCounts[team] = (teamCounts[team] || 0) + 1;
+                });
+                console.log(`📊 All teams found:`, teamCounts);
+                
+                // Check story points distribution
+                const pointsDistribution = {};
+                let nonZeroPoints = 0;
+                allStories.forEach(s => {
+                    const points = parseFloat(s.storyPoints) || 0;
+                    if (points > 0) nonZeroPoints++;
+                    const pointsKey = points > 0 ? `${points}pts` : '0pts';
+                    pointsDistribution[pointsKey] = (pointsDistribution[pointsKey] || 0) + 1;
+                });
+                console.log(`📊 Story points distribution (first 10):`, Object.entries(pointsDistribution).slice(0, 10));
+                console.log(`📊 Stories with story points > 0: ${nonZeroPoints}`);
+                
+                // Check status distribution  
+                const statusCounts = {};
+                allStories.forEach(s => {
+                    const status = s.status || 'No Status';
+                    statusCounts[status] = (statusCounts[status] || 0) + 1;
+                });
+                console.log(`📊 All statuses found:`, statusCounts);
+                
+                // Count eligible stories by relaxing filters one by one
+                const onlyMisTeams = allStories.filter(s => 
+                    ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform'].includes(s.leadingTeam)
+                );
+                console.log(`📊 Stories in MIS teams (any points, any status): ${onlyMisTeams.length}`);
+                
+                const misTeamsWithStatus = onlyMisTeams.filter(s => 
+                    !['Canceled', 'Reject', 'Rejected'].includes(s.status)
+                );
+                console.log(`📊 MIS team stories with valid status: ${misTeamsWithStatus.length}`);
+                
+                const misTeamsWithPoints = misTeamsWithStatus.filter(s => 
+                    parseFloat(s.storyPoints) >= 0.5
+                );
+                console.log(`📊 MIS team stories with valid status + ≥0.5 points: ${misTeamsWithPoints.length}`);
+                
+            } else {
+                console.log('❌ No issues cache found - may need to sync first');
+                this.sendJson(res, {
+                    stories: [],
+                    total: 0,
+                    metadata: {
+                        error: 'No cached data available',
+                        suggestion: 'Run sync operation first',
+                        timestamp: new Date().toISOString()
+                    }
+                });
+                return;
+            }
+            
+            // Check specific story BT-12463 for debugging
+            const debugStory = allStories.find(s => s.key === 'BT-12463');
+            if (debugStory) {
+                console.log(`🔍 DEBUG: Found story BT-12463:`, {
+                    key: debugStory.key,
+                    storyPoints: debugStory.storyPoints,
+                    leadingTeam: debugStory.leadingTeam,
+                    status: debugStory.status,
+                    issueType: debugStory.issueType,
+                    summary: debugStory.summary?.substring(0, 50) + '...'
+                });
+                
+                const points = parseFloat(debugStory.storyPoints) || 0;
+                const isEligiblePoints = points >= 0.5;
+                const isValidStatus = !['Canceled', 'Reject', 'Rejected'].includes(debugStory.status);
+                const isValidTeam = ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform'].includes(debugStory.leadingTeam);
+                
+                console.log(`🔍 DEBUG BT-12463 filtering:`, {
+                    storyPoints: points,
+                    passesPointsFilter: isEligiblePoints,
+                    status: debugStory.status,
+                    passesStatusFilter: isValidStatus,
+                    team: debugStory.leadingTeam,
+                    passesTeamFilter: isValidTeam,
+                    finalResult: isEligiblePoints && isValidStatus && isValidTeam
+                });
+            } else {
+                console.log(`🔍 DEBUG: Story BT-12463 NOT FOUND in cached data!`);
+            }
+
+            // Apply filtering for testing coverage (exact JQL requirements) with diagnostics
+            let pointsFiltered = 0;
+            let statusFiltered = 0; 
+            let teamFiltered = 0;
+            let totalPassed = 0;
+            
+            const filteredStories = allStories.filter(story => {
+                try {
+                    const storyPoints = parseFloat(story.storyPoints) || 0;
+                    const isEligiblePoints = storyPoints >= 0.5; // FIXED: Back to >= 0.5 as user confirmed
+                    const isValidStatus = !['Canceled', 'Reject', 'Rejected'].includes(story.status); // FIXED: Removed 'Cancelled'
+                    const isValidTeam = ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform'].includes(story.leadingTeam);
+                    
+                    // Debug specific story during filtering
+                    if (story.key === 'BT-12463') {
+                        console.log(`🔍 DEBUG BT-12463 during filter:`, {
+                            points: storyPoints,
+                            passesPoints: isEligiblePoints,
+                            status: story.status,
+                            passesStatus: isValidStatus,
+                            team: story.leadingTeam,
+                            passesTeam: isValidTeam,
+                            willBeIncluded: isEligiblePoints && isValidStatus && isValidTeam
+                        });
+                    }
+                    
+                    if (!isEligiblePoints) {
+                        pointsFiltered++;
+                        if (storyPoints > 0) console.log(`   Points filtered: ${story.key} has ${storyPoints} points (need >= 0.5)`);
+                    }
+                    if (!isValidStatus) {
+                        statusFiltered++;
+                        console.log(`   Status filtered: ${story.key} has status "${story.status}"`);
+                    }
+                    if (!isValidTeam) {
+                        teamFiltered++;
+                        if (story.leadingTeam && story.leadingTeam.includes('MIS')) {
+                            console.log(`   Team filtered: ${story.key} has team "${story.leadingTeam}" (close but not exact match)`);
+                        }
+                    }
+                    if (isEligiblePoints && isValidStatus && isValidTeam) totalPassed++;
+                    
+                    return isEligiblePoints && isValidStatus && isValidTeam;
+                } catch (error) {
+                    console.warn(`⚠️ Error filtering story ${story.key}:`, error.message);
+                    return false;
+                }
+            });
+            
+            console.log(`📊 Filtering diagnostics:`);
+            console.log(`   - ${pointsFiltered} stories filtered out by story points (<0.5)`);
+            console.log(`   - ${statusFiltered} stories filtered out by status (cancelled/rejected)`);  
+            console.log(`   - ${teamFiltered} stories filtered out by team (not MIS - GTM/GTC/CORP/Platform)`);
+            console.log(`   - ${totalPassed} stories passed all filters`);
+            
+            console.log(`📊 Filtered to ${filteredStories.length} eligible stories (≥0.5 points, valid teams, valid status)`);
+            
+            // Generate team and test case breakdowns
+            const teamBreakdown = {};
+            const testCaseBreakdown = {};
+            
+            filteredStories.forEach(story => {
+                const team = story.leadingTeam || 'No Team';
+                teamBreakdown[team] = (teamBreakdown[team] || 0) + 1;
+                
+                const testCase = story.testCaseCreated || 'No Value';
+                testCaseBreakdown[testCase] = (testCaseBreakdown[testCase] || 0) + 1;
+            });
+            
+            console.log('📊 Testing coverage analytics:');
+            console.log('   Team breakdown:', teamBreakdown);
+            console.log('   TestCase breakdown:', testCaseBreakdown);
+            
+            // Return the filtered data with analytics
+            this.sendJson(res, {
+                stories: filteredStories,
+                total: filteredStories.length,
+                metadata: {
+                    query: 'Testing Coverage Analytics',
+                    criteria: 'Stories ≥0.5 points, valid teams (MIS - GTM/GTC/CORP/Platform), not cancelled/rejected',
+                    timestamp: new Date().toISOString(),
+                    jiraInstance: issuesData.metadata?.jiraInstance || 'hibob.atlassian.net',
+                    lastSync: issuesData.lastSync,
+                    teams: ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform'],
+                    teamBreakdown: teamBreakdown,
+                    testCaseBreakdown: testCaseBreakdown,
+                    filtering: {
+                        inputStories: allStories.length,
+                        outputStories: filteredStories.length,
+                        filterEfficiency: Math.round((filteredStories.length / allStories.length) * 100) + '%'
+                    }
+                }
+            });
+            
+        } catch (error) {
+            console.error('❌ Testing coverage endpoint error:', error);
+            this.sendError(res, 500, 'Testing coverage endpoint failed', error.message);
         }
     }
 
@@ -1011,8 +1230,27 @@ class BugApiServer {
                 baseIssue.severity = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10104);
                 baseIssue.bugType = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10578);
             } else if (baseIssue.issueType === 'Story') {
-                baseIssue.storyPoints = FIELD_EXTRACTORS.getStoryPoints(issue.fields.customfield_10016);
+                // Debug BT-12463 story points field
+                if (baseIssue.key === 'BT-12463') {
+                    console.log(`🔍 BT-12463 STORY POINTS DEBUG:`, {
+                        key: baseIssue.key,
+                        rawStoryPointsField: JSON.stringify(issue.fields.customfield_10032, null, 2),
+                        fieldType: typeof issue.fields.customfield_10032,
+                        isNull: issue.fields.customfield_10032 === null,
+                        isUndefined: issue.fields.customfield_10032 === undefined
+                    });
+                }
+                
+                baseIssue.storyPoints = FIELD_EXTRACTORS.getStoryPoints(issue.fields.customfield_10032);
                 baseIssue.epicLink = FIELD_EXTRACTORS.getEpicLink(issue.fields.customfield_10014);
+                
+                // Debug BT-12463 extraction result
+                if (baseIssue.key === 'BT-12463') {
+                    console.log(`🔍 BT-12463 EXTRACTION RESULT:`, {
+                        extractedStoryPoints: baseIssue.storyPoints,
+                        expectedValue: 2
+                    });
+                }
                 
                 // Debug specific stories that should be "Yes" according to CSV
                 const rawTestCaseField = issue.fields[JIRA_FIELD_MAPPINGS.TEST_CASE_CREATED];

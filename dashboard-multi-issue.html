@@ -164,6 +164,14 @@
             color: #3A3A37;
         }
         
+        .coverage-kpi-card .stat-number {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 3.2em;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+        
         .stat-detail {
             font-size: 0.95em;
             opacity: 0.7;
@@ -189,6 +197,422 @@
         .regression-rate { color: #EF4444; }  /* Red for regression rate (attention needed) */
         .sla-compliance { color: #10B981; }  /* Green for SLA compliance (positive metric) */
         .bug-velocity { color: #3B82F6; }    /* Blue for bug velocity (productivity) */
+
+        /* Testing Coverage KPI Colors - HiBob Brand */
+        .testing-coverage { color: #EE164F; }  /* Cherry Syrup for testing coverage */
+        .coverage-high { color: #10B981; }     /* Green for high coverage */
+        .coverage-medium { color: #FAA32B; }   /* Orange Juice for medium coverage */
+        .coverage-low { color: #EF4444; }      /* Red for low coverage */
+
+        /* Testing Coverage Section Styling - HiBob Brand */
+        .testing-coverage-section {
+            background: linear-gradient(135deg, #FFFFFF 0%, #FDF6EB 100%);
+            border-radius: 32px;
+            box-shadow: 0 16px 48px rgba(238, 22, 79, 0.12);
+            margin: 40px 0;
+            padding: 48px;
+            border: 2px solid rgba(238, 22, 79, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .testing-coverage-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #EE164F 0%, #FAA32B 50%, #83143D 100%);
+        }
+
+        .testing-coverage-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .testing-coverage-header h2 {
+            font-family: 'Archivo Black', sans-serif;
+            color: #EE164F;
+            font-size: 2.5em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #EE164F 0%, #83143D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .testing-coverage-header .subtitle {
+            font-family: 'Domine', serif;
+            color: #FAA32B;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: none;
+        }
+
+        .testing-coverage-header .description {
+            font-family: 'Lato', sans-serif;
+            color: #3A3A37;
+            font-size: 1.05em;
+            font-weight: 400;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .coverage-filters-section {
+            display: flex;
+            justify-content: flex-start;
+            gap: 24px;
+            margin-bottom: 40px;
+            padding: 32px;
+            background: linear-gradient(135deg, rgba(238, 22, 79, 0.03) 0%, rgba(250, 163, 43, 0.02) 100%);
+            border-radius: 24px;
+            border: 2px solid rgba(238, 22, 79, 0.12);
+            position: relative;
+            box-shadow: 0 8px 32px rgba(238, 22, 79, 0.06);
+        }
+
+        .coverage-filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 300px;
+        }
+
+        /* Coverage sprint filter uses HiBob brand styling */
+        .coverage-filters-section .multiselect-button {
+            border-color: rgba(238, 22, 79, 0.25);
+            background: linear-gradient(135deg, #FFFFFF 0%, rgba(253, 246, 235, 0.5) 100%);
+            border-radius: 16px;
+            font-family: 'Lato', sans-serif;
+            font-weight: 500;
+            color: #3A3A37;
+            box-shadow: 0 4px 16px rgba(238, 22, 79, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .coverage-filters-section .multiselect-button:hover {
+            border-color: #EE164F;
+            background: linear-gradient(135deg, #FFFFFF 0%, rgba(238, 22, 79, 0.05) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(238, 22, 79, 0.15);
+        }
+
+        .coverage-filters-section .multiselect-button:focus {
+            border-color: #EE164F;
+            box-shadow: 0 0 0 4px rgba(238, 22, 79, 0.15);
+            outline: none;
+        }
+
+        /* Single-select option styling for coverage sprint filter */
+        .coverage-sprint-option {
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid rgba(238, 22, 79, 0.08);
+            font-family: 'Lato', sans-serif;
+            font-weight: 500;
+            color: #3A3A37;
+        }
+
+        .coverage-sprint-option:hover {
+            background: linear-gradient(135deg, rgba(238, 22, 79, 0.05) 0%, rgba(250, 163, 43, 0.02) 100%);
+            transform: translateX(8px);
+            border-left: 4px solid #EE164F;
+            padding-left: 16px;
+        }
+
+        .coverage-sprint-option.selected {
+            background: linear-gradient(135deg, rgba(238, 22, 79, 0.12) 0%, rgba(250, 163, 43, 0.06) 100%);
+            color: #EE164F;
+            font-weight: 600;
+            border-left: 4px solid #EE164F;
+            padding-left: 16px;
+            font-family: 'Domine', serif;
+        }
+
+        /* Year header styling for coverage sprint filter */
+        .coverage-year-header {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, rgba(238, 22, 79, 0.12), rgba(250, 163, 43, 0.06));
+            color: #EE164F;
+            font-family: 'Domine', serif;
+            font-weight: 700;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 2px solid rgba(238, 22, 79, 0.2);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .coverage-filter-group label {
+            font-family: 'Domine', serif;
+            font-weight: 700;
+            color: #EE164F;
+            font-size: 0.9em;
+        }
+
+        .coverage-kpis-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .coverage-kpi-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, rgba(253, 246, 235, 0.3) 100%);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(238, 22, 79, 0.08);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(238, 22, 79, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coverage-kpi-card.main-kpi {
+            background: linear-gradient(135deg, #EE164F 0%, #83143D 100%);
+            color: white;
+            position: relative;
+        }
+        
+        .coverage-kpi-card.main-kpi::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(250, 163, 43, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(40px, -40px);
+        }
+
+        .coverage-kpi-card.main-kpi .stat-number {
+            color: white;
+            font-size: 4.5em;
+            font-weight: 900;
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            font-family: 'Archivo Black', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .coverage-kpi-card.main-kpi .stat-label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .coverage-kpi-card.main-kpi .stat-detail {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .coverage-kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #EE164F 0%, #FAA32B 50%, #83143D 100%);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .coverage-kpi-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 64px rgba(238, 22, 79, 0.2);
+            border-color: rgba(238, 22, 79, 0.25);
+        }
+
+        .coverage-kpi-card.active-filter {
+            border-color: rgba(238, 22, 79, 0.5);
+            box-shadow: 0 16px 48px rgba(238, 22, 79, 0.25);
+            transform: translateY(-4px);
+        }
+
+        .coverage-kpi-card.active-filter::before {
+            background: linear-gradient(90deg, #EE164F 0%, #FAA32B 30%, #EE164F 100%);
+            height: 8px;
+        }
+
+        .coverage-details-table {
+            background: linear-gradient(135deg, #FFFFFF 0%, rgba(253, 246, 235, 0.2) 100%);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 2px solid rgba(238, 22, 79, 0.15);
+            box-shadow: 0 12px 40px rgba(238, 22, 79, 0.08);
+            margin: 32px 0 0 0;
+            width: 100%;
+        }
+
+        .coverage-details-header {
+            background: linear-gradient(135deg, #EE164F 0%, #83143D 100%);
+            color: white;
+            padding: 20px 32px;
+            font-family: 'Domine', serif;
+            font-weight: 700;
+            font-size: 1.2em;
+            position: relative;
+        }
+        
+        .coverage-details-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(250, 163, 43, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+
+        @media (max-width: 1200px) {
+            .coverage-kpis-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .show-details-btn, .toggle-details-btn {
+            background: linear-gradient(135deg, #EE164F 0%, #83143D 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: 'Lato', sans-serif;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px rgba(238, 22, 79, 0.25);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .show-details-btn::before, .toggle-details-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+        
+        .show-details-btn:hover::before, .toggle-details-btn:hover::before {
+            left: 100%;
+        }
+
+        .show-details-btn:hover, .toggle-details-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(238, 22, 79, 0.35);
+            background: linear-gradient(135deg, #FAA32B 0%, #EE164F 100%);
+        }
+
+        .coverage-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            table-layout: auto;
+        }
+
+        .coverage-table th,
+        .coverage-table td {
+            text-align: left;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(238, 22, 79, 0.12);
+            font-family: 'Lato', sans-serif;
+        }
+
+        .coverage-table th {
+            background: linear-gradient(135deg, rgba(238, 22, 79, 0.08) 0%, rgba(250, 163, 43, 0.04) 100%);
+            font-family: 'Domine', serif;
+            font-weight: 700;
+            color: #EE164F;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .coverage-table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(238, 22, 79, 0.04) 0%, rgba(250, 163, 43, 0.02) 100%);
+            transform: translateX(4px);
+            transition: all 0.3s ease;
+        }
+
+        .coverage-table-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-top: 2px solid rgba(238, 22, 79, 0.15);
+            position: relative;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Custom scrollbar styling for coverage table container */
+        .coverage-table-container::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .coverage-table-container::-webkit-scrollbar-track {
+            background: rgba(238, 22, 79, 0.1);
+            border-radius: 6px;
+        }
+
+        .coverage-table-container::-webkit-scrollbar-thumb {
+            background: rgba(238, 22, 79, 0.4);
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+
+        .coverage-table-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(238, 22, 79, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            .coverage-kpis-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .coverage-filters-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .coverage-filter-group {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .coverage-filters-section .multiselect-container {
+                width: 100%;
+            }
+
+            .coverage-table {
+                font-size: 0.8em;
+            }
+
+            .coverage-table th,
+            .coverage-table td {
+                padding: 8px 12px;
+            }
+
+            .coverage-table-container {
+                max-height: 60vh;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
         
         
         .bugs-table {
@@ -387,6 +811,15 @@
         /* Make sprint filter dropdown wider to prevent text wrapping */
         #sprintFilter .multiselect-dropdown {
             min-width: 300px;
+            white-space: nowrap;
+        }
+
+        /* Make coverage sprint filter dropdown wider to prevent text wrapping */
+        #coverageSprintFilterDropdown {
+            min-width: 350px;
+        }
+
+        #coverageSprintFilterDropdown .coverage-sprint-option {
             white-space: nowrap;
         }
 
@@ -2410,6 +2843,102 @@
                 </div>
             </div>
 
+            <!-- Testing Coverage KPI Section -->
+            <div class="testing-coverage-section">
+                <div class="testing-coverage-header">
+                    <h2>Testing Coverage Analytics</h2>
+                    <div class="subtitle">Test Case Creation Tracking</div>
+                    <div class="description">Monitor test coverage for stories ≥0.5 story points, excluding cancelled/rejected items</div>
+                </div>
+
+                <!-- Coverage Filters -->
+                <div class="coverage-filters-section">
+                    <div class="coverage-filter-group">
+                        <label for="coverageSprintFilter">Sprint Filter:</label>
+                        <div class="multiselect-container">
+                            <div class="filter-with-clear">
+                                <div class="multiselect-button" id="coverageSprintFilterButton">
+                                    <span>All Sprints</span>
+                                    <span>▼</span>
+                                </div>
+                                <button class="filter-clear-btn" data-filter="coverageSprint" title="Clear Sprint Filter">×</button>
+                            </div>
+                            <div class="multiselect-dropdown" id="coverageSprintFilterDropdown"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coverage KPIs Grid -->
+                <div class="coverage-kpis-grid">
+                    <!-- Main Coverage KPI -->
+                    <div class="coverage-kpi-card main-kpi">
+                        <div class="stat-number testing-coverage" id="overallCoverageKpi">-</div>
+                        <div class="stat-label">Overall Testing Coverage</div>
+                        <div class="stat-detail" id="overallCoverageDetail">- of - eligible stories</div>
+                    </div>
+
+                    <!-- MIS-CORP Team -->
+                    <div class="coverage-kpi-card">
+                        <div class="stat-number coverage-high" id="corpTeamCoverageKpi">-</div>
+                        <div class="stat-label">MIS - CORP</div>
+                        <div class="stat-detail" id="corpTeamCoverageDetail">- of - stories</div>
+                    </div>
+
+                    <!-- MIS-GTC Team -->
+                    <div class="coverage-kpi-card">
+                        <div class="stat-number coverage-medium" id="gtcTeamCoverageKpi">-</div>
+                        <div class="stat-label">MIS - GTC</div>
+                        <div class="stat-detail" id="gtcTeamCoverageDetail">- of - stories</div>
+                    </div>
+
+                    <!-- MIS-GTM Team -->
+                    <div class="coverage-kpi-card">
+                        <div class="stat-number coverage-low" id="gtmTeamCoverageKpi">-</div>
+                        <div class="stat-label">MIS - GTM</div>
+                        <div class="stat-detail" id="gtmTeamCoverageDetail">- of - stories</div>
+                    </div>
+
+                    <!-- MIS-Platform Team -->
+                    <div class="coverage-kpi-card">
+                        <div class="stat-number coverage-high" id="platformTeamCoverageKpi">-</div>
+                        <div class="stat-label">MIS - Platform</div>
+                        <div class="stat-detail" id="platformTeamCoverageDetail">- of - stories</div>
+                    </div>
+                </div>
+
+                <!-- Coverage Details Table (collapsed by default) -->
+                <div class="coverage-details-table" id="coverageDetailsTable" style="display: none;">
+                    <div class="coverage-details-header">
+                        <span>Testing Coverage Details</span>
+                        <button class="toggle-details-btn" id="toggleCoverageDetails" onclick="toggleCoverageDetailsTable()" style="float: right; background: none; border: none; color: white; cursor: pointer;">Hide Details ▲</button>
+                    </div>
+                    <div class="coverage-table-container">
+                        <table class="coverage-table" id="coverageTable">
+                            <thead>
+                                <tr>
+                                    <th data-column="key"><div class="sortable-header">Story Key<span class="sort-indicator">↕</span></div></th>
+                                    <th data-column="summary"><div class="sortable-header">Summary<span class="sort-indicator">↕</span></div></th>
+                                    <th data-column="leadingTeam"><div class="sortable-header">Leading Team<span class="sort-indicator">↕</span></div></th>
+                                    <th data-column="sprint"><div class="sortable-header">Sprint<span class="sort-indicator">↕</span></div></th>
+                                    <th data-column="storyPoints"><div class="sortable-header">Story Points<span class="sort-indicator">↕</span></div></th>
+                                    <th data-column="testCaseCreated"><div class="sortable-header">Test Case Created<span class="sort-indicator">↕</span></div></th>
+                                    <th data-column="status"><div class="sortable-header">Status<span class="sort-indicator">↕</span></div></th>
+                                </tr>
+                            </thead>
+                            <tbody id="coverageTableBody">
+                                <!-- Coverage data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Show Details Button -->
+                <div style="text-align: center; margin-top: 24px;">
+                    <button class="show-details-btn" id="showCoverageDetailsBtn" onclick="toggleCoverageDetailsTable()">
+                        Show Coverage Details ▼
+                    </button>
+                </div>
+            </div>
 
             <!-- Main Content Layout: Table + Charts Side by Side -->
             <div class="main-content-layout">
@@ -4330,6 +4859,1182 @@
             };
         }
 
+        // TESTING COVERAGE KPI CALCULATION FUNCTIONS
+        
+        // Global variables for testing coverage filters
+        const testingCoverageFilters = {
+            sprint: null // Single selected sprint or null for "All Sprints"
+        };
+
+        // Calculate overall testing coverage with optional filters
+        function calculateTestingCoverage(stories, filters = {}) {
+            console.log('🔍 calculateTestingCoverage: Processing', stories.length, 'pre-filtered stories');
+            console.log('🔍 Filters applied:', filters);
+
+            // Stories are already pre-filtered by the API, so we only need to apply sprint filter
+            let filteredStories = stories;
+            
+            if (filters.sprint) {
+                filteredStories = filteredStories.filter(story => 
+                    story.sprint === filters.sprint
+                );
+                console.log(`🔍 After sprint filter: ${filteredStories.length} stories`);
+            }
+            
+            // Count stories with test cases
+            const withTestCases = filteredStories.filter(story => story.testCaseCreated === 'Yes');
+            
+            const percentage = filteredStories.length > 0 ? 
+                Math.round((withTestCases.length / filteredStories.length) * 100) : 0;
+            
+            console.log(`✅ Testing Coverage Result: ${withTestCases.length}/${filteredStories.length} = ${percentage}%`);
+            
+            return {
+                total: filteredStories.length,
+                withTests: withTestCases.length,
+                percentage: percentage,
+                stories: filteredStories
+            };
+        }
+
+        // Calculate testing coverage by leading team
+        function calculateTestingCoverageByTeam(stories, filters = {}) {
+            console.log('🔍 calculateTestingCoverageByTeam: Processing', stories.length, 'stories');
+            
+            const teams = ['MIS - CORP', 'MIS - GTC', 'MIS - GTM', 'MIS - Platform'];
+            const results = {};
+            
+            teams.forEach(team => {
+                const teamStories = stories.filter(story => story.leadingTeam === team);
+                
+                // Apply sprint filter if specified
+                let filteredTeamStories = teamStories;
+                if (filters.sprint) {
+                    filteredTeamStories = teamStories.filter(story => 
+                        story.sprint === filters.sprint
+                    );
+                }
+                
+                const teamCoverage = calculateTestingCoverage(filteredTeamStories, {});
+                results[team] = teamCoverage;
+                
+                console.log(`📊 ${team}: ${teamCoverage.withTests}/${teamCoverage.total} = ${teamCoverage.percentage}%`);
+            });
+            
+            return results;
+        }
+
+        // Get all unique sprints from stories for filter dropdown
+        function getUniqueSprints(stories) {
+            const sprints = new Set();
+            stories.forEach(story => {
+                if (story.sprint && story.sprint.trim() !== '') {
+                    sprints.add(story.sprint.trim());
+                }
+            });
+            return Array.from(sprints).sort();
+        }
+
+
+        // Global variable for testing coverage data
+        let testingCoverageData = [];
+        
+        // Manual refresh function for testing coverage (for debugging)
+        window.refreshTestingCoverage = async function() {
+            console.log('🔄 Manual refresh of testing coverage data requested');
+            await loadTestingCoverageData();
+            console.log('✅ Testing coverage data refreshed manually');
+        };
+
+        // Force fallback to issuesData (for testing when API isn't available)
+        window.forceTestingCoverageFallback = function() {
+            console.log('🔧 Forcing testing coverage fallback to issuesData...');
+            
+            if (issuesData && issuesData.length > 0) {
+                console.log(`📊 Processing ${issuesData.length} issues from issuesData`);
+                
+                const allStories = issuesData.filter(item => item.issueType === 'Story');
+                console.log(`📊 Found ${allStories.length} stories`);
+                
+                // Transform testCaseCreated field
+                const transformedStories = allStories.map(story => {
+                    if (story.testCaseCreated) {
+                        if (Array.isArray(story.testCaseCreated)) {
+                            story.testCaseCreated = story.testCaseCreated.includes('Yes') ? 'Yes' : 'No';
+                        } else if (typeof story.testCaseCreated === 'object' && story.testCaseCreated !== null) {
+                            const value = story.testCaseCreated.value || story.testCaseCreated;
+                            if (Array.isArray(value)) {
+                                story.testCaseCreated = value.includes('Yes') ? 'Yes' : 'No';
+                            } else {
+                                story.testCaseCreated = value === 'Yes' ? 'Yes' : 'No';
+                            }
+                        }
+                    } else {
+                        story.testCaseCreated = 'No';
+                    }
+                    return story;
+                });
+                
+                // Apply filtering
+                testingCoverageData = transformedStories.filter(story => {
+                    const storyPoints = parseFloat(story.storyPoints) || 0;
+                    const isEligiblePoints = storyPoints >= 0.5;
+                    const isValidStatus = !['Canceled', 'Cancelled', 'Reject', 'Rejected'].includes(story.status);
+                    const isValidTeam = ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform'].includes(story.leadingTeam);
+                    return isEligiblePoints && isValidStatus && isValidTeam;
+                });
+                
+                console.log(`✅ Forced fallback complete: ${testingCoverageData.length} eligible stories`);
+                updateTestingCoverageDisplay();
+            } else {
+                console.log('❌ No issuesData available for fallback');
+            }
+        };
+        
+        // Debug function to check testing coverage data status
+        window.debugTestingCoverage = function() {
+            console.log('🔍 Testing Coverage Data Status:');
+            console.log(`📊 Total stories: ${testingCoverageData.length}`);
+            
+            if (testingCoverageData.length > 0) {
+                const teamBreakdown = {};
+                const testCaseBreakdown = {};
+                
+                testingCoverageData.forEach(story => {
+                    const team = story.leadingTeam || 'No Team';
+                    const testCase = story.testCaseCreated || 'No Value';
+                    
+                    teamBreakdown[team] = (teamBreakdown[team] || 0) + 1;
+                    testCaseBreakdown[testCase] = (testCaseBreakdown[testCase] || 0) + 1;
+                });
+                
+                console.log('📊 Team breakdown:', teamBreakdown);
+                console.log('📊 TestCase breakdown:', testCaseBreakdown);
+                
+                console.log('🔍 Sample stories (first 3):');
+                testingCoverageData.slice(0, 3).forEach((story, i) => {
+                    console.log(`  ${i+1}. ${story.key}: ${story.leadingTeam} | ${story.storyPoints}pts | ${story.testCaseCreated}`);
+                });
+            } else {
+                console.log('❌ No testing coverage data available');
+            }
+        };
+
+        // Comprehensive data source analysis
+        window.analyzeDataSources = function() {
+            console.log('🔍 COMPREHENSIVE DATA SOURCE ANALYSIS');
+            console.log('=====================================');
+            
+            // Check all available data arrays
+            console.log('📊 Available Data Arrays:');
+            console.log(`  • issuesData: ${issuesData ? issuesData.length : 'undefined'} items`);
+            console.log(`  • bugsData: ${bugsData ? bugsData.length : 'undefined'} items`);
+            console.log(`  • storiesData: ${storiesData ? storiesData.length : 'undefined'} items`);
+            console.log(`  • testCasesData: ${testCasesData ? testCasesData.length : 'undefined'} items`);
+            console.log(`  • filteredData: ${filteredData ? filteredData.length : 'undefined'} items`);
+            console.log(`  • testingCoverageData: ${testingCoverageData ? testingCoverageData.length : 'undefined'} items`);
+            
+            if (issuesData && issuesData.length > 0) {
+                console.log('\n📊 IssuesData Analysis:');
+                const issueTypes = {};
+                issuesData.forEach(item => {
+                    const type = item.issueType || item.type || 'Unknown';
+                    issueTypes[type] = (issueTypes[type] || 0) + 1;
+                });
+                console.log('  • Issue types:', issueTypes);
+                
+                const stories = issuesData.filter(item => item.issueType === 'Story');
+                console.log(`  • Total Stories: ${stories.length}`);
+                
+                if (stories.length > 0) {
+                    // Team analysis
+                    const teams = {};
+                    stories.forEach(story => {
+                        const team = story.leadingTeam || 'No Team';
+                        teams[team] = (teams[team] || 0) + 1;
+                    });
+                    console.log('  • Teams in stories:', teams);
+                    
+                    // Story points analysis
+                    const storyPoints = { 'No Points': 0, 'Under 0.5': 0, '0.5+': 0 };
+                    stories.forEach(story => {
+                        const points = parseFloat(story.storyPoints) || 0;
+                        if (points === 0) storyPoints['No Points']++;
+                        else if (points < 0.5) storyPoints['Under 0.5']++;
+                        else storyPoints['0.5+']++;
+                    });
+                    console.log('  • Story points distribution:', storyPoints);
+                    
+                    // Status analysis
+                    const statuses = {};
+                    stories.forEach(story => {
+                        const status = story.status || 'No Status';
+                        statuses[status] = (statuses[status] || 0) + 1;
+                    });
+                    console.log('  • Status distribution:', statuses);
+                    
+                    // Apply filtering step by step
+                    console.log('\n📊 Step-by-step filtering:');
+                    console.log(`  • Starting stories: ${stories.length}`);
+                    
+                    const withPoints = stories.filter(s => parseFloat(s.storyPoints || 0) >= 0.5);
+                    console.log(`  • With ≥0.5 points: ${withPoints.length} (-${stories.length - withPoints.length})`);
+                    
+                    const validStatus = withPoints.filter(s => !['Canceled', 'Cancelled', 'Reject', 'Rejected'].includes(s.status));
+                    console.log(`  • Valid status: ${validStatus.length} (-${withPoints.length - validStatus.length})`);
+                    
+                    const validTeams = validStatus.filter(s => ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform'].includes(s.leadingTeam));
+                    console.log(`  • Valid teams: ${validTeams.length} (-${validStatus.length - validTeams.length})`);
+                    
+                    console.log('\n🔍 Sample filtered stories (first 5):');
+                    validTeams.slice(0, 5).forEach((story, i) => {
+                        console.log(`  ${i+1}. ${story.key}: ${story.leadingTeam} | ${story.storyPoints}pts | ${story.status}`);
+                    });
+                }
+            }
+            
+            if (storiesData && storiesData.length > 0) {
+                console.log('\n📊 StoriesData Analysis:');
+                console.log(`  • Total: ${storiesData.length}`);
+                
+                const teams = {};
+                storiesData.forEach(story => {
+                    const team = story.leadingTeam || 'No Team';
+                    teams[team] = (teams[team] || 0) + 1;
+                });
+                console.log('  • Teams:', teams);
+            }
+            
+            console.log('\n🎯 RECOMMENDATION:');
+            if (issuesData && issuesData.length > 0) {
+                const stories = issuesData.filter(item => item.issueType === 'Story');
+                if (stories.length > 34) {
+                    console.log(`✅ issuesData has ${stories.length} stories - should use this source`);
+                } else {
+                    console.log(`⚠️ issuesData only has ${stories.length} stories - data may be limited`);
+                }
+            } else {
+                console.log('❌ issuesData not available - need to load more data');
+            }
+        };
+
+        // Load testing coverage data from dedicated API endpoint
+        async function loadTestingCoverageData() {
+            console.log('🔄 Loading testing coverage data from dedicated API...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/testing-coverage?_=${Date.now()}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Testing coverage API failed: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                testingCoverageData = data.stories || [];
+                
+                console.log(`✅ Loaded ${testingCoverageData.length} stories for testing coverage`);
+                console.log('📊 Testing coverage metadata:', data.metadata);
+                
+                // Update the display
+                updateTestingCoverageDisplay();
+                
+                return testingCoverageData;
+                
+            } catch (error) {
+                console.warn('⚠️ Testing coverage API not available, falling back to existing data:', error.message);
+                
+                // First priority: Use issuesData (complete dataset) if available
+                if (issuesData && issuesData.length > 0) {
+                    console.log('🔄 Using issuesData as fallback (complete dataset)');
+                    console.log(`📊 Total issues available: ${issuesData.length}`);
+                    
+                    const allStories = issuesData.filter(item => item.issueType === 'Story');
+                    console.log(`📊 Found ${allStories.length} stories in issuesData`);
+                    
+                    // Apply the same transformation as API would do
+                    const transformedStories = allStories.map(story => {
+                        const originalValue = story.testCaseCreated;
+                        if (story.testCaseCreated) {
+                            if (Array.isArray(story.testCaseCreated)) {
+                                story.testCaseCreated = story.testCaseCreated.includes('Yes') ? 'Yes' : 'No';
+                            } else if (typeof story.testCaseCreated === 'object' && story.testCaseCreated !== null) {
+                                const value = story.testCaseCreated.value || story.testCaseCreated;
+                                if (Array.isArray(value)) {
+                                    story.testCaseCreated = value.includes('Yes') ? 'Yes' : 'No';
+                                } else {
+                                    story.testCaseCreated = value === 'Yes' ? 'Yes' : 'No';
+                                }
+                            }
+                        } else {
+                            story.testCaseCreated = 'No';
+                        }
+                        return story;
+                    });
+                    
+                    // Apply filtering criteria
+                    testingCoverageData = transformedStories.filter(story => {
+                        const storyPoints = parseFloat(story.storyPoints) || 0;
+                        const isEligiblePoints = storyPoints >= 0.5;
+                        const isValidStatus = !['Canceled', 'Cancelled', 'Reject', 'Rejected'].includes(story.status);
+                        const isValidTeam = ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform'].includes(story.leadingTeam);
+                        return isEligiblePoints && isValidStatus && isValidTeam;
+                    });
+                    
+                    console.log(`📊 Applied filtering: ${testingCoverageData.length} eligible stories from ${transformedStories.length} total stories`);
+                    
+                    // Debug the filtering breakdown
+                    const pointsFiltered = transformedStories.filter(story => parseFloat(story.storyPoints || 0) >= 0.5).length;
+                    const statusFiltered = transformedStories.filter(story => !['Canceled', 'Cancelled', 'Reject', 'Rejected'].includes(story.status)).length;
+                    const teamFiltered = transformedStories.filter(story => ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform'].includes(story.leadingTeam)).length;
+                    
+                    console.log('📊 Filtering breakdown:');
+                    console.log(`  • Total stories: ${transformedStories.length}`);
+                    console.log(`  • With ≥0.5 story points: ${pointsFiltered}`);
+                    console.log(`  • Valid status (not cancelled/rejected): ${statusFiltered}`);
+                    console.log(`  • Valid teams (MIS teams): ${teamFiltered}`);
+                    console.log(`  • Final eligible stories: ${testingCoverageData.length}`);
+                    
+                } else if (storiesData && storiesData.length > 0) {
+                    console.log('🔄 Applying manual filtering to existing stories data (limited dataset)');
+                    console.log(`📊 storiesData available: ${storiesData.length} stories`);
+                    
+                    testingCoverageData = storiesData.filter(story => {
+                        const storyPoints = parseFloat(story.storyPoints) || 0;
+                        const isEligiblePoints = storyPoints >= 0.5;
+                        const isValidStatus = !['Canceled', 'Cancelled', 'Reject', 'Rejected'].includes(story.status);
+                        const isValidTeam = ['MIS - GTM', 'MIS - GTC', 'MIS - CORP', 'MIS - Platform'].includes(story.leadingTeam);
+                        return isEligiblePoints && isValidStatus && isValidTeam;
+                    });
+                    console.log(`📊 Filtered to ${testingCoverageData.length} eligible stories from ${storiesData.length} total`);
+                } else {
+                    console.log('❌ No story data available in any source');
+                }
+                
+                updateTestingCoverageDisplay();
+            }
+        }
+
+        // Update testing coverage display
+        function updateTestingCoverageDisplay() {
+            console.log('🎯 updateTestingCoverageDisplay called');
+            console.log('📍 Called from:', new Error().stack.split('\n')[2]?.trim());
+            
+            // Check if we have active filters - if so, we should NOT override the filtered table
+            if (coverageTeamFilter) {
+                console.warn('⚠️ WARNING: updateTestingCoverageDisplay called while team filter is active!');
+                console.warn('⚠️ This will override the filtered table. Team filter:', coverageTeamFilter);
+                console.warn('⚠️ Sprint filter:', testingCoverageFilters.sprint);
+            }
+
+            if (!testingCoverageData || testingCoverageData.length === 0) {
+                console.log('❌ No testing coverage data available');
+                return;
+            }
+
+            // Debug: Show total stories count and team breakdown  
+            console.log(`📊 Total stories available for testing coverage: ${testingCoverageData.length}`);
+            
+            // Check team distribution
+            const teamCount = {};
+            testingCoverageData.forEach(story => {
+                const team = story.leadingTeam || 'No Team';
+                teamCount[team] = (teamCount[team] || 0) + 1;
+            });
+            console.log('📊 Team distribution in testing coverage data:', teamCount);
+            
+            // Check testCaseCreated distribution
+            const testCaseCount = {};
+            testingCoverageData.forEach(story => {
+                const testCase = story.testCaseCreated || 'No Value';
+                testCaseCount[testCase] = (testCaseCount[testCase] || 0) + 1;
+            });
+            console.log('📊 TestCaseCreated distribution:', testCaseCount);
+
+            // Log sample of first 5 stories for detailed inspection
+            console.log('🔍 Sample testing coverage stories (first 5):');
+            testingCoverageData.slice(0, 5).forEach((story, index) => {
+                console.log(`  ${index + 1}. ${story.key}: team="${story.leadingTeam}", points=${story.storyPoints}, status="${story.status}", testCase="${story.testCaseCreated}"`);
+            });
+            
+            // Calculate overall coverage with current filters
+            const filters = {
+                sprint: testingCoverageFilters.sprint
+            };
+            const overallCoverage = calculateTestingCoverage(testingCoverageData, filters);
+
+            // Calculate team-specific coverage
+            const teamCoverage = calculateTestingCoverageByTeam(testingCoverageData, filters);
+            
+            // Update overall KPI
+            const overallKpiElement = document.getElementById('overallCoverageKpi');
+            const overallDetailElement = document.getElementById('overallCoverageDetail');
+            
+            if (overallKpiElement) {
+                overallKpiElement.textContent = `${overallCoverage.percentage}%`;
+            }
+            
+            if (overallDetailElement) {
+                overallDetailElement.textContent = `${overallCoverage.withTests} of ${overallCoverage.total} eligible stories`;
+            }
+            
+            // Update team KPIs
+            const teams = [
+                { key: 'MIS - CORP', kpiId: 'corpTeamCoverageKpi', detailId: 'corpTeamCoverageDetail' },
+                { key: 'MIS - GTC', kpiId: 'gtcTeamCoverageKpi', detailId: 'gtcTeamCoverageDetail' },
+                { key: 'MIS - GTM', kpiId: 'gtmTeamCoverageKpi', detailId: 'gtmTeamCoverageDetail' },
+                { key: 'MIS - Platform', kpiId: 'platformTeamCoverageKpi', detailId: 'platformTeamCoverageDetail' }
+            ];
+            
+            teams.forEach(team => {
+                const coverage = teamCoverage[team.key] || { percentage: 0, withTests: 0, total: 0 };
+                const kpiElement = document.getElementById(team.kpiId);
+                const detailElement = document.getElementById(team.detailId);
+                
+                if (kpiElement) {
+                    kpiElement.textContent = `${coverage.percentage}%`;
+                    
+                    // Update color class based on coverage percentage
+                    kpiElement.className = 'stat-number';
+                    if (coverage.percentage >= 80) {
+                        kpiElement.classList.add('coverage-high');
+                    } else if (coverage.percentage >= 60) {
+                        kpiElement.classList.add('coverage-medium');
+                    } else {
+                        kpiElement.classList.add('coverage-low');
+                    }
+                }
+                
+                if (detailElement) {
+                    detailElement.textContent = `${coverage.withTests} of ${coverage.total} stories`;
+                }
+            });
+            
+            // Update coverage details table (but only if no active filters)
+            if (!coverageTeamFilter) {
+                console.log('📊 Updating coverage table with overall data (no filters active)');
+                updateCoverageDetailsTable(overallCoverage.stories);
+            } else {
+                console.log('📊 Skipping coverage table update - filters are active (Team:', coverageTeamFilter, ')');
+            }
+            
+            // Setup KPI click handlers after KPIs are rendered
+            setupCoverageKpiClickHandlers();
+            
+            console.log('✅ Testing coverage display updated');
+        }
+
+        // Update the coverage details table
+        function updateCoverageDetailsTable(stories, preserveSortState = false) {
+            console.log(`📊 updateCoverageDetailsTable called with ${stories?.length} stories, preserveSort: ${preserveSortState}`);
+            console.log('📍 Called from:', new Error().stack.split('\n')[2]?.trim());
+            
+            // Show sample of stories for debugging
+            if (stories && stories.length > 0) {
+                console.log(`📋 Showing first 3 of ${stories.length} filtered stories:`);
+                stories.slice(0, 3).forEach(story => {
+                    console.log(`  ${story.key}: Team="${story.leadingTeam}", Sprint="${story.sprint}"`);
+                });
+            }
+            const tableBody = document.getElementById('coverageTableBody');
+            if (!tableBody) {
+                console.error('❌ Coverage table body not found');
+                return;
+            }
+            
+            // Clear existing content
+            tableBody.innerHTML = '';
+            
+            // Only clear sort state when updating with new data (not when displaying sorted results)
+            if (!preserveSortState) {
+                console.log('🔄 Clearing sort state (new data)');
+                coverageSortState.column = null;
+                coverageSortState.direction = null;
+                
+                // Reset sort indicators
+                const coverageTable = document.getElementById('coverageTable');
+                if (coverageTable) {
+                    coverageTable.querySelectorAll('.sort-indicator').forEach(indicator => {
+                        indicator.textContent = '↕';
+                        indicator.parentElement.classList.remove('sort-asc', 'sort-desc');
+                    });
+                }
+            } else {
+                console.log('🔒 Preserving sort state (displaying sorted data)');
+            }
+            
+            stories.forEach(story => {
+                const row = document.createElement('tr');
+                
+                const testCaseStatus = story.testCaseCreated === 'Yes' ? 
+                    '<span style="color: #10B981; font-weight: bold;">✓ Yes</span>' : 
+                    '<span style="color: #EF4444;">✗ No</span>';
+                
+                const jiraUrl = `https://hibob.atlassian.net/browse/${story.key}`;
+                
+                row.innerHTML = `
+                    <td><a href="${jiraUrl}" target="_blank" class="issue-link">${story.key}</a></td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${story.summary || 'N/A'}</td>
+                    <td>${story.leadingTeam || 'N/A'}</td>
+                    <td>${story.sprint || 'N/A'}</td>
+                    <td>${story.storyPoints || 0}</td>
+                    <td>${testCaseStatus}</td>
+                    <td>${story.status || 'N/A'}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Setup sorting after table is populated
+            setupCoverageTableSorting();
+            
+            // If preserving sort state, update the sort indicators to reflect current state
+            if (preserveSortState && coverageSortState.column) {
+                console.log('🔄 Updating sort indicators for preserved state:', coverageSortState);
+                updateCoverageSortIndicators();
+            }
+        }
+
+        // Toggle coverage details table visibility
+        function toggleCoverageDetailsTable() {
+            console.log('🔄 toggleCoverageDetailsTable called');
+            const table = document.getElementById('coverageDetailsTable');
+            const showBtn = document.getElementById('showCoverageDetailsBtn');
+            const toggleBtn = document.getElementById('toggleCoverageDetails');
+            
+            console.log('🔍 Elements found:', {
+                table: !!table,
+                showBtn: !!showBtn,
+                toggleBtn: !!toggleBtn
+            });
+            
+            if (!table || !showBtn) {
+                console.error('❌ Missing required elements for toggle');
+                return;
+            }
+            
+            const isVisible = table.style.display !== 'none';
+            console.log('📊 Current state - isVisible:', isVisible);
+            
+            if (isVisible) {
+                // Hide table
+                console.log('🙈 Hiding coverage details table');
+                table.style.display = 'none';
+                showBtn.textContent = 'Show Coverage Details ▼';
+                showBtn.style.display = 'inline-block';
+                if (toggleBtn) {
+                    toggleBtn.textContent = 'Show Details ▼';
+                }
+            } else {
+                // Show table
+                console.log('👁️ Showing coverage details table');
+                table.style.display = 'block';
+                showBtn.textContent = 'Hide Coverage Details ▲';
+                showBtn.style.display = 'inline-block';
+                if (toggleBtn) {
+                    toggleBtn.textContent = 'Hide Details ▲';
+                }
+                
+                // Update the table content
+                if (testingCoverageData && testingCoverageData.length > 0) {
+                    const filters = {
+                        sprint: testingCoverageFilters.sprint
+                    };
+                    const coverage = calculateTestingCoverage(testingCoverageData, filters);
+                    updateCoverageDetailsTable(coverage.stories);
+                }
+            }
+            console.log('✅ Toggle complete');
+        }
+
+        // Setup event listener for the hide details button in the table header
+        function setupCoverageDetailsToggleListener() {
+            const toggleBtn = document.getElementById('toggleCoverageDetails');
+            if (toggleBtn) {
+                // Remove existing listener if any
+                toggleBtn.removeEventListener('click', toggleCoverageDetailsTable);
+                // Add new listener
+                toggleBtn.addEventListener('click', toggleCoverageDetailsTable);
+                console.log('✅ Coverage details toggle button listener attached');
+            }
+        }
+
+        // Coverage table sorting state
+        let coverageSortState = {
+            column: null,
+            direction: null
+        };
+
+        // Handle sorting for coverage table
+        function handleCoverageSort(column) {
+            console.log('📊 Coverage table sort clicked for column:', column);
+            
+            if (coverageSortState.column === column) {
+                coverageSortState.direction = coverageSortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                coverageSortState.column = column;
+                coverageSortState.direction = 'asc';
+            }
+            
+            console.log('📊 New coverage sort state:', coverageSortState);
+            updateCoverageSortIndicators();
+            applyCoverageSorting();
+        }
+
+        // Update sort indicators for coverage table
+        function updateCoverageSortIndicators() {
+            const coverageTable = document.getElementById('coverageTable');
+            if (!coverageTable) return;
+            
+            // Reset all indicators
+            coverageTable.querySelectorAll('.sort-indicator').forEach(indicator => {
+                indicator.textContent = '↕';
+                indicator.parentElement.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            // Set active indicator
+            if (coverageSortState.column) {
+                const activeHeader = coverageTable.querySelector(`th[data-column="${coverageSortState.column}"] .sortable-header`);
+                if (activeHeader) {
+                    const indicator = activeHeader.querySelector('.sort-indicator');
+                    if (indicator) {
+                        indicator.textContent = coverageSortState.direction === 'asc' ? '↑' : '↓';
+                        activeHeader.classList.add(`sort-${coverageSortState.direction}`);
+                    }
+                }
+            }
+        }
+
+        // Apply sorting to coverage table data
+        function applyCoverageSorting() {
+            if (!coverageSortState.column || !testingCoverageData) return;
+            
+            console.log('📊 Applying coverage table sorting...');
+            console.log('📊 Current filters when sorting:', {
+                team: coverageTeamFilter,
+                sprint: testingCoverageFilters.sprint
+            });
+            
+            // Use the last filtered results if available, otherwise get fresh data
+            let sortedStories;
+            
+            if (window.lastFilteredResults && coverageTeamFilter) {
+                console.log('📊 Using last filtered results for sorting');
+                sortedStories = [...window.lastFilteredResults.stories];
+            } else {
+                console.log('📊 Getting fresh data for sorting');
+                const filters = {};
+                if (testingCoverageFilters.sprint && testingCoverageFilters.sprint !== 'all') {
+                    filters.sprint = testingCoverageFilters.sprint;
+                }
+                if (coverageTeamFilter) {
+                    filters.team = coverageTeamFilter;
+                }
+                
+                // Apply the same filtering logic
+                sortedStories = [...testingCoverageData];
+                if (filters.sprint) {
+                    sortedStories = sortedStories.filter(story => story.sprint === filters.sprint);
+                }
+                if (filters.team) {
+                    sortedStories = sortedStories.filter(story => story.leadingTeam === filters.team);
+                }
+            }
+            
+            // Sort the data
+            sortedStories.sort((a, b) => {
+                let aValue = a[coverageSortState.column];
+                let bValue = b[coverageSortState.column];
+                
+                // Handle different data types
+                switch (coverageSortState.column) {
+                    case 'storyPoints':
+                        aValue = parseFloat(aValue) || 0;
+                        bValue = parseFloat(bValue) || 0;
+                        break;
+                    case 'testCaseCreated':
+                        // Sort Yes before No
+                        aValue = aValue === 'Yes' ? 1 : 0;
+                        bValue = bValue === 'Yes' ? 1 : 0;
+                        break;
+                    default:
+                        // String sorting
+                        aValue = String(aValue || '').toLowerCase();
+                        bValue = String(bValue || '').toLowerCase();
+                }
+                
+                if (aValue < bValue) return coverageSortState.direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return coverageSortState.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            // Update the table with sorted data (preserve sort state)
+            updateCoverageDetailsTable(sortedStories, true);
+            console.log('✅ Coverage table sorting applied');
+        }
+
+        // Setup sorting event listeners for coverage table
+        function setupCoverageTableSorting() {
+            const coverageTable = document.getElementById('coverageTable');
+            if (!coverageTable) return;
+            
+            console.log('🔧 Setting up coverage table sorting...');
+            
+            coverageTable.querySelectorAll('th[data-column]').forEach(header => {
+                // Remove existing listener to avoid duplicates
+                const newHeader = header.cloneNode(true);
+                header.parentNode.replaceChild(newHeader, header);
+                
+                newHeader.addEventListener('click', () => {
+                    const column = newHeader.getAttribute('data-column');
+                    handleCoverageSort(column);
+                });
+            });
+            
+            console.log('✅ Coverage table sorting setup complete');
+        }
+
+        // Coverage table team filter state
+        let coverageTeamFilter = null;
+
+        // Apply combined team and sprint filtering to coverage table
+        function applyCombinedCoverageFilters(team = null, sprint = undefined) {
+            if (!testingCoverageData) {
+                console.error('❌ Cannot apply filters: testingCoverageData is not loaded');
+                return;
+            }
+            
+            if (!Array.isArray(testingCoverageData) || testingCoverageData.length === 0) {
+                console.error('❌ Cannot apply filters: testingCoverageData is empty or not an array', {
+                    isArray: Array.isArray(testingCoverageData),
+                    length: testingCoverageData?.length,
+                    type: typeof testingCoverageData
+                });
+                return;
+            }
+            
+            console.log('🔍 Applying combined coverage filters:', { team, sprint });
+            console.log('🔍 Sprint parameter check:', {
+                sprintParam: sprint,
+                sprintParamType: typeof sprint,
+                sprintIsUndefined: sprint === undefined,
+                sprintIsNull: sprint === null,
+                willPreserveSprintFilter: sprint === undefined
+            });
+            console.log('🔍 Current state BEFORE update:', {
+                currentTeamFilter: coverageTeamFilter,
+                currentSprintFilter: testingCoverageFilters.sprint,
+                paramTeam: team,
+                paramSprint: sprint
+            });
+            
+            // CRITICAL: Preserve existing sprint filter if no sprint parameter provided
+            const preserveSprintFilter = sprint === undefined;
+            if (preserveSprintFilter) {
+                console.log('🔒 PRESERVING existing sprint filter:', testingCoverageFilters.sprint);
+            } else {
+                console.log('⚠️ Will UPDATE sprint filter to:', sprint);
+            }
+            
+            // Update filter states
+            if (team !== undefined) {
+                coverageTeamFilter = team;
+                console.log('📝 Updated team filter to:', coverageTeamFilter);
+            }
+            if (sprint !== undefined) {
+                testingCoverageFilters.sprint = sprint;
+                console.log('📝 Updated sprint filter to:', testingCoverageFilters.sprint);
+            }
+            
+            // Build combined filters object
+            const filters = {};
+            console.log('🔨 BUILDING FILTERS OBJECT:');
+            console.log('  Raw sprint filter value:', testingCoverageFilters.sprint);
+            console.log('  Sprint filter type:', typeof testingCoverageFilters.sprint);
+            console.log('  Sprint filter length:', testingCoverageFilters.sprint?.length);
+            console.log('  Sprint filter truthy:', !!testingCoverageFilters.sprint);
+            console.log('  Sprint filter !== "all":', testingCoverageFilters.sprint !== 'all');
+            console.log('  Sprint filter !== null:', testingCoverageFilters.sprint !== null);
+            console.log('  Sprint filter !== "":', testingCoverageFilters.sprint !== '');
+            
+            // FIXED: Simplified condition to avoid JavaScript evaluation issues
+            const sprintValue = testingCoverageFilters.sprint;
+            console.log('🔍 Sprint condition check:');
+            console.log('  sprintValue:', sprintValue);
+            console.log('  typeof sprintValue:', typeof sprintValue);
+            
+            // More robust condition check
+            if (sprintValue && typeof sprintValue === 'string' && sprintValue.length > 0 && sprintValue !== 'all') {
+                filters.sprint = sprintValue;
+                console.log('✅ Added sprint to filters:', filters.sprint);
+            } else {
+                console.log('❌ No sprint filter - condition failed');
+                console.log('❌ Reason: either empty, null, "all", or wrong type');
+                console.log('❌ Value details:', {
+                    value: sprintValue,
+                    type: typeof sprintValue,
+                    length: sprintValue?.length,
+                    isString: typeof sprintValue === 'string',
+                    hasLength: sprintValue && sprintValue.length > 0,
+                    notAll: sprintValue !== 'all'
+                });
+            }
+            
+            console.log('  Raw team filter value:', coverageTeamFilter);
+            console.log('  Team filter type:', typeof coverageTeamFilter);
+            console.log('  Team filter truthy:', !!coverageTeamFilter);
+            
+            if (coverageTeamFilter && coverageTeamFilter !== null) {
+                filters.team = coverageTeamFilter;
+                console.log('✅ Added team to filters:', filters.team);
+            } else {
+                console.log('❌ No team filter - failed condition. Value:', coverageTeamFilter);
+            }
+            
+            console.log('🔍 Active coverage filters:', filters);
+            console.log('🔍 Filters object keys:', Object.keys(filters));
+            console.log('🔍 filters.sprint exists:', 'sprint' in filters);
+            console.log('🔍 filters.team exists:', 'team' in filters);
+            
+            // CRITICAL CHECK: Are we applying BOTH filters?
+            const applyingBothFilters = 'sprint' in filters && 'team' in filters;
+            console.log('🎯 APPLYING BOTH SPRINT AND TEAM FILTERS:', applyingBothFilters);
+            
+            if (!applyingBothFilters) {
+                console.warn('⚠️ WARNING: Not applying both filters!');
+                console.warn('  Sprint filter active:', 'sprint' in filters, filters.sprint);
+                console.warn('  Team filter active:', 'team' in filters, filters.team);
+            }
+            
+            console.log('🔍 Will apply filters in order: 1) Sprint, 2) Team');
+            
+            // DETAILED FILTER DEBUG
+            console.log('🔬 DETAILED FILTER ANALYSIS:');
+            console.log('  filters.sprint exists:', !!filters.sprint);
+            console.log('  filters.sprint value:', filters.sprint);
+            console.log('  filters.sprint type:', typeof filters.sprint);
+            console.log('  filters.sprint !== "all":', filters.sprint !== 'all');
+            console.log('  Sprint filter condition met:', !!(filters.sprint && filters.sprint !== 'all'));
+            console.log('  filters.team exists:', !!filters.team);
+            console.log('  filters.team value:', filters.team);
+            
+            // Apply filters to get filtered data
+            let filteredStories = [...testingCoverageData];
+            console.log(`📊 Starting with ${filteredStories.length} total stories`);
+            
+            // Debug: Show team distribution in original data
+            const teamDistribution = {};
+            testingCoverageData.forEach(story => {
+                const team = story.leadingTeam || 'Unknown';
+                teamDistribution[team] = (teamDistribution[team] || 0) + 1;
+            });
+            console.log('📊 Team distribution in all data:', teamDistribution);
+            
+            // Debug: Show sprint distribution in original data
+            const sprintDistribution = {};
+            testingCoverageData.forEach(story => {
+                const sprint = story.sprint || 'No Sprint';
+                sprintDistribution[sprint] = (sprintDistribution[sprint] || 0) + 1;
+            });
+            console.log('📊 Sprint distribution in all data (first 10):');
+            Object.keys(sprintDistribution).slice(0, 10).forEach(sprint => {
+                console.log(`  "${sprint}": ${sprintDistribution[sprint]} stories`);
+            });
+            
+            // Check if our target sprint exists
+            if (filters.sprint) {
+                const targetSprintExists = sprintDistribution.hasOwnProperty(filters.sprint);
+                console.log(`🎯 Target sprint "${filters.sprint}" exists in data:`, targetSprintExists);
+                if (targetSprintExists) {
+                    console.log(`   Stories in target sprint: ${sprintDistribution[filters.sprint]}`);
+                } else {
+                    console.log('   Available sprints containing "PI3.26":');
+                    Object.keys(sprintDistribution).filter(s => s.includes('PI3.26')).forEach(sprint => {
+                        console.log(`     "${sprint}": ${sprintDistribution[sprint]} stories`);
+                    });
+                }
+            }
+            
+            // Step 1: Apply Sprint Filter
+            console.log('🔍 Checking if sprint filter should be applied...');
+            console.log('  filters.sprint:', filters.sprint);
+            console.log('  typeof filters.sprint:', typeof filters.sprint);
+            console.log('  filters.sprint exists:', !!filters.sprint);
+            console.log('  filters.sprint !== "all":', filters.sprint !== 'all');
+            
+            if (filters.sprint && typeof filters.sprint === 'string' && filters.sprint !== 'all') {
+                const beforeSprintFilter = filteredStories.length;
+                console.log(`🕒 STEP 1: Applying sprint filter "${filters.sprint}" to ${beforeSprintFilter} stories...`);
+                
+                // Debug: Show first few stories and their sprint values
+                console.log('Sample story sprints before filtering:');
+                filteredStories.slice(0, 3).forEach(story => {
+                    const match = story.sprint === filters.sprint;
+                    console.log(`  ${story.key}: "${story.sprint}" ${match ? '✅' : '❌'}`);
+                });
+                
+                filteredStories = filteredStories.filter(story => {
+                    const matches = story.sprint === filters.sprint;
+                    return matches;
+                });
+                
+                console.log(`📊 Sprint filter result: ${beforeSprintFilter} -> ${filteredStories.length} stories match sprint "${filters.sprint}"`);
+                
+                if (filteredStories.length === 0) {
+                    console.warn(`❌ No stories found for sprint "${filters.sprint}"`);
+                    // Show available sprints for debugging
+                    const sprints = {};
+                    testingCoverageData.forEach(story => {
+                        const sprint = story.sprint || 'No Sprint';
+                        sprints[sprint] = (sprints[sprint] || 0) + 1;
+                    });
+                    console.log('Available sprints (first 10):', Object.keys(sprints).slice(0, 10));
+                }
+            } else {
+                console.log('🕒 STEP 1: No sprint filter applied (showing all sprints)');
+            }
+            
+            // Step 2: Apply Team Filter
+            if (filters.team) {
+                const beforeTeamFilter = filteredStories.length;
+                console.log(`👥 STEP 2: Applying team filter "${filters.team}" to ${beforeTeamFilter} stories...`);
+                
+                filteredStories = filteredStories.filter(story => {
+                    const storyTeam = story.leadingTeam || '';
+                    const targetTeam = filters.team || '';
+                    const matches = storyTeam === targetTeam;
+                    
+                    // Debug first few non-matches for troubleshooting
+                    if (!matches && story.leadingTeam && beforeTeamFilter <= 5) {
+                        console.log(`🔍 Story ${story.key}: "${story.leadingTeam}" != "${filters.team}"`);
+                    }
+                    return matches;
+                });
+                
+                console.log(`📊 Team filter result: ${beforeTeamFilter} -> ${filteredStories.length} stories match team "${filters.team}"`);
+                
+                if (filteredStories.length === 0) {
+                    console.warn(`❌ No stories found for team "${filters.team}" after sprint filtering`);
+                    
+                    // Show available teams in the sprint-filtered data for debugging
+                    const teamsInFilteredData = {};
+                    let tempFiltered = [...testingCoverageData];
+                    if (filters.sprint && filters.sprint !== 'all') {
+                        tempFiltered = tempFiltered.filter(story => story.sprint === filters.sprint);
+                    }
+                    tempFiltered.forEach(story => {
+                        const team = story.leadingTeam || 'Unknown';
+                        teamsInFilteredData[team] = (teamsInFilteredData[team] || 0) + 1;
+                    });
+                    console.log('Available teams in current sprint:', Object.keys(teamsInFilteredData));
+                }
+            } else {
+                console.log('👥 STEP 2: No team filter applied (showing all teams)');
+            }
+            
+            // Update the coverage table if it's visible
+            const coverageTable = document.getElementById('coverageDetailsTable');
+            console.log('📊 Coverage table visibility check:', {
+                tableExists: !!coverageTable,
+                display: coverageTable?.style.display,
+                isVisible: coverageTable && coverageTable.style.display !== 'none'
+            });
+            
+            if (coverageTable && coverageTable.style.display !== 'none') {
+                console.log(`📊 Updating table with ${filteredStories.length} filtered stories`);
+                updateCoverageDetailsTable(filteredStories);
+            } else if (coverageTable) {
+                console.log('📊 Table exists but is hidden - not updating');
+            }
+            
+            // If no team filter (overall view), update the full display to refresh KPIs
+            if (!coverageTeamFilter) {
+                updateTestingCoverageDisplay();
+            } else {
+                // Only update active states for team filtering (don't refresh whole display)
+                updateCoverageKpiActiveStates();
+            }
+            
+            console.log(`✅ Applied combined filters: ${filteredStories.length} stories shown`);
+            
+            // FINAL VERIFICATION: What filters were actually applied?
+            const finalVerification = {
+                totalStarting: testingCoverageData.length,
+                totalEnding: filteredStories.length,
+                sprintFilterApplied: 'sprint' in filters,
+                teamFilterApplied: 'team' in filters,
+                sprintValue: filters.sprint,
+                teamValue: filters.team,
+                bothFiltersApplied: 'sprint' in filters && 'team' in filters
+            };
+            
+            console.log('🎯 FINAL FILTER VERIFICATION:', finalVerification);
+            
+            if (!finalVerification.bothFiltersApplied && testingCoverageFilters.sprint && coverageTeamFilter) {
+                console.error('🚨 PROBLEM: Expected both filters but only got one!');
+                console.error('  Expected sprint:', testingCoverageFilters.sprint);
+                console.error('  Expected team:', coverageTeamFilter);
+                console.error('  Actually applied:', filters);
+            }
+            
+            // Store the filtered result to prevent race conditions
+            window.lastFilteredResults = {
+                stories: filteredStories,
+                timestamp: Date.now(),
+                teamFilter: coverageTeamFilter,
+                sprintFilter: testingCoverageFilters.sprint
+            };
+            console.log('💾 Stored filtered results to prevent race conditions');
+            
+            // Show first few filtered stories for verification
+            if (filteredStories.length > 0 && filteredStories.length <= 10) {
+                console.log('📋 Final filtered stories:');
+                filteredStories.forEach(story => {
+                    console.log(`  ${story.key}: Team="${story.leadingTeam}", Sprint="${story.sprint}", Summary="${story.summary?.substring(0, 40)}..."`);
+                });
+            } else if (filteredStories.length > 10) {
+                console.log(`📋 Final result: ${filteredStories.length} stories (showing first 3):`);
+                filteredStories.slice(0, 3).forEach(story => {
+                    console.log(`  ${story.key}: Team="${story.leadingTeam}", Sprint="${story.sprint}"`);
+                });
+            }
+        }
+
+        // Update active states for KPI tiles
+        function updateCoverageKpiActiveStates() {
+            // Remove active state from all tiles
+            document.querySelectorAll('.coverage-kpi-card').forEach(card => {
+                card.classList.remove('active-filter');
+            });
+            
+            // Add active state to currently filtered team
+            if (coverageTeamFilter) {
+                let targetId = '';
+                switch (coverageTeamFilter) {
+                    case 'MIS - CORP': targetId = 'corpTeamCoverageKpi'; break;
+                    case 'MIS - GTC': targetId = 'gtcTeamCoverageKpi'; break;
+                    case 'MIS - GTM': targetId = 'gtmTeamCoverageKpi'; break;
+                    case 'MIS - Platform': targetId = 'platformTeamCoverageKpi'; break;
+                }
+                if (targetId) {
+                    const targetCard = document.getElementById(targetId)?.closest('.coverage-kpi-card');
+                    if (targetCard) {
+                        targetCard.classList.add('active-filter');
+                    }
+                }
+            }
+        }
+
+        // Handle KPI tile clicks
+        function handleCoverageKpiClick(team) {
+            console.log('🎯 Coverage KPI clicked:', team);
+            console.log('📊 Current state before filtering:', {
+                coverageTeamFilter,
+                sprintFilter: testingCoverageFilters.sprint,
+                sprintFilterType: typeof testingCoverageFilters.sprint,
+                sprintFilterEmpty: !testingCoverageFilters.sprint,
+                totalStories: testingCoverageData?.length
+            });
+            
+            // Show current sprint filter button text for verification
+            const sprintButton = document.getElementById('coverageSprintFilterButton');
+            const sprintButtonText = sprintButton?.querySelector('span:first-child')?.textContent;
+            console.log('📊 Sprint filter UI shows:', sprintButtonText);
+            
+            // Show the table if it's not visible (so user can see filtered results)
+            const coverageTable = document.getElementById('coverageDetailsTable');
+            const showBtn = document.getElementById('showCoverageDetailsBtn');
+            if (coverageTable && coverageTable.style.display === 'none') {
+                console.log('👁️ Showing coverage table to display filtered results');
+                coverageTable.style.display = 'block';
+                if (showBtn) {
+                    showBtn.textContent = 'Hide Coverage Details ▲';
+                }
+            }
+            
+            // CRITICAL: Ensure sprint filter is synced with UI before proceeding
+            
+            console.log('🔍 SPRINT FILTER SYNC CHECK:');
+            console.log('  Variable value:', testingCoverageFilters.sprint);
+            console.log('  Variable type:', typeof testingCoverageFilters.sprint);
+            console.log('  UI shows:', sprintButtonText);
+            console.log('  UI button exists:', !!sprintButton);
+            
+            // More robust auto-fix sprint filter sync issue
+            if ((!testingCoverageFilters.sprint || testingCoverageFilters.sprint === null) && 
+                sprintButtonText && 
+                sprintButtonText !== 'All Sprints' && 
+                sprintButtonText.trim() !== '') {
+                console.log('🔧 AUTO-FIXING: Sprint filter variable is null/empty but UI shows a selection');
+                console.log('🔧 UI shows:', sprintButtonText);
+                testingCoverageFilters.sprint = sprintButtonText;
+                console.log('🔧 Fixed sprint filter from UI:', testingCoverageFilters.sprint);
+            } else if (testingCoverageFilters.sprint) {
+                console.log('✅ Sprint filter is already set correctly:', testingCoverageFilters.sprint);
+            } else {
+                console.log('ℹ️ No sprint filter active (All Sprints selected)');
+            }
+            
+            if (team === 'overall') {
+                // Overall tile - reset team filter but preserve sprint filter
+                console.log('🔄 Resetting to overall view (preserving sprint filter)...');
+                console.log('🔄 Current sprint filter will be preserved:', testingCoverageFilters.sprint);
+                applyCombinedCoverageFilters(null); // Reset team filter, preserve sprint filter (sprint param is undefined)
+                console.log('🔄 Reset to overall coverage view');
+            } else {
+                // Team tile - apply team filter with current sprint
+                console.log(`🔍 Filtering to team: ${team} WITH sprint: ${testingCoverageFilters.sprint}...`);
+                console.log('🔍 This should apply BOTH team AND sprint filters together');
+                
+                applyCombinedCoverageFilters(team); // Set team filter, preserve sprint filter (sprint param is undefined)
+                console.log(`🔍 Applied combined filters: Team=${team}, Sprint=${testingCoverageFilters.sprint}`);
+            }
+        }
+
+        // Setup KPI click event listeners
+        function setupCoverageKpiClickHandlers() {
+            console.log('🔧 Setting up coverage KPI click handlers...');
+            
+            // Overall coverage KPI
+            const overallKpi = document.querySelector('.coverage-kpi-card.main-kpi');
+            console.log('🔍 Overall KPI element found:', !!overallKpi);
+            if (overallKpi && !overallKpi.hasAttribute('data-click-handler-attached')) {
+                overallKpi.addEventListener('click', () => {
+                    console.log('🎯 Overall KPI clicked!');
+                    handleCoverageKpiClick('overall');
+                });
+                overallKpi.style.cursor = 'pointer';
+                overallKpi.setAttribute('data-click-handler-attached', 'true');
+                console.log('✅ Overall KPI click handler added');
+            }
+            
+            // Team KPIs
+            const teamKpis = [
+                { id: 'corpTeamCoverageKpi', team: 'MIS - CORP' },
+                { id: 'gtcTeamCoverageKpi', team: 'MIS - GTC' },
+                { id: 'gtmTeamCoverageKpi', team: 'MIS - GTM' },
+                { id: 'platformTeamCoverageKpi', team: 'MIS - Platform' }
+            ];
+            
+            teamKpis.forEach(({ id, team }) => {
+                const element = document.getElementById(id);
+                const kpiCard = element?.closest('.coverage-kpi-card');
+                console.log(`🔍 Team ${team} - Element found: ${!!element}, Card found: ${!!kpiCard}`);
+                if (kpiCard && !kpiCard.hasAttribute('data-click-handler-attached')) {
+                    kpiCard.addEventListener('click', () => {
+                        console.log(`🎯 Team KPI clicked: ${team}`);
+                        handleCoverageKpiClick(team);
+                    });
+                    kpiCard.style.cursor = 'pointer';
+                    kpiCard.setAttribute('data-click-handler-attached', 'true');
+                    console.log(`✅ Added click handler for ${team}`);
+                } else if (!kpiCard) {
+                    console.warn(`❌ Could not find KPI card for ${team} (ID: ${id})`);
+                }
+            });
+            
+            console.log('✅ Coverage KPI click handlers setup complete');
+        }
+
         // Sync button functionality
         let syncInProgress = false;
         const API_BASE = 'http://localhost:3002';
@@ -4425,7 +6130,12 @@
                 }
                 
                 loadData(); // Re-initialize dashboard with fresh data
-                
+
+                // Re-load testing coverage data
+                if (typeof loadTestingCoverageData === 'function') {
+                    await loadTestingCoverageData();
+                }
+
                 // Re-initialize event listeners after sync
                 initializeEventListeners();
                 
@@ -5600,6 +7310,12 @@
                 velocityTrendElement.textContent = stats.bugVelocity.trend;
                 velocityTrendElement.className = `stat-trend ${stats.bugVelocity.trendClass}`;
                 console.log('Velocity trend set to:', stats.bugVelocity.trend);
+            }
+            
+            // Load and update testing coverage display
+            if (typeof loadTestingCoverageData === 'function') {
+                loadTestingCoverageData();
+                console.log('🔄 Testing coverage data loading initiated');
             }
         }
 
@@ -7331,6 +9047,9 @@
             }
 
             // Note: Sync button listener now handled by dedicated setupSyncButtonListener() function
+            
+            // Setup coverage details toggle button listener
+            setupCoverageDetailsToggleListener();
 
             console.log('✅ Date range listeners setup complete');
         }
@@ -7504,6 +9223,1122 @@
                     console.error('❌ Button was removed from DOM - this is the problem!');
                 }
             }, 100);
+            
+            // Initialize coverage filters (will populate when data is loaded)
+            if (typeof initializeCoverageFilters === 'function') {
+                console.log('🎯 Setting up coverage filters...');
+                setTimeout(() => {
+                    initializeCoverageFilters();
+                }, 500); // Delay to ensure data is loaded
+            }
+        }
+
+        // TESTING COVERAGE FILTER SETUP FUNCTIONS
+        
+        // Setup coverage sprint filter button handler
+        function setupCoverageSprintFilter() {
+            const button = document.getElementById('coverageSprintFilterButton');
+            const dropdown = document.getElementById('coverageSprintFilterDropdown');
+            
+            if (button && dropdown) {
+                // Remove existing listeners to avoid duplicates
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                
+                newButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = dropdown.classList.contains('show');
+                    
+                    // Close all OTHER dropdowns first
+                    document.querySelectorAll('.multiselect-dropdown').forEach(d => {
+                        if (d !== dropdown) d.classList.remove('show');
+                    });
+                    
+                    // Toggle current dropdown
+                    dropdown.classList.toggle('show');
+                });
+                
+                console.log('✅ Coverage sprint filter button handler setup');
+            }
+            
+            // Setup clear button
+            const clearBtn = document.querySelector('[data-filter="coverageSprint"]');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    testingCoverageFilters.sprint = null;
+                    updateCoverageSprintButtonText();
+                    
+                    // Update with combined filters (preserving team filter if active)
+                    console.log('🔄 Clearing sprint filter, updating display...');
+                    updateTestingCoverageDisplay();
+                    
+                    // Hide clear button
+                    clearBtn.style.display = 'none';
+                    
+                    // Update selected state in dropdown - select "All Sprints"
+                    dropdown.querySelectorAll('.coverage-sprint-option').forEach(option => {
+                        option.classList.remove('selected');
+                        if (option.getAttribute('data-value') === '') {
+                            option.classList.add('selected');
+                        }
+                    });
+                    
+                    console.log('🎯 Coverage sprint filter cleared');
+                });
+                
+                // Initially hide clear button
+                clearBtn.style.display = 'none';
+            }
+        }
+        
+        // Populate coverage sprint dropdown with grouped and sorted options
+        function populateCoverageSprintDropdown(sprints) {
+            const dropdown = document.getElementById('coverageSprintFilterDropdown');
+            
+            if (!dropdown) {
+                console.warn('Coverage sprint dropdown not found');
+                return;
+            }
+            
+            dropdown.innerHTML = '';
+            
+            if (!sprints || sprints.length === 0) {
+                console.log('No sprints to populate');
+                return;
+            }
+            
+            // Add "All Sprints" option
+            const allOption = document.createElement('div');
+            allOption.className = 'coverage-sprint-option';
+            allOption.textContent = 'All Sprints';
+            allOption.setAttribute('data-value', '');
+            allOption.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectCoverageSprintOption('', 'All Sprints');
+            });
+            dropdown.appendChild(allOption);
+            
+            // Group sprints by year using the same logic as main sprint filter
+            const sprintsByYear = {};
+            const sortedSprints = [...sprints].sort((a, b) => {
+                // Extract year from actual story data for this sprint
+                const yearA = extractYearFromSprintData(a, storiesData);
+                const yearB = extractYearFromSprintData(b, storiesData);
+                if (yearA !== yearB) return yearB - yearA; // Newer years first
+
+                // Within same year, sort by sprint end date (most recent first)
+                const dateA = extractSprintEndDate(a, yearA);
+                const dateB = extractSprintEndDate(b, yearB);
+
+                if (dateA && dateB) {
+                    return dateB - dateA; // Most recent dates first
+                } else if (dateA) {
+                    return -1; // Sprints with dates come before those without
+                } else if (dateB) {
+                    return 1; // Sprints with dates come before those without
+                } else {
+                    return a.localeCompare(b); // Alphabetical for sprints without dates
+                }
+            });
+
+            sortedSprints.forEach(sprint => {
+                const year = extractYearFromSprintData(sprint, storiesData);
+                if (!sprintsByYear[year]) {
+                    sprintsByYear[year] = [];
+                }
+                sprintsByYear[year].push(sprint);
+            });
+
+            // Add year headers and sprint options
+            const years = Object.keys(sprintsByYear).sort((a, b) => b - a); // Newer years first
+            years.forEach((year, yearIndex) => {
+                // Add year header (except for first year after "All Sprints")
+                const yearHeader = document.createElement('div');
+                yearHeader.className = 'coverage-year-header';
+                yearHeader.textContent = year;
+                dropdown.appendChild(yearHeader);
+                
+                // Add sprints for this year
+                sprintsByYear[year].forEach(sprint => {
+                    const sprintOption = document.createElement('div');
+                    sprintOption.className = 'coverage-sprint-option';
+                    sprintOption.textContent = sprint;
+                    sprintOption.setAttribute('data-value', sprint);
+                    
+                    sprintOption.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectCoverageSprintOption(sprint, sprint);
+                    });
+                    
+                    dropdown.appendChild(sprintOption);
+                });
+            });
+            
+            console.log(`✅ Coverage sprint dropdown populated with ${sprints.length} sprints grouped by year`);
+        }
+        
+        // Handle sprint option selection
+        function selectCoverageSprintOption(value, displayText) {
+            console.log('🎯 selectCoverageSprintOption called:', {
+                value: value,
+                displayText: displayText,
+                valueType: typeof value,
+                valueLength: value?.length,
+                isEmpty: value === '',
+                isNull: value === null,
+                isUndefined: value === undefined
+            });
+            
+            // FIXED: Don't convert empty string to null, only convert actual null/undefined
+            if (value === '' || value === null || value === undefined) {
+                testingCoverageFilters.sprint = null;
+                console.log('✅ Set sprint filter to null (All Sprints)');
+            } else {
+                testingCoverageFilters.sprint = value;
+                console.log('✅ Set sprint filter to:', testingCoverageFilters.sprint);
+            }
+            
+            // Update button text
+            updateCoverageSprintButtonText();
+            
+            // Show/hide clear button
+            const clearBtn = document.querySelector('[data-filter="coverageSprint"]');
+            if (clearBtn) {
+                clearBtn.style.display = testingCoverageFilters.sprint ? 'block' : 'none';
+            }
+            
+            // Update selected state in dropdown
+            const dropdown = document.getElementById('coverageSprintFilterDropdown');
+            dropdown.querySelectorAll('.coverage-sprint-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.getAttribute('data-value') === value) {
+                    option.classList.add('selected');
+                }
+            });
+            
+            // Close dropdown
+            dropdown.classList.remove('show');
+            
+            // Update coverage display with combined filters
+            // FIXED: Don't pass parameters, just let the function use the current filter state
+            console.log('🎯 Sprint selection complete, updating display...');
+            console.log('🎯 Current filters after sprint selection:', {
+                sprint: testingCoverageFilters.sprint,
+                team: coverageTeamFilter
+            });
+            
+            // Instead of calling applyCombinedCoverageFilters with parameters, just update the display
+            updateTestingCoverageDisplay();
+            
+            console.log('🎯 Coverage sprint selected:', testingCoverageFilters.sprint || 'All Sprints');
+        }
+        
+        // Update coverage sprint button text
+        function updateCoverageSprintButtonText() {
+            const button = document.getElementById('coverageSprintFilterButton');
+            const span = button?.querySelector('span:first-child');
+            
+            if (span) {
+                span.textContent = testingCoverageFilters.sprint || 'All Sprints';
+            }
+        }
+
+        // Test sprint dropdown selection directly
+        window.testSprintSelection = function(sprintName) {
+            console.log('🧪 Testing sprint selection with:', sprintName);
+            console.log('🧪 Current sprint filter before:', testingCoverageFilters.sprint);
+            
+            if (sprintName === 'All Sprints' || sprintName === '') {
+                selectCoverageSprintOption('', 'All Sprints');
+            } else {
+                selectCoverageSprintOption(sprintName, sprintName);
+            }
+            
+            console.log('🧪 Sprint filter after selection:', testingCoverageFilters.sprint);
+            console.log('🧪 Button text:', document.getElementById('coverageSprintFilterButton')?.querySelector('span:first-child')?.textContent);
+        };
+        
+        // Check dropdown setup
+        window.checkDropdownSetup = function() {
+            const dropdown = document.getElementById('coverageSprintFilterDropdown');
+            const options = dropdown?.querySelectorAll('.coverage-sprint-option');
+            
+            console.log('🔍 Dropdown setup check:');
+            console.log('  Dropdown exists:', !!dropdown);
+            console.log('  Number of options:', options?.length || 0);
+            
+            if (options && options.length > 0) {
+                console.log('  Options:');
+                options.forEach((option, index) => {
+                    console.log(`    ${index}: "${option.textContent}" (value: "${option.getAttribute('data-value')}")`);
+                });
+                
+                // Test clicking the first sprint option
+                const firstSprintOption = Array.from(options).find(opt => opt.getAttribute('data-value') !== '');
+                if (firstSprintOption) {
+                    console.log('  Testing first sprint option click...');
+                    firstSprintOption.click();
+                }
+            }
+        };
+        
+        // Quick test for the specific sprint the user mentioned
+        window.testPlatformSprintFilter = function() {
+            console.log('🧪 Testing Platform team filter with PI3.26.Sprint 1 (30/3 -27/4) 2');
+            
+            // First set the sprint filter
+            testSprintSelection('PI3.26.Sprint 1 (30/3 -27/4) 2');
+            
+            setTimeout(() => {
+                console.log('🧪 Now testing Platform team KPI click...');
+                // Then test the team filter
+                const platformTile = document.querySelector('[data-team="MIS - Platform"]');
+                if (platformTile) {
+                    platformTile.click();
+                } else {
+                    console.error('Platform tile not found');
+                }
+            }, 500);
+        };
+        
+        // Reset all filters
+        window.resetAllFilters = function() {
+            console.log('🔄 Resetting all filters...');
+            coverageTeamFilter = null;
+            testingCoverageFilters.sprint = null;
+            
+            // Update UI
+            updateCoverageSprintButtonText();
+            updateCoverageKpiActiveStates();
+            updateTestingCoverageDisplay();
+            
+            console.log('✅ All filters reset');
+        };
+        
+        // Test sorting functionality
+        window.testSorting = function() {
+            console.log('🧪 Testing coverage table sorting...');
+            
+            // Reset all filters first
+            resetAllFilters();
+            
+            setTimeout(() => {
+                console.log('🧪 Current sort state before test:', coverageSortState);
+                
+                // Test sorting by story key (column exists on all tables)
+                console.log('🧪 Testing first sort by "key" column...');
+                handleCoverageSort('key');
+                
+                setTimeout(() => {
+                    console.log('🧪 Sort state after first sort:', coverageSortState);
+                    console.log('🧪 Testing second sort by same column (should toggle direction)...');
+                    handleCoverageSort('key');
+                    
+                    setTimeout(() => {
+                        console.log('🧪 Sort state after second sort:', coverageSortState);
+                        console.log('🧪 Expected: direction should have toggled from asc to desc or vice versa');
+                        
+                        // Test sorting by different column
+                        console.log('🧪 Testing sort by different column (storyPoints)...');
+                        handleCoverageSort('storyPoints');
+                        
+                        setTimeout(() => {
+                            console.log('🧪 Final sort state:', coverageSortState);
+                            console.log('🧪 Expected: column=storyPoints, direction=asc');
+                        }, 200);
+                    }, 200);
+                }, 200);
+            }, 500);
+        };
+
+        // Test sorting with filters
+        window.testSortingWithFilters = function() {
+            console.log('🧪 Testing sorting with active filters...');
+            
+            // First apply some filters
+            testSprintSelection('PI3.26.Sprint 1 (30/3 -27/4) 2');
+            
+            setTimeout(() => {
+                // Click Platform team
+                const platformTile = document.querySelector('[data-team="MIS - Platform"]');
+                if (platformTile) {
+                    platformTile.click();
+                    
+                    setTimeout(() => {
+                        console.log('🧪 Applied filters, now testing sort...');
+                        console.log('🧪 Current filters:', {
+                            team: coverageTeamFilter,
+                            sprint: testingCoverageFilters.sprint
+                        });
+                        
+                        // Test sorting
+                        handleCoverageSort('key');
+                        
+                        setTimeout(() => {
+                            console.log('🧪 Sort state after filtering + sorting:', coverageSortState);
+                            console.log('🧪 Trying second sort (should toggle direction)...');
+                            handleCoverageSort('key');
+                            
+                            setTimeout(() => {
+                                console.log('🧪 Final sort state:', coverageSortState);
+                                console.log('🧪 If this shows column=key with toggled direction, sorting with filters works!');
+                            }, 200);
+                        }, 200);
+                    }, 500);
+                }
+            }, 500);
+        };
+
+        // Test sprint preservation fix
+        window.testSprintPreservation = function() {
+            console.log('🧪 Testing sprint preservation fix...');
+            
+            // Set a sprint manually
+            testingCoverageFilters.sprint = 'PI3.26.Sprint 1 (30/3 -27/4) 2';
+            console.log('🧪 Set sprint to:', testingCoverageFilters.sprint);
+            
+            // Now call applyCombinedCoverageFilters with just a team (should preserve sprint)
+            console.log('🧪 Calling applyCombinedCoverageFilters with team only...');
+            applyCombinedCoverageFilters('MIS - Platform');
+            
+            console.log('🧪 Sprint after combined filter call:', testingCoverageFilters.sprint);
+            console.log('🧪 Team after combined filter call:', coverageTeamFilter);
+            console.log('🧪 Expected: Sprint should be preserved, Team should be "MIS - Platform"');
+        };
+        
+        // Test the exact scenario the user described
+        window.testUserScenario = function() {
+            console.log('🧪 Testing user scenario: Select PI3.26.Sprint 1, then click Platform tile');
+            
+            // Step 1: Reset everything
+            resetAllFilters();
+            
+            setTimeout(() => {
+                console.log('🧪 Step 1: Selecting sprint...');
+                testSprintSelection('PI3.26.Sprint 1 (30/3 -27/4) 2');
+                
+                setTimeout(() => {
+                    console.log('🧪 Step 2: Clicking Platform KPI tile...');
+                    console.log('🧪 Current sprint filter before KPI click:', testingCoverageFilters.sprint);
+                    
+                    // Find and click the Platform tile
+                    const platformTile = document.querySelector('[data-team="MIS - Platform"]');
+                    if (platformTile) {
+                        platformTile.click();
+                        
+                        setTimeout(() => {
+                            console.log('🧪 FINAL RESULT:');
+                            console.log('  Sprint filter:', testingCoverageFilters.sprint);
+                            console.log('  Team filter:', coverageTeamFilter);
+                            console.log('  Expected: Sprint="PI3.26.Sprint 1 (30/3 -27/4) 2", Team="MIS - Platform"');
+                            console.log('  Should show 2 Platform stories for the selected sprint');
+                        }, 200);
+                    } else {
+                        console.error('🧪 Platform KPI tile not found!');
+                    }
+                }, 500);
+            }, 500);
+        };
+
+        // Debug function to check testing coverage data
+        window.debugCoverageData = function() {
+            console.log('🔍 DEBUG: Testing Coverage Data Analysis');
+            console.log('Total stories:', testingCoverageData?.length);
+            
+            if (!testingCoverageData || testingCoverageData.length === 0) {
+                console.log('❌ No testing coverage data available');
+                return;
+            }
+            
+            // Team breakdown
+            const teams = {};
+            testingCoverageData.forEach(story => {
+                const team = story.leadingTeam || 'Unknown';
+                if (!teams[team]) teams[team] = [];
+                teams[team].push(story.key);
+            });
+            
+            console.log('📊 Team breakdown:');
+            Object.keys(teams).forEach(team => {
+                console.log(`  ${team}: ${teams[team].length} stories`, teams[team].slice(0, 3));
+            });
+            
+            // Check MIS - Platform specifically
+            const platformStories = testingCoverageData.filter(s => s.leadingTeam === 'MIS - Platform');
+            console.log('🎯 MIS - Platform stories:', platformStories.length);
+            platformStories.forEach(story => {
+                console.log(`  ${story.key}: ${story.summary?.substring(0, 50)}...`);
+            });
+            
+            return { teams, platformStories };
+        };
+
+        // Manual test function for KPI filtering
+        window.testKpiFiltering = function(team) {
+            console.log('🧪 MANUAL TEST: Testing KPI filtering for team:', team);
+            handleCoverageKpiClick(team || 'MIS - Platform');
+        };
+
+        // Complete diagnostic function
+        window.debugFilteringFlow = function() {
+            console.log('🔬 COMPLETE FILTERING DIAGNOSTIC');
+            console.log('1. Testing coverage data available:', !!testingCoverageData, testingCoverageData?.length);
+            
+            if (testingCoverageData) {
+                const platformStories = testingCoverageData.filter(s => s.leadingTeam === 'MIS - Platform');
+                console.log('2. MIS - Platform stories in data:', platformStories.length);
+                
+                console.log('3. Testing filter function directly...');
+                const testFiltered = testingCoverageData.filter(story => story.leadingTeam === 'MIS - Platform');
+                console.log('4. Direct filter result:', testFiltered.length, 'stories');
+                
+                console.log('5. Current filter state:', {
+                    teamFilter: coverageTeamFilter,
+                    sprintFilter: testingCoverageFilters.sprint
+                });
+                
+                console.log('6. Testing KPI click handler...');
+                const platformKpi = document.getElementById('platformTeamCoverageKpi')?.closest('.coverage-kpi-card');
+                console.log('7. Platform KPI element found:', !!platformKpi);
+                console.log('8. Has click handler attached:', platformKpi?.hasAttribute('data-click-handler-attached'));
+                
+                console.log('9. Simulating click...');
+                if (platformKpi) {
+                    platformKpi.click();
+                } else {
+                    console.log('10. Manual call instead...');
+                    handleCoverageKpiClick('MIS - Platform');
+                }
+            }
+        };
+
+        // Test specific sprint + team combination
+        window.testSprintTeamCombination = function(sprintName, teamName) {
+            console.log('🧪 ===== TESTING SPRINT + TEAM COMBINATION =====');
+            console.log(`Testing: Sprint="${sprintName}" + Team="${teamName}"`);
+            
+            if (!testingCoverageData) {
+                console.error('❌ No testing coverage data available');
+                return;
+            }
+            
+            // Manual filter test
+            let testResults = [...testingCoverageData];
+            console.log(`📊 Starting with ${testResults.length} total stories`);
+            
+            // Apply sprint filter
+            if (sprintName && sprintName !== 'all') {
+                testResults = testResults.filter(story => story.sprint === sprintName);
+                console.log(`📊 After sprint filter: ${testResults.length} stories in "${sprintName}"`);
+            }
+            
+            // Apply team filter
+            if (teamName) {
+                testResults = testResults.filter(story => story.leadingTeam === teamName);
+                console.log(`📊 After team filter: ${testResults.length} stories for "${teamName}"`);
+            }
+            
+            console.log('🎯 Expected result:', testResults.length, 'stories');
+            console.log('📝 Matching stories:');
+            testResults.forEach(story => {
+                console.log(`  ${story.key}: ${story.summary?.substring(0, 50)}... (Team: ${story.leadingTeam}, Sprint: ${story.sprint})`);
+            });
+            
+            // Now test the actual filtering function
+            console.log('\n🔄 Testing actual filtering function...');
+            
+            // First set the sprint filter
+            if (sprintName) {
+                testingCoverageFilters.sprint = sprintName;
+                console.log('📝 Set sprint filter to:', testingCoverageFilters.sprint);
+            }
+            
+            // Then apply team filter via KPI click
+            if (teamName) {
+                handleCoverageKpiClick(teamName);
+            }
+            
+            setTimeout(() => {
+                const tableBody = document.getElementById('coverageTableBody');
+                const actualRows = tableBody?.children.length || 0;
+                console.log(`🏁 Actual result: ${actualRows} rows in table`);
+                
+                if (actualRows === testResults.length) {
+                    console.log('✅ SUCCESS: Filter combination working correctly!');
+                } else {
+                    console.log(`❌ MISMATCH: Expected ${testResults.length}, got ${actualRows}`);
+                }
+            }, 200);
+            
+            return testResults;
+        };
+
+        // Complete test suite for coverage filtering
+        window.runCoverageFilterTests = function() {
+            console.log('🧪 ===== COVERAGE FILTER TEST SUITE =====');
+            
+            // Test 1: Data availability
+            console.log('Test 1: Data availability');
+            console.log('  testingCoverageData exists:', !!testingCoverageData);
+            console.log('  testingCoverageData length:', testingCoverageData?.length);
+            
+            if (!testingCoverageData) {
+                console.error('❌ FAILED: No testing coverage data available');
+                return;
+            }
+            
+            // Test 2: Team distribution
+            console.log('Test 2: Team distribution');
+            const teams = {};
+            testingCoverageData.forEach(story => {
+                const team = story.leadingTeam || 'Unknown';
+                teams[team] = (teams[team] || 0) + 1;
+            });
+            Object.keys(teams).forEach(team => {
+                console.log(`  ${team}: ${teams[team]} stories`);
+            });
+            
+            // Test 3: Platform stories specifically
+            console.log('Test 3: MIS - Platform stories');
+            const platformStories = testingCoverageData.filter(s => s.leadingTeam === 'MIS - Platform');
+            console.log(`  Found ${platformStories.length} MIS - Platform stories`);
+            platformStories.slice(0, 3).forEach(story => {
+                console.log(`    ${story.key}: ${story.summary?.substring(0, 40)}...`);
+            });
+            
+            // Test 4: KPI elements
+            console.log('Test 4: KPI elements');
+            const platformKpi = document.getElementById('platformTeamCoverageKpi')?.closest('.coverage-kpi-card');
+            console.log('  Platform KPI found:', !!platformKpi);
+            console.log('  Has click handler:', platformKpi?.hasAttribute('data-click-handler-attached'));
+            
+            // Test 5: Table visibility
+            console.log('Test 5: Table state');
+            const table = document.getElementById('coverageDetailsTable');
+            console.log('  Table exists:', !!table);
+            console.log('  Table display:', table?.style.display);
+            console.log('  Table visible:', table && table.style.display !== 'none');
+            
+            // Test 6: Manual filtering
+            console.log('Test 6: Manual filtering test');
+            console.log('  Calling handleCoverageKpiClick("MIS - Platform")...');
+            handleCoverageKpiClick('MIS - Platform');
+            
+            setTimeout(() => {
+                const tableBody = document.getElementById('coverageTableBody');
+                const visibleRows = tableBody?.children.length || 0;
+                console.log(`  Result: Table now shows ${visibleRows} rows`);
+                
+                if (visibleRows === platformStories.length) {
+                    console.log('✅ SUCCESS: Filtering appears to be working correctly!');
+                } else {
+                    console.log('❌ ISSUE: Expected', platformStories.length, 'rows, got', visibleRows);
+                }
+            }, 100);
+            
+            console.log('🧪 ===== TEST COMPLETE =====');
+        };
+
+        // Check current filter state
+        window.checkCurrentFilterState = function() {
+            console.log('🔍 ===== CURRENT FILTER STATE =====');
+            console.log('Team filter (coverageTeamFilter):', coverageTeamFilter);
+            console.log('Sprint filter (testingCoverageFilters.sprint):', testingCoverageFilters.sprint);
+            console.log('Sprint filter type:', typeof testingCoverageFilters.sprint);
+            console.log('Sprint filter empty check:', !testingCoverageFilters.sprint);
+            
+            const sprintButton = document.getElementById('coverageSprintFilterButton');
+            const sprintButtonText = sprintButton?.querySelector('span:first-child')?.textContent;
+            console.log('Sprint button shows:', sprintButtonText);
+            
+            // Check if there are any stories with this exact sprint name
+            if (testingCoverageData && testingCoverageFilters.sprint) {
+                const matchingStories = testingCoverageData.filter(story => 
+                    story.sprint === testingCoverageFilters.sprint
+                );
+                console.log(`Stories matching current sprint filter: ${matchingStories.length}`);
+                
+                if (matchingStories.length > 0) {
+                    console.log('Sample matching stories:');
+                    matchingStories.slice(0, 3).forEach(story => {
+                        console.log(`  ${story.key}: "${story.sprint}" (Team: ${story.leadingTeam})`);
+                    });
+                }
+                
+                // Also check Platform team specifically
+                const platformInSprint = matchingStories.filter(story => 
+                    story.leadingTeam === 'MIS - Platform'
+                );
+                console.log(`Platform stories in current sprint: ${platformInSprint.length}`);
+            }
+            
+            console.log('=================================');
+        };
+
+        // Show all sprint names in the data
+        window.showAllSprints = function() {
+            console.log('🔍 ===== ALL SPRINT NAMES IN DATA =====');
+            if (!testingCoverageData) {
+                console.error('❌ No testing coverage data available');
+                return;
+            }
+            
+            const sprints = {};
+            testingCoverageData.forEach(story => {
+                const sprint = story.sprint || 'No Sprint';
+                if (!sprints[sprint]) sprints[sprint] = [];
+                sprints[sprint].push(story.key);
+            });
+            
+            Object.keys(sprints).sort().forEach(sprint => {
+                console.log(`"${sprint}": ${sprints[sprint].length} stories`);
+                if (sprint.includes('PI3.26')) {
+                    console.log(`  ⭐ PI3.26 sprint - Sample stories: ${sprints[sprint].slice(0, 3).join(', ')}`);
+                }
+            });
+            
+            // Show current filter setting
+            console.log('\n📋 CURRENT FILTER STATE:');
+            console.log('Sprint filter value:', testingCoverageFilters.sprint);
+            console.log('Team filter value:', coverageTeamFilter);
+            
+            return sprints;
+        };
+
+        // Manual debug - force filter state and test
+        window.forceFilterTest = function(sprintName, teamName) {
+            console.log('🧪 ===== FORCE FILTER TEST =====');
+            console.log(`Setting sprint filter to: "${sprintName}"`);
+            console.log(`Setting team filter to: "${teamName}"`);
+            
+            // Manually set filter states
+            testingCoverageFilters.sprint = sprintName;
+            coverageTeamFilter = teamName;
+            
+            console.log('Filter states set. Now calling applyCombinedCoverageFilters...');
+            
+            // Call the filter function directly
+            applyCombinedCoverageFilters(undefined, undefined);
+        };
+
+        // Check what's actually in the table DOM
+        window.checkTableContents = function() {
+            console.log('📋 ===== CHECKING ACTUAL TABLE CONTENTS =====');
+            
+            const tableBody = document.getElementById('coverageTableBody');
+            if (!tableBody) {
+                console.error('❌ Table body not found');
+                return;
+            }
+            
+            const rows = Array.from(tableBody.children);
+            console.log(`📊 Table currently shows ${rows.length} rows`);
+            
+            if (rows.length > 0) {
+                console.log('📋 Actual table contents:');
+                rows.slice(0, 5).forEach((row, index) => {
+                    const cells = row.children;
+                    if (cells.length >= 3) {
+                        const key = cells[0].textContent.trim();
+                        const team = cells[2].textContent.trim();
+                        const sprint = cells[3].textContent.trim();
+                        console.log(`  ${index + 1}. ${key}: Team="${team}", Sprint="${sprint}"`);
+                    }
+                });
+                
+                if (rows.length > 5) {
+                    console.log(`  ... and ${rows.length - 5} more rows`);
+                }
+                
+                // Check if all rows match current filters
+                const currentFilters = {
+                    team: coverageTeamFilter,
+                    sprint: testingCoverageFilters.sprint
+                };
+                console.log('🔍 Current filters:', currentFilters);
+                
+                let matchingRows = 0;
+                rows.forEach(row => {
+                    const cells = row.children;
+                    if (cells.length >= 4) {
+                        const team = cells[2].textContent.trim();
+                        const sprint = cells[3].textContent.trim();
+                        
+                        let matches = true;
+                        if (currentFilters.team && team !== currentFilters.team) matches = false;
+                        if (currentFilters.sprint && sprint !== currentFilters.sprint) matches = false;
+                        
+                        if (matches) matchingRows++;
+                    }
+                });
+                
+                console.log(`✅ ${matchingRows}/${rows.length} rows match current filters`);
+                if (matchingRows !== rows.length) {
+                    console.warn('⚠️ Some rows do not match the active filters!');
+                }
+            }
+            
+            return {
+                rowCount: rows.length,
+                filters: {
+                    team: coverageTeamFilter,
+                    sprint: testingCoverageFilters.sprint
+                }
+            };
+        };
+
+        // Test the exact scenario from user's images
+        window.testUserScenario = function() {
+            console.log('🎯 Testing exact user scenario...');
+            
+            // Based on the user's images, the sprint name appears to be PI3.26.Sprint 2
+            const sprintName = 'PI3.26.Sprint 2 (27/4 -15/5)'; // This is what I can see from the console
+            const teamName = 'MIS - Platform';
+            
+            console.log('Setting up scenario:', {sprint: sprintName, team: teamName});
+            
+            // First check if this sprint exists in data
+            if (testingCoverageData) {
+                const storiesInSprint = testingCoverageData.filter(story => story.sprint === sprintName);
+                console.log(`Stories in sprint "${sprintName}": ${storiesInSprint.length}`);
+                
+                const platformInSprint = storiesInSprint.filter(story => story.leadingTeam === teamName);
+                console.log(`Platform stories in sprint: ${platformInSprint.length}`);
+                
+                if (platformInSprint.length > 0) {
+                    console.log('Platform stories in this sprint:');
+                    platformInSprint.forEach(story => {
+                        console.log(`  ${story.key}: ${story.summary?.substring(0, 50)}...`);
+                    });
+                }
+            }
+            
+            // Now test the filtering
+            return forceFilterTest(sprintName, teamName);
+        };
+
+        // Complete debug for race condition
+        window.debugRaceCondition = function() {
+            console.log('🔬 ===== RACE CONDITION DEBUG =====');
+            
+            // Add observers to watch for table updates
+            const tableBody = document.getElementById('coverageTableBody');
+            if (tableBody) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            const rowCount = tableBody.children.length;
+                            console.log(`🔄 TABLE UPDATED: Now has ${rowCount} rows`);
+                            console.log('📍 Stack trace:', new Error().stack.split('\n').slice(1, 4).map(s => s.trim()));
+                        }
+                    });
+                });
+                
+                observer.observe(tableBody, { childList: true });
+                console.log('👁️ Table observer set up - will log all table updates');
+                
+                // Store observer for cleanup
+                window.tableObserver = observer;
+            }
+            
+            console.log('🔬 Observer setup complete. Now try your filtering...');
+        };
+
+        // Stop the race condition debugging
+        window.stopDebugRaceCondition = function() {
+            if (window.tableObserver) {
+                window.tableObserver.disconnect();
+                window.tableObserver = null;
+                console.log('👁️ Table observer stopped');
+            }
+        };
+
+        // Check and fix sprint filter state
+        window.checkSprintFilterState = function() {
+            console.log('🔍 ===== SPRINT FILTER STATE CHECK =====');
+            
+            // Check variable state
+            console.log('testingCoverageFilters.sprint:', testingCoverageFilters.sprint);
+            console.log('Type:', typeof testingCoverageFilters.sprint);
+            
+            // Check UI state
+            const sprintButton = document.getElementById('coverageSprintFilterButton');
+            const sprintButtonText = sprintButton?.querySelector('span:first-child')?.textContent;
+            console.log('UI shows:', sprintButtonText);
+            
+            // Check if they match
+            const matches = sprintButtonText === testingCoverageFilters.sprint;
+            console.log('Variable matches UI:', matches);
+            
+            if (!matches && sprintButtonText && sprintButtonText !== 'All Sprints') {
+                console.log('🔧 MISMATCH DETECTED - Fixing sprint filter variable...');
+                const oldValue = testingCoverageFilters.sprint;
+                testingCoverageFilters.sprint = sprintButtonText;
+                console.log('Fixed:', oldValue, '→', testingCoverageFilters.sprint);
+                return true; // Fixed
+            }
+            
+            return false; // No fix needed
+        };
+
+        // Manual fix for sprint filter sync
+        window.fixSprintFilter = function() {
+            const fixed = checkSprintFilterState();
+            if (fixed) {
+                console.log('✅ Sprint filter has been synchronized with UI');
+            } else {
+                console.log('ℹ️ Sprint filter is already in sync');
+            }
+            return testingCoverageFilters.sprint;
+        };
+
+        // Test the fixed filtering logic
+        window.testFixedFiltering = function() {
+            console.log('🔧 ===== TESTING FIXED FILTERING LOGIC =====');
+            
+            // First, check and fix sprint filter state
+            console.log('Step 1: Check sprint filter state...');
+            checkSprintFilterState();
+            
+            // If still null, manually set it
+            if (!testingCoverageFilters.sprint) {
+                console.log('Step 2: Sprint filter is null, setting manually...');
+                testingCoverageFilters.sprint = 'PI3.26.Sprint 1 (30/3 -27/4) 2';
+                console.log('✅ Set sprint filter:', testingCoverageFilters.sprint);
+            } else {
+                console.log('Step 2: Sprint filter is already set:', testingCoverageFilters.sprint);
+            }
+            
+            // Now simulate clicking Platform tile (should combine sprint + team)
+            console.log('🎯 Simulating Platform KPI click...');
+            handleCoverageKpiClick('MIS - Platform');
+            
+            // Check results
+            setTimeout(() => {
+                const tableBody = document.getElementById('coverageTableBody');
+                const actualRows = tableBody?.children.length || 0;
+                console.log(`🏁 Result: ${actualRows} rows in table`);
+                
+                // Manual verification
+                if (testingCoverageData) {
+                    const expectedStories = testingCoverageData.filter(story => 
+                        story.sprint === 'PI3.26.Sprint 1 (30/3 -27/4) 2' && 
+                        story.leadingTeam === 'MIS - Platform'
+                    );
+                    console.log(`📊 Expected: ${expectedStories.length} stories`);
+                    
+                    if (actualRows === expectedStories.length) {
+                        console.log('✅ SUCCESS: Combined filtering is working!');
+                    } else {
+                        console.log('❌ ISSUE: Expected', expectedStories.length, 'got', actualRows);
+                    }
+                }
+            }, 300);
+        };
+
+        // Quick debug for current sprint state
+        window.debugCurrentSprintState = function() {
+            console.log('🔍 ===== CURRENT SPRINT STATE DEBUG =====');
+            
+            console.log('1. Sprint Filter Variable:');
+            console.log('   testingCoverageFilters.sprint:', testingCoverageFilters.sprint);
+            console.log('   Type:', typeof testingCoverageFilters.sprint);
+            
+            console.log('2. Sprint UI Button:');
+            const sprintButton = document.getElementById('coverageSprintFilterButton');
+            const sprintButtonText = sprintButton?.querySelector('span:first-child')?.textContent;
+            console.log('   Button exists:', !!sprintButton);
+            console.log('   Button text:', sprintButtonText);
+            
+            console.log('3. Team Filter:');
+            console.log('   coverageTeamFilter:', coverageTeamFilter);
+            
+            console.log('4. Testing Data:');
+            console.log('   testingCoverageData available:', !!testingCoverageData);
+            console.log('   Total stories:', testingCoverageData?.length);
+            
+            if (testingCoverageData && sprintButtonText && sprintButtonText !== 'All Sprints') {
+                const storiesInSprint = testingCoverageData.filter(s => s.sprint === sprintButtonText);
+                console.log(`5. Stories in "${sprintButtonText}":`, storiesInSprint.length);
+                
+                const platformInSprint = storiesInSprint.filter(s => s.leadingTeam === 'MIS - Platform');
+                console.log('   Platform stories in sprint:', platformInSprint.length);
+            }
+            
+            return {
+                sprintFilter: testingCoverageFilters.sprint,
+                uiText: sprintButtonText,
+                teamFilter: coverageTeamFilter
+            };
+        };
+
+        // Test sprint dropdown functionality
+        window.testSprintDropdown = function(sprintName) {
+            console.log('🧪 ===== TESTING SPRINT DROPDOWN =====');
+            
+            if (!sprintName) {
+                sprintName = 'PI3.26.Sprint 1 (30/3 -27/4) 2';
+            }
+            
+            console.log('Step 1: Current sprint filter state:');
+            console.log('  testingCoverageFilters.sprint:', testingCoverageFilters.sprint);
+            
+            const sprintButton = document.getElementById('coverageSprintFilterButton');
+            const sprintButtonText = sprintButton?.querySelector('span:first-child')?.textContent;
+            console.log('  UI shows:', sprintButtonText);
+            
+            console.log('Step 2: Manually calling selectCoverageSprintOption...');
+            selectCoverageSprintOption(sprintName, sprintName);
+            
+            console.log('Step 3: After manual selection:');
+            console.log('  testingCoverageFilters.sprint:', testingCoverageFilters.sprint);
+            const newButtonText = sprintButton?.querySelector('span:first-child')?.textContent;
+            console.log('  UI now shows:', newButtonText);
+            
+            console.log('Step 4: Testing KPI click with this sprint...');
+            handleCoverageKpiClick('MIS - Platform');
+            
+            return testingCoverageFilters.sprint;
+        };
+
+        // Comprehensive test that fixes sprint sync issues
+        window.testWithSprintSync = function() {
+            console.log('🔧 ===== COMPREHENSIVE SPRINT + TEAM FILTER TEST =====');
+            
+            console.log('Step 1: Check initial sprint filter state...');
+            const wasFixed = checkSprintFilterState();
+            
+            console.log('Step 2: Current filter states:');
+            console.log('  Sprint filter:', testingCoverageFilters.sprint);
+            console.log('  Team filter:', coverageTeamFilter);
+            
+            console.log('Step 3: Simulating Platform KPI click...');
+            handleCoverageKpiClick('MIS - Platform');
+            
+            console.log('Step 4: Checking results...');
+            setTimeout(() => {
+                const tableBody = document.getElementById('coverageTableBody');
+                const actualRows = tableBody?.children.length || 0;
+                console.log(`Final result: ${actualRows} rows in table`);
+                
+                // Verify what's actually in the table
+                if (actualRows > 0 && actualRows <= 5) {
+                    console.log('Table contents:');
+                    Array.from(tableBody.children).forEach((row, i) => {
+                        const cells = row.children;
+                        const key = cells[0]?.textContent?.trim() || 'N/A';
+                        const team = cells[2]?.textContent?.trim() || 'N/A';
+                        const sprint = cells[3]?.textContent?.trim() || 'N/A';
+                        console.log(`  ${i+1}. ${key}: Team="${team}", Sprint="${sprint}"`);
+                    });
+                }
+                
+                return actualRows;
+            }, 300);
+        };
+
+        // Quick test for the user's specific scenario  
+        window.testPlatformSprintScenario = function() {
+            console.log('🎯 Testing Platform + PI3.26.Sprint 1 scenario (should show 2 results)...');
+            return testSprintTeamCombination('PI3.26.Sprint 1 (30/3 -27/4) 2', 'MIS - Platform');
+        };
+        
+        // Helper function to extract year from sprint name using story data
+        function extractYearFromSprintData(sprintName, storiesData) {
+            if (!sprintName || !storiesData) return 2026; // Default year
+
+            // Handle "No Data" and similar non-sprint values
+            if (sprintName === 'No Data' || sprintName === 'N/A' || sprintName === 'None') {
+                return 2025; // Put these in 2025 section
+            }
+
+            // Find stories that belong to this sprint and analyze their creation dates
+            const storiesInThisSprint = storiesData.filter(story => story.sprint === sprintName);
+
+            if (storiesInThisSprint.length === 0) {
+                // Fallback to pattern matching if no stories found
+                return extractYearFromSprintName(sprintName);
+            }
+
+            // Analyze creation dates of stories in this sprint
+            const yearCounts = {};
+            storiesInThisSprint.forEach(story => {
+                const createdDate = story.createdDate || story.created;
+                if (createdDate) {
+                    let year;
+                    if (createdDate.includes('/')) {
+                        const parts = createdDate.split('/');
+                        if (parts.length === 3) {
+                            year = parseInt(parts[2]); // mm/dd/yyyy format
+                        }
+                    } else if (createdDate.includes('-')) {
+                        year = new Date(createdDate).getFullYear();
+                    }
+                    
+                    if (year && year >= 2024 && year <= 2027) {
+                        yearCounts[year] = (yearCounts[year] || 0) + 1;
+                    }
+                }
+            });
+
+            // Return the year with the most stories, or fallback to pattern matching
+            const years = Object.keys(yearCounts);
+            if (years.length > 0) {
+                return parseInt(years.reduce((a, b) => yearCounts[a] > yearCounts[b] ? a : b));
+            }
+
+            // Fallback to pattern matching
+            return extractYearFromSprintName(sprintName);
+        }
+
+        // Helper function for pattern matching sprint names (fallback)
+        function extractYearFromSprintName(sprintName) {
+            // Try to extract PI year information
+            const piMatch = sprintName.match(/PI(\d+)\.(\d+)/);
+            if (piMatch) {
+                const piNumber = parseInt(piMatch[1]);
+                const yearSuffix = parseInt(piMatch[2]);
+                return 2000 + yearSuffix; // PI2.26 -> 2026, PI3.25 -> 2025
+            }
+
+            // Look for explicit year in parentheses
+            const yearMatch = sprintName.match(/\(.*(\d{4}).*\)/);
+            if (yearMatch) {
+                return parseInt(yearMatch[1]);
+            }
+
+            // Default: sprints with "26" -> 2026, others -> 2025
+            return sprintName.includes('26') ? 2026 : 2025;
+        }
+        
+        // Initialize coverage filters with data
+        function initializeCoverageFilters() {
+            if (!testingCoverageData || testingCoverageData.length === 0) {
+                console.log('❌ No testing coverage data available for coverage filters');
+                return;
+            }
+
+            console.log('🎯 Initializing coverage filters with', testingCoverageData.length, 'stories');
+
+            // Get unique sprints
+            const sprints = getUniqueSprints(testingCoverageData);
+            
+            // Populate sprint dropdown
+            populateCoverageSprintDropdown(sprints);
+            
+            // Setup filter handlers
+            setupCoverageSprintFilter();
+            
+            // Initial display update
+            updateTestingCoverageDisplay();
+            
+            // Ensure KPI click handlers are set up (fallback)
+            setTimeout(() => {
+                setupCoverageKpiClickHandlers();
+            }, 100);
+            
+            console.log('✅ Coverage filters initialized');
         }
 
         function reinitializeEventListeners() {
@@ -7519,6 +10354,12 @@
             setupPaginationEventListeners();
             setupSyncButtonListener(); // Dedicated sync button setup
             setupSortingEventListeners(); // CRITICAL: Add sorting listeners back
+            
+            // Reinitialize coverage filters
+            if (typeof initializeCoverageFilters === 'function') {
+                initializeCoverageFilters();
+            }
+            
             console.log('✅ All event listeners reinitialized');
         }
 
