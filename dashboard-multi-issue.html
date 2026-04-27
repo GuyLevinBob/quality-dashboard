@@ -2309,10 +2309,6 @@
                                 <div class="multiselect-dropdown" id="testCaseCreatedFilterDropdown"></div>
                             </div>
                         </div>
-                        <div class="filter-group">
-                            <label>&nbsp;</label>
-                            <button id="clearFiltersButton" class="clear-button">Clear</button>
-                        </div>
                     </div>
 
                     <!-- Group 2: Timeline & Search -->
@@ -2373,6 +2369,10 @@
                         <div class="filter-group">
                             <label for="searchFilter">Search:</label>
                             <input type="text" id="searchFilter" placeholder="Find issues...">
+                        </div>
+                        <div class="filter-group">
+                            <label>&nbsp;</label>
+                            <button id="clearFiltersButton" class="clear-button">Clear</button>
                         </div>
                     </div>
                 </div>
@@ -5896,29 +5896,71 @@
             const bugDateStr = bug.createdDate || bug.created;
             if (!bugDateStr) return true;
             
+            // DEBUG: Add detailed logging for date filtering issues
+            const isDebugCase = bug.key === 'BT-11965' || (dateFromValue === '2026-04-01' && Math.random() < 0.05);
+            if (isDebugCase) {
+                console.log(`🐛 DEBUG checkDateRange for ${bug.key} (${bug.issueType}):`, {
+                    bugDateStr: bugDateStr,
+                    dateFromValue: dateFromValue,
+                    dateToValue: dateToValue
+                });
+            }
+            
             // Parse the bug date (handle both formats: "4/19/2026" and ISO dates)
+            // Ensure consistent local timezone handling for all issue types
             let bugDate;
             if (bugDateStr.includes('/')) {
                 // Handle US format like "4/19/2026"
                 const parts = bugDateStr.split('/');
-                bugDate = new Date(parts[2], parts[0] - 1, parts[1]); // Year, Month-1, Day
+                bugDate = new Date(parts[2], parts[0] - 1, parts[1], 0, 0, 0, 0); // Year, Month-1, Day, explicit local time
             } else {
                 bugDate = new Date(bugDateStr);
+                // Normalize to local timezone if this was parsed as UTC
+                if (bugDate.getTimezoneOffset() !== 0) {
+                    bugDate = new Date(bugDate.getTime() + (bugDate.getTimezoneOffset() * 60000));
+                }
             }
             
             if (isNaN(bugDate.getTime())) return true; // Invalid date, don't filter out
             
-            // Compare with filter dates
+            // Compare with filter dates - ensure consistent timezone handling
             if (dateFromValue) {
-                const fromDate = new Date(dateFromValue);
-                if (bugDate < fromDate) return false;
+                const fromDate = new Date(dateFromValue + 'T00:00:00');
+                fromDate.setHours(0, 0, 0, 0); // Ensure start of day in local timezone
+                
+                // DEBUG: Log date comparison details
+                if (isDebugCase) {
+                    console.log(`🐛 DEBUG comparison for ${bug.key}:`, {
+                        bugDate: bugDate.toISOString(),
+                        fromDate: fromDate.toISOString(),
+                        bugDate_valueOf: bugDate.valueOf(),
+                        fromDate_valueOf: fromDate.valueOf(),
+                        bugDate_less_than_fromDate: bugDate < fromDate
+                    });
+                }
+                
+                if (bugDate < fromDate) {
+                    if (isDebugCase) {
+                        console.log(`🐛 DEBUG final result for ${bug.key}: FAIL (before dateFrom)`);
+                    }
+                    return false;
+                }
             }
             
             if (dateToValue) {
-                const toDate = new Date(dateToValue);
-                // Set to end of day for "to" date
-                toDate.setHours(23, 59, 59, 999);
-                if (bugDate > toDate) return false;
+                const toDate = new Date(dateToValue + 'T23:59:59');
+                toDate.setHours(23, 59, 59, 999); // Ensure end of day in local timezone
+                if (bugDate > toDate) {
+                    if (isDebugCase) {
+                        console.log(`🐛 DEBUG final result for ${bug.key}: FAIL (after dateTo)`);
+                    }
+                    return false;
+                }
+            }
+            
+            // DEBUG: Log final result
+            if (isDebugCase) {
+                console.log(`🐛 DEBUG final result for ${bug.key}: PASS (within date range)`);
             }
             
             return true;
@@ -6027,7 +6069,7 @@
         
         // Set up button click handlers for filter dropdowns
         function setupFilterButtonHandlers() {
-            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'testCaseCreated', 'aiGenerated'];
+            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'testCaseCreated', 'generatedFromAI'];
             
             filterTypes.forEach(filterType => {
                 const button = document.getElementById(`${filterType}FilterButton`);
@@ -6064,7 +6106,7 @@
 
         // Set up clear button event handlers
         function setupClearButtonHandlers() {
-            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'testCaseCreated', 'aiGenerated'];
+            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'testCaseCreated', 'generatedFromAI'];
             
             // Handle regular filter clear buttons
             filterTypes.forEach(filterType => {
@@ -6401,7 +6443,9 @@
                     leadingTeam: 'Choose a Value',
                     system: 'Choose a Value',
                     sprint: 'Choose a Value',
-                    regression: 'Choose a Value'
+                    regression: 'Choose a Value',
+                    testCaseCreated: 'Choose a Value',
+                    generatedFromAI: 'Choose a Value'
                 };
                 button.textContent = labels[filterType];
             } else if (selections.size === 1) {
@@ -6543,9 +6587,15 @@
             console.log('🔧 MULTI-ISSUE FILTER: applyFilters called with:', {
                 sourceDataCount: currentData.length,
                 activeIssueTypes: activeIssueTypes,
+                issueTypeBreakdown: {
+                    bugs: currentData.filter(i => i.issueType === 'Bug').length,
+                    stories: currentData.filter(i => i.issueType === 'Story').length,
+                    testCases: currentData.filter(i => i.issueType === 'Test' || i.issueType === 'Test Case').length
+                },
                 leadingTeamFilters: Array.from(filterSelections.leadingTeam),
                 statusFilters: Array.from(filterSelections.status),
-                testCaseCreatedFilters: Array.from(filterSelections.testCaseCreated)
+                testCaseCreatedFilters: Array.from(filterSelections.testCaseCreated),
+                dateFilters: { dateFrom: dateFromValue, dateTo: dateToValue }
             });
             
             filteredData = currentData.filter(bug => {
@@ -6599,6 +6649,19 @@
 
                 // Add date range filtering logic
                 const dateMatch = checkDateRange(bug, dateFromValue, dateToValue);
+                
+                // DEBUG: Log date filtering for first few items of each issue type when date filter is active
+                if ((dateFromValue || dateToValue) && Math.random() < 0.01) { // Log 1% of items when date filter is active
+                    console.log('📅 Date filter debug:', {
+                        key: bug.key,
+                        issueType: bug.issueType,
+                        createdDate: bug.createdDate,
+                        created: bug.created,
+                        dateFromValue: dateFromValue,
+                        dateToValue: dateToValue,
+                        dateMatch: dateMatch
+                    });
+                }
                 
                 // Check if bug passes all table filters
                 const tableFiltersMatch = statusMatch && severityMatch && assigneeMatch &&
@@ -6725,6 +6788,24 @@
             } catch (error) {
                 console.error('❌ Error refreshing charts after filter change:', error);
                 // Don't let chart errors break filtering functionality
+            }
+            
+            // DEBUG: Log final filtering results by issue type
+            if (dateFromValue || dateToValue) {
+                console.log('🔧 FINAL DATE FILTER RESULTS:', {
+                    totalFiltered: filteredData.length,
+                    issueTypeBreakdown: {
+                        bugs: filteredData.filter(i => i.issueType === 'Bug').length,
+                        stories: filteredData.filter(i => i.issueType === 'Story').length,
+                        testCases: filteredData.filter(i => i.issueType === 'Test' || i.issueType === 'Test Case').length
+                    },
+                    sampleDates: filteredData.slice(0, 3).map(i => ({
+                        key: i.key,
+                        issueType: i.issueType,
+                        createdDate: i.createdDate,
+                        created: i.created
+                    }))
+                });
             }
             
             // Trigger enhancement for newly filtered/visible bugs

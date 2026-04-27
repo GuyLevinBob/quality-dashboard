@@ -857,6 +857,7 @@ class BugApiServer {
             base.testCaseCreated = issue.testCaseCreated;
             base.fixDuration = issue.fixDuration || null;
         } else if (issue.issueType === 'Test Case' || issue.issueType === 'Test') {
+            base.generatedFromAI = issue.generatedFromAI;
             base.aiGeneratedTestCases = issue.aiGeneratedTestCases;
             base.testType = issue.testType;
         }
@@ -1028,7 +1029,10 @@ class BugApiServer {
                     console.log(`🔍 MULTI-ISSUE SYNC - BT-13419 EXTRACTION RESULT: "${baseIssue.testCaseCreated}"`);
                 }
             } else if (baseIssue.issueType === 'Test Case' || baseIssue.issueType === 'Test') {
-                baseIssue.aiGeneratedTestCases = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_11392);
+                const aiGeneratedValue = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_11392);
+                // Convert URL field to Yes/No/No Data format for dashboard filter
+                baseIssue.generatedFromAI = aiGeneratedValue && aiGeneratedValue.trim() !== '' ? 'Yes' : 'No';
+                baseIssue.aiGeneratedTestCases = aiGeneratedValue; // Keep original URL for reference
                 baseIssue.testType = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields[JIRA_FIELD_MAPPINGS.TEST_TYPE]);
             }
 
