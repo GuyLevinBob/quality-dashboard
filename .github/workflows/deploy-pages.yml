@@ -1,0 +1,94 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Allow manual triggering
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: Verify dashboard files
+      run: |
+        echo "📊 Verifying dashboard files for GitHub Pages deployment..."
+        
+        # Check required files exist
+        required_files=("index.html" "dashboard-multi-issue.html" "dashboard-automated-fixed.html")
+        
+        for file in "${required_files[@]}"; do
+          if [ -f "$file" ]; then
+            echo "✅ Found: $file"
+            file_size=$(du -h "$file" | cut -f1)
+            echo "   Size: $file_size"
+          else
+            echo "❌ Missing required file: $file"
+            exit 1
+          fi
+        done
+        
+        # Check for data files (optional but recommended)
+        data_files=("dashboard-data.json" "multi-dashboard-data.json" "bugs-cache.json")
+        
+        for file in "${data_files[@]}"; do
+          if [ -f "$file" ]; then
+            echo "✅ Data file: $file"
+            file_size=$(du -h "$file" | cut -f1)
+            echo "   Size: $file_size"
+          else
+            echo "⚠️  Optional data file not found: $file"
+          fi
+        done
+        
+        echo "🚀 All required files verified for deployment"
+        
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        # Upload entire repository root
+        path: '.'
+        
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+      
+    - name: Deployment success notification
+      run: |
+        echo "🎉 Successfully deployed to GitHub Pages!"
+        echo ""
+        echo "📊 Your HiBob Analytics Platform is now live at:"
+        echo "🌐 Main URL: ${{ steps.deployment.outputs.page_url }}"
+        echo ""
+        echo "📈 Direct Dashboard Links:"
+        echo "   🏠 Landing Page: ${{ steps.deployment.outputs.page_url }}"
+        echo "   🐛 Bug Dashboard: ${{ steps.deployment.outputs.page_url }}dashboard-automated-fixed.html"
+        echo "   📊 Multi-Issue Dashboard: ${{ steps.deployment.outputs.page_url }}dashboard-multi-issue.html"
+        echo ""
+        echo "✅ Features Available:"
+        echo "   • Interactive JIRA analytics"
+        echo "   • Real-time filtering and charts"  
+        echo "   • Testing coverage analytics"
+        echo "   • Mobile-responsive design"
+        echo "   • HiBob brand styling"
