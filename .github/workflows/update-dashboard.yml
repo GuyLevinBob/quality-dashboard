@@ -5,9 +5,12 @@ on:
     branches: [ main ]
     paths: 
       - 'dashboard-data.json'
+      - 'multi-dashboard-data.json'
       - 'dashboard-automated-fixed.html'
+      - 'dashboard-multi-issue.html'
       - 'index.html'
       - 'bugs-cache.json'
+      - 'data/cache/issues-cache.json'
   workflow_dispatch: # Allow manual triggering
 
 jobs:
@@ -20,21 +23,50 @@ jobs:
       
     - name: Verify dashboard data
       run: |
-        echo "📊 Verifying dashboard data file..."
+        echo "📊 Verifying dashboard data files..."
+        
+        # Check bug dashboard data
         if [ -f "dashboard-data.json" ]; then
-          echo "✅ Dashboard data file exists"
-          wc -l dashboard-data.json
-          echo "📈 Data file ready for deployment"
+          echo "✅ Bug dashboard data file exists"
+          BUG_LINES=$(wc -l < dashboard-data.json)
+          BUG_SIZE=$(du -h dashboard-data.json | cut -f1)
+          echo "   Lines: $BUG_LINES, Size: $BUG_SIZE"
         else
-          echo "❌ Dashboard data file not found"
+          echo "⚠️  Bug dashboard data file not found"
+        fi
+        
+        # Check multi-issue dashboard data
+        if [ -f "multi-dashboard-data.json" ]; then
+          echo "✅ Multi-issue dashboard data file exists"
+          MULTI_LINES=$(wc -l < multi-dashboard-data.json)
+          MULTI_SIZE=$(du -h multi-dashboard-data.json | cut -f1)
+          echo "   Lines: $MULTI_LINES, Size: $MULTI_SIZE"
+        else
+          echo "⚠️  Multi-issue dashboard data file not found"
+        fi
+        
+        # Ensure at least one data file exists
+        if [ ! -f "dashboard-data.json" ] && [ ! -f "multi-dashboard-data.json" ]; then
+          echo "❌ No dashboard data files found"
           exit 1
         fi
+        
+        echo "📈 Data files ready for deployment"
         
     - name: Deploy notification
       run: |
         echo "🚀 Dashboard deployment triggered by dashboard updates"
-        echo "📊 GitHub Pages will automatically serve updated dashboard"
+        echo "📊 GitHub Pages will automatically serve updated dashboards"
         echo "🌐 Team dashboard URLs:"
-        echo "   - Main: https://guylevinbob.github.io/quality-dashboard/"
-        echo "   - Direct: https://guylevinbob.github.io/quality-dashboard/dashboard-automated-fixed.html"
+        echo "   - Landing Page: https://guylevinbob.github.io/quality-dashboard/"
+        echo "   - Bug Dashboard: https://guylevinbob.github.io/quality-dashboard/dashboard-automated-fixed.html"
+        echo "   - Multi-Issue Dashboard: https://guylevinbob.github.io/quality-dashboard/dashboard-multi-issue.html"
+        echo ""
+        echo "📈 Dashboard Features:"
+        if [ -f "dashboard-data.json" ]; then
+          echo "   ✅ Bug Analytics - Production issue tracking"
+        fi
+        if [ -f "multi-dashboard-data.json" ]; then
+          echo "   ✅ Multi-Issue Analytics - Comprehensive tracking (Bugs, Stories, Tests)"
+        fi
         echo "✅ Latest changes now live on GitHub Pages"

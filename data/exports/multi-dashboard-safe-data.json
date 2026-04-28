@@ -1,0 +1,186 @@
+{
+  "issues": [
+    {
+      "key": "BT-13421",
+      "project": "BT",
+      "summary": "Production - Intercompany invoice memo error",
+      "status": "In Progress",
+      "priority": "High",
+      "assignee": "John Doe",
+      "leadingTeam": "MIS - GTC",
+      "system": "Netsuite",
+      "sprintName": "PI3.26.Sprint 1 (30/3 -27/4) 2",
+      "createdDate": "4/20/2026",
+      "updatedDate": "4/23/2026",
+      "daysOpen": 3,
+      "issueType": "Bug",
+      "regression": "Yes",
+      "severity": "High",
+      "bugType": "Production"
+    },
+    {
+      "key": "BT-13420",
+      "project": "BT",
+      "summary": "CX Model - Add metrics to PROD_DWH dashboard",
+      "status": "To Do",
+      "priority": "Medium",
+      "assignee": "Alice Johnson",
+      "leadingTeam": "Data",
+      "system": "CX Analytics",
+      "sprintName": "PI3.26.Sprint 1 (30/3 -27/4) 2",
+      "createdDate": "4/18/2026",
+      "updatedDate": "4/22/2026",
+      "daysOpen": 5,
+      "issueType": "Story",
+      "storyPoints": 5,
+      "epicLink": "EPIC-XXX",
+      "testCaseCreated": "Yes"
+    },
+    {
+      "key": "BT-12664",
+      "project": "BT",
+      "summary": "Test Story - SFDC invoice on the payment date",
+      "status": "Done",
+      "priority": "Medium",
+      "assignee": "Test User",
+      "leadingTeam": "MIS - GTC",
+      "system": "SFDC",
+      "sprint": "PI3.26.Sprint 1 (30/3 -27/4) 2",
+      "sprintName": "PI3.26.Sprint 1 (30/3 -27/4) 2",
+      "createdDate": "4/15/2026",
+      "updatedDate": "4/20/2026",
+      "daysOpen": 5,
+      "issueType": "Story",
+      "storyPoints": 3,
+      "epicLink": "EPIC-XXX",
+      "testCaseCreated": "Yes"
+    },
+    {
+      "key": "BT-13419",
+      "project": "BT",
+      "summary": "User Registration Flow - Happy Path Tests",
+      "status": "In Progress",
+      "priority": "Medium",
+      "assignee": "Test Engineer",
+      "leadingTeam": "MIS - QA",
+      "system": "Web Portal",
+      "sprintName": "PI3.26.Sprint 1 (30/3 -27/4) 2",
+      "createdDate": "4/19/2026",
+      "updatedDate": "4/23/2026",
+      "daysOpen": 4,
+      "issueType": "Test",
+      "aiGeneratedTestCases": "[AI_GENERATION_LINK]",
+      "testType": "Functional"
+    },
+    {
+      "key": "BT-13418",
+      "project": "BT",
+      "summary": "API Rate Limiting Implementation",
+      "status": "Done",
+      "priority": "High",
+      "assignee": "Senior Developer",
+      "leadingTeam": "AI Dev",
+      "system": "API Gateway",
+      "sprintName": "PI3.26.Sprint 1 (30/3 -27/4) 2",
+      "createdDate": "4/15/2026",
+      "updatedDate": "4/22/2026",
+      "daysOpen": 7,
+      "issueType": "Story",
+      "storyPoints": 8,
+      "epicLink": "EPIC-XXX",
+      "testCaseCreated": "Yes"
+    },
+    {
+      "key": "BT-13417",
+      "project": "BT",
+      "summary": "Payment Gateway Integration Tests",
+      "status": "Done",
+      "priority": "High",
+      "assignee": "QA Lead",
+      "leadingTeam": "MIS - QA",
+      "system": "Payment System",
+      "sprintName": "PI3.26.Sprint 1 (30/3 -27/4) 2",
+      "createdDate": "4/16/2026",
+      "updatedDate": "4/21/2026",
+      "daysOpen": 5,
+      "issueType": "Test",
+      "aiGeneratedTestCases": "[AI_GENERATION_LINK]",
+      "testType": "Integration"
+    }
+  ],
+  "metadata": {
+    "exported": "2026-04-27T19:11:29.092Z",
+    "totalIssues": 6,
+    "issueTypes": [
+      "Bug",
+      "Story",
+      "Test"
+    ],
+    "dataType": "sanitized",
+    "githubPagesReady": true,
+    "note": "This export contains anonymized multi-issue data suitable for sharing"
+  },
+  "stats": {
+    "totalIssues": 6,
+    "byIssueType": {
+      "Bug": 1,
+      "Story": 3,
+      "Test": 2
+    },
+    "byProject": {
+      "BT": 6
+    },
+    "byStatus": {
+      "In Progress": 2,
+      "To Do": 1,
+      "Done": 3
+    },
+    "byPriority": {
+      "High": 3,
+      "Medium": 3
+    },
+    "byLeadingTeam": {
+      "MIS - GTC": 2,
+      "Data": 1,
+      "MIS - QA": 2,
+      "AI Dev": 1
+    },
+    "bySystem": {
+      "Netsuite": 1,
+      "CX Analytics": 1,
+      "SFDC": 1,
+      "Web Portal": 1,
+      "API Gateway": 1,
+      "Payment System": 1
+    },
+    "bySprint": {
+      "PI3.26.Sprint 1 (30/3 -27/4) 2": 1
+    },
+    "averageDaysOpen": 5,
+    "bugSpecific": {
+      "totalBugs": 1,
+      "bySeverity": {
+        "High": 1
+      },
+      "byRegression": {
+        "Yes": 1
+      }
+    },
+    "storySpecific": {
+      "totalStories": 3,
+      "byTestCaseCreated": {
+        "Yes": 3
+      },
+      "totalStoryPoints": 16,
+      "averageStoryPoints": 5.3
+    },
+    "testCaseSpecific": {
+      "totalTestCases": 2,
+      "byTestType": {
+        "Functional": 1,
+        "Integration": 1
+      },
+      "byAIGenerated": {}
+    }
+  }
+}

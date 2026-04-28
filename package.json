@@ -11,7 +11,13 @@
     "refresh-safe": "npm run export && npm run export-safe",
     "upload-external": "node scripts/export/upload-to-external.js",
     "daily-update": "node scripts/automation/daily-auto-update.js",
+    "export-multi": "node export-multi-issue-data.js",
+    "export-multi-safe": "node export-multi-issue-safe-data.js",
+    "multi-issue-update": "node scripts/automation/multi-issue-daily-update.js",
+    "update-multi-dashboard": "./update-dashboard-data.sh --multi-issue",
     "setup-automation": "chmod +x scripts/automation/setup-daily-automation.sh && ./scripts/automation/setup-daily-automation.sh",
+    "setup-multi-automation": "chmod +x scripts/automation/setup-multi-issue-automation.sh && ./scripts/automation/setup-multi-issue-automation.sh",
+    "setup-combined-automation": "chmod +x scripts/automation/setup-combined-automation.sh && ./scripts/automation/setup-combined-automation.sh",
     "scheduler-start": "node scripts/automation/daily-scheduler.js start",
     "scheduler-once": "node scripts/automation/daily-scheduler.js run-once",
     "scheduler-status": "node scripts/automation/daily-scheduler.js status", 
@@ -19,7 +25,9 @@
     "serve-safe": "npx http-server -p 8080 -o dashboard-safe-standalone.html",
     "serve-external": "npx http-server -p 8080 -o dashboard-external-data.html",
     "serve-automated": "npx http-server -p 8080 -o dashboard-automated-fixed.html",
+    "serve-multi": "npx http-server -p 8090 -o dashboard-multi-issue.html",
     "serve-with-api": "concurrently \"npx http-server -p 8081 dashboard-automated-fixed.html\" \"node api/bug-api-server.js\"",
+    "serve-multi-with-api": "concurrently \"npx http-server -p 8090 -o dashboard-multi-issue.html\" \"node api/bug-api-server.js\"",
     "start-api": "node api/bug-api-server.js"
   },
   "dependencies": {
