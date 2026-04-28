@@ -1139,7 +1139,9 @@
         }
         
         .status-not-started { background: #FEABB0; color: #83143D; }
-        .status-deployed { background: #FFD887; color: #3A3A37; }
+        .status-deployed { background: #90EE90; color: #155724; }
+        .status-done { background: #90EE90; color: #155724; }
+        .status-passed { background: #90EE90; color: #155724; }
         .status-canceled { background: #FDF6EB; color: #83143D; }
         .status-in-progress { background: #F36488; color: white; }
         .status-pending-verification { background: #FEBB59; color: #3A3A37; }
@@ -1157,6 +1159,7 @@
             min-width: 60px;
         }
         
+        .priority-critical { background: #FF0000; color: white; }
         .priority-high { background: #FEABB0; color: #83143D; }
         .priority-medium { background: #FFD887; color: #3A3A37; }
         .priority-low { background: #F7E7CE; color: #3A3A37; }
@@ -2250,9 +2253,12 @@
         }
 
         .graph-icon {
-            font-size: 60px;
+            width: 80px;
+            height: 80px;
             display: inline-block;
             transition: all 0.3s ease;
+            object-fit: contain;
+            object-position: center;
         }
 
         .chart-preview-area:hover .preview-icon {
@@ -3272,7 +3278,7 @@
                             <div class="chart-preview-area">
                                 <div class="chart-preview-placeholder">
                                     <div class="preview-icon">
-                                        <span class="graph-icon">📊</span>
+                                        <img src="assets/icons/graph-icon.png" alt="Graph" class="graph-icon">
                                     </div>
                                     <div class="preview-text">Your chart will appear here</div>
                                     <div class="preview-subtext">Start by dragging fields from the left panel</div>
@@ -3891,9 +3897,46 @@
         async function loadDashboardDataFromSource() {
             try {
                 console.log('🚀 loadDashboardDataFromSource started');
+                
+                // PRIORITY 0: GitHub Pages detection - load static file directly
+                if (window.location.hostname.includes('github.io')) {
+                    console.log('🌐 GitHub Pages detected - loading from static multi-dashboard-data.json');
+                    document.getElementById('status').innerHTML = 'Loading issue data... (GitHub Pages static mode)';
+                    
+                    try {
+                        const response = await fetch(`./multi-dashboard-data.json?_=${Date.now()}`);
+                        if (response.ok) {
+                            const staticData = await response.json();
+                            console.log(`✅ Successfully loaded ${staticData.issues?.length || 0} issues from GitHub Pages static file`);
+                            
+                            // Transform static data to dashboard format
+                            const transformedData = {
+                                issues: staticData.issues || [],
+                                bugs: (staticData.issues || []).filter(i => i.issueType === 'Bug'),
+                                stories: (staticData.issues || []).filter(i => i.issueType === 'Story'),
+                                testCases: (staticData.issues || []).filter(i => i.issueType === 'Test' || i.issueType === 'Test Case'),
+                                metadata: staticData.metadata,
+                                stats: 'WILL_BE_CALCULATED'
+                            };
+                            
+                            console.log(`📊 GitHub Pages data: ${transformedData.bugs.length} bugs, ${transformedData.stories.length} stories, ${transformedData.testCases.length} test cases`);
+                            
+                            data = transformedData;
+                            data.source = 'github-pages-static';
+                            await loadData(data);
+                            console.log('✅ Successfully loaded from GitHub Pages static file');
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('❌ Failed to load GitHub Pages static file:', error);
+                        document.getElementById('status').innerHTML = 'Error: Could not load dashboard data from GitHub Pages';
+                        throw error;
+                    }
+                }
+                
                 document.getElementById('status').innerHTML = 'Loading issue data... (checking fresh data from API)';
                 
-                // PRIORITY 1: Try API server first for fresh JIRA data
+                // PRIORITY 1: Try API server first for fresh JIRA data (local development only)
                 try {
                     console.log('🔄 Checking API server for fresh JIRA data...');
                     const apiResponse = await fetch(`http://localhost:3002/api/issues-lite?types=Bug,Story,Test&_=${Date.now()}`);
