@@ -11,6 +11,8 @@ const JIRA_FIELD_MAPPINGS = {
     REGRESSION: 'customfield_10106',       // Regression flag (Yes/No)
     SEVERITY: 'customfield_10104',         // Severity dropdown (e.g., "High", "Critical")
     BUG_TYPE: 'customfield_10578',         // Bug Type dropdown (e.g., "Production")
+    CLASSIFICATION: 'customfield_10797',   // Classification dropdown (e.g., "Renewal/Auto Renewal") - Bug-only
+    BUSINESS_PROCESS_CLASSIFICATION: 'customfield_12110', // Business Processes Classification dropdown (e.g., "Quote 2 Cash") - Bug-only
     
     // Story-specific fields
     STORY_POINTS: 'customfield_10032',     // Story Points field (Fibonacci points) - CORRECTED!
@@ -31,6 +33,7 @@ const JIRA_FIELD_MAPPINGS = {
     CREATED: 'created',                    // Creation date
     UPDATED: 'updated',                    // Last update date
     RESOLUTION: 'resolution',              // Resolution object
+    RESOLUTION_DATE: 'resolutiondate',     // Native JIRA resolution date (ISO timestamp) - used for Story fix duration
     COMPONENTS: 'components',              // Components array (usually empty in our case)
     LABELS: 'labels',                      // Labels array (usually empty in our case)
     ISSUE_TYPE: 'issuetype'                // Issue type object (Bug, Story, Test, etc.)
@@ -112,6 +115,16 @@ const FIELD_EXTRACTORS = {
         const firstSprint = sprintField[0];
         return firstSprint.name || null;
     },
+
+    /** All sprint names for an issue, ascending by startDate (for Testing Coverage loose mode). */
+    getAllSprintNames: (sprintField) => {
+        if (!Array.isArray(sprintField) || sprintField.length === 0) return [];
+        const withNames = sprintField.filter(s => s && s.name);
+        const sorted = [...withNames].sort(
+            (a, b) => new Date(a.startDate || 0) - new Date(b.startDate || 0)
+        );
+        return [...new Set(sorted.map(s => s.name))];
+    },
     
     // Extract user display name
     getUserDisplayName: (userField) => {
@@ -186,6 +199,8 @@ const JIRA_API_CONFIG = {
         JIRA_FIELD_MAPPINGS.REGRESSION,
         JIRA_FIELD_MAPPINGS.SEVERITY,
         JIRA_FIELD_MAPPINGS.BUG_TYPE,
+        JIRA_FIELD_MAPPINGS.CLASSIFICATION,
+        JIRA_FIELD_MAPPINGS.BUSINESS_PROCESS_CLASSIFICATION,
         JIRA_FIELD_MAPPINGS.ASSIGNEE,
         JIRA_FIELD_MAPPINGS.STATUS,
         JIRA_FIELD_MAPPINGS.SUMMARY,
@@ -193,6 +208,7 @@ const JIRA_API_CONFIG = {
         JIRA_FIELD_MAPPINGS.CREATED,
         JIRA_FIELD_MAPPINGS.UPDATED,
         JIRA_FIELD_MAPPINGS.RESOLUTION,
+        JIRA_FIELD_MAPPINGS.RESOLUTION_DATE,
         JIRA_FIELD_MAPPINGS.ISSUE_TYPE,
         // Story-specific fields
         JIRA_FIELD_MAPPINGS.STORY_POINTS,
@@ -224,6 +240,7 @@ const JIRA_API_CONFIG = {
             JIRA_FIELD_MAPPINGS.CREATED,
             JIRA_FIELD_MAPPINGS.UPDATED,
             JIRA_FIELD_MAPPINGS.RESOLUTION,
+            JIRA_FIELD_MAPPINGS.RESOLUTION_DATE,
             JIRA_FIELD_MAPPINGS.ISSUE_TYPE,
             JIRA_FIELD_MAPPINGS.COMPONENTS,
             JIRA_FIELD_MAPPINGS.LABELS
@@ -235,7 +252,9 @@ const JIRA_API_CONFIG = {
             typeSpecificFields.push(
                 JIRA_FIELD_MAPPINGS.REGRESSION,
                 JIRA_FIELD_MAPPINGS.SEVERITY,
-                JIRA_FIELD_MAPPINGS.BUG_TYPE
+                JIRA_FIELD_MAPPINGS.BUG_TYPE,
+                JIRA_FIELD_MAPPINGS.CLASSIFICATION,
+                JIRA_FIELD_MAPPINGS.BUSINESS_PROCESS_CLASSIFICATION
             );
         }
         

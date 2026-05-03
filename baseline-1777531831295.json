@@ -1,0 +1,148 @@
+{
+  "timestamp": "2026-04-30T06:50:31.146Z",
+  "cacheFiles": {
+    "bugsCacheJson": {
+      "path": "/Users/guy.levin/Documents/testcourse/bugs-cache.json",
+      "exists": true,
+      "totalBugs": 1003,
+      "lastSync": "2026-04-29T13:41:40.116Z",
+      "fileSize": 859105,
+      "projects": [
+        "BT"
+      ],
+      "sampleBugKeys": [
+        "BT-13577",
+        "BT-13569",
+        "BT-13566",
+        "BT-13549",
+        "BT-13544"
+      ]
+    },
+    "issuesCacheJson": {
+      "path": "/Users/guy.levin/Documents/testcourse/data/cache/issues-cache.json",
+      "exists": true,
+      "totalIssues": 6161,
+      "issueTypes": [
+        "Story",
+        "Test Case",
+        "Bug"
+      ],
+      "lastSync": "2026-04-30T06:50:19.575Z",
+      "fileSize": 5426993,
+      "bugCount": 1003,
+      "storyCount": 4380,
+      "testCount": 0,
+      "sampleIssueKeys": [
+        "BT-13587",
+        "BT-13586",
+        "BT-13584",
+        "BT-13583",
+        "BT-13582"
+      ]
+    }
+  },
+  "apiEndpoints": {
+    "health": {
+      "status": 200,
+      "responseTime": 35,
+      "data": {
+        "status": "healthy",
+        "jiraClientConfigured": true,
+        "cachedBugs": 1003,
+        "lastSync": "2026-04-30T06:50:19.575Z",
+        "unifiedCache": {
+          "totalIssues": 6161,
+          "bugs": 1003,
+          "stories": 4380,
+          "tests": 0,
+          "lastSync": "2026-04-30T06:50:19.575Z"
+        }
+      }
+    },
+    "bugsLite": {
+      "status": 200,
+      "responseTime": 17,
+      "bugCount": 1003,
+      "sampleBugKeys": [
+        "BT-13577",
+        "BT-13569",
+        "BT-13566"
+      ]
+    },
+    "issuesLite": {
+      "status": 200,
+      "responseTime": 46,
+      "totalIssues": 6161,
+      "issueTypes": [
+        "Bug",
+        "Story",
+        "Test Case"
+      ],
+      "bugCount": 1003,
+      "storyCount": 4380,
+      "testCount": 0
+    },
+    "testingCoverage": {
+      "status": 200,
+      "responseTime": 18,
+      "totalStories": 871,
+      "storiesWithTestCases": 294,
+      "teamBreakdown": {
+        "MIS - GTC": 311,
+        "MIS - GTM": 213,
+        "MIS - CORP": 338,
+        "MIS - Platform": 9
+      },
+      "testCaseBreakdown": {
+        "No": 577,
+        "Yes": 294
+      },
+      "filterEfficiency": "20%"
+    }
+  },
+  "kpis": {
+    "testingCoverage": {
+      "totalEligibleStories": 871,
+      "storiesWithTestCases": 294,
+      "overallCoverage": 34,
+      "teamBreakdown": {
+        "MIS - GTC": 311,
+        "MIS - GTM": 213,
+        "MIS - CORP": 338,
+        "MIS - Platform": 9
+      },
+      "testCaseBreakdown": {
+        "No": 577,
+        "Yes": 294
+      },
+      "filterEfficiency": "20%"
+    },
+    "issueDistribution": {
+      "totalIssues": 6161,
+      "bugCount": 1003,
+      "storyCount": 4380,
+      "testCount": 0,
+      "bugPercentage": 16,
+      "storyPercentage": 71,
+      "testPercentage": 0
+    },
+    "cacheConsistency": {
+      "bugsInBugCache": 1003,
+      "bugsInIssueCache": 1003,
+      "discrepancy": 0,
+      "syncTimesMatch": false
+    }
+  },
+  "performance": {
+    "apiResponseTimes": {
+      "health": 35,
+      "bugsLite": 17,
+      "issuesLite": 46,
+      "testingCoverage": 18
+    },
+    "cacheFileSizes": {
+      "bugsCacheSize": 859105,
+      "issuesCacheSize": 5426993
+    }
+  }
+}

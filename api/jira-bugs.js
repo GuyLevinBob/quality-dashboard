@@ -145,23 +145,34 @@ class JiraClient {
   }
   
   // NEW: Get multiple issue types with pagination
-  async getIssuesWithTokenPagination(issueTypes = ['Bug'], projectKey = null, maxResults = 100, nextPageToken = null) {
-    let jql = this.buildJqlForIssueTypes(issueTypes, projectKey);
-    jql += ' ORDER BY created DESC';
-    
+  async getIssuesWithTokenPagination(issueTypes = ['Bug'], projectKey = null, maxResults = 100, nextPageToken = null, opts = null) {
+    const sinceIso = opts && opts.sinceIso ? opts.sinceIso : null;
+    let jql = this.buildJqlForIssueTypes(issueTypes, projectKey, sinceIso ? { sinceIso } : undefined);
+    // Incremental: order by updated ASC so pagination stays stable across pages
+    // even if more issues are updated mid-sync. Full sync keeps the historical
+    // "created DESC" order the dashboard was tested against.
+    jql += sinceIso ? ' ORDER BY updated ASC' : ' ORDER BY created DESC';
+
     const endpoint = `/rest/api/3/search/jql`;
-    const { JIRA_FIELD_MAPPINGS, JIRA_API_CONFIG } = require('./jira-field-mappings.js');
+    const { JIRA_API_CONFIG } = require('./jira-field-mappings.js');
+
+    // In incremental mode the single consolidated JQL returns a mix of types,
+    // so request the union of every type-specific field the processors need.
+    const fieldsForQuery = sinceIso
+      ? JIRA_API_CONFIG.getFieldsForIssueTypes(['Bug', 'Story', 'Test'])
+      : JIRA_API_CONFIG.getFieldsForIssueTypes(issueTypes);
+
     const payload = {
       jql: jql,
       maxResults: maxResults,
       expand: JIRA_API_CONFIG.EXPAND_OPTIONS,
-      fields: JIRA_API_CONFIG.getFieldsForIssueTypes(issueTypes).split(',')
+      fields: fieldsForQuery.split(',')
     };
-    
+
     if (nextPageToken) {
       payload.nextPageToken = nextPageToken;
     }
-    
+
     try {
       const response = await this.makePostRequest(endpoint, payload);
       return response;
@@ -170,49 +181,67 @@ class JiraClient {
       throw error;
     }
   }
-  
-  // NEW: Build JQL query for different issue types with selective filters
-  buildJqlForIssueTypes(issueTypes, projectKey = null) {
+
+  // Build JQL query for different issue types with selective filters.
+  //
+  // When opts.sinceIso is provided, appends `AND updated >= "..."` to the
+  // same per-type scope filters used by a full sync. This means every issue
+  // returned by an incremental sync is guaranteed in scope (JIRA-side
+  // filter), so the merge step can safely upsert every row.
+  //
+  // Scope escapes (e.g., bug retyped off Production, story moved to
+  // Cancelled) are NOT visible to incremental sync — by design — and get
+  // reconciled on the next daily auto-full-sync. We previously tried to
+  // broaden the incremental JQL and re-check scope client-side, but the
+  // bugType extractor returns null for Production bugs (latent field-ID
+  // mismatch in JIRA_FIELD_MAPPINGS.BUG_TYPE), which caused every returned
+  // Production bug to be wrongly removed from the cache.
+  buildJqlForIssueTypes(issueTypes, projectKey = null, opts = null) {
     if (issueTypes.length === 0) {
       throw new Error('At least one issue type must be specified');
     }
-    
-    let conditions = [];
-    
-    // Build conditions for each issue type with specific filters
+
+    const conditions = [];
     if (issueTypes.includes('Bug')) {
       conditions.push('type = Bug AND "bug type[dropdown]" = Production');
     }
-    
     if (issueTypes.includes('Story')) {
-      // Stories: Exclude Canceled and Rejected statuses  
       conditions.push('type = Story AND status NOT IN (Canceled, Rejected)');
     }
-    
     if (issueTypes.includes('Test')) {
-      // Test Cases: Use "Test Case" as the exact type name, exclude Canceled/Rejected
       conditions.push('type = "Test Case" AND status NOT IN (Canceled, Rejected)');
     }
-    
-    // Build the base JQL without ORDER BY first
-    let baseJql = '';
-    if (conditions.length === 1) {
+
+    let baseJql;
+    if (conditions.length === 0) {
+      throw new Error('No recognized issue types');
+    } else if (conditions.length === 1) {
       baseJql = conditions[0];
-    } else if (conditions.length > 1) {
-      // Wrap individual conditions in parentheses when combining with OR
+    } else {
       baseJql = conditions.map(c => `(${c})`).join(' OR ');
     }
-    
-    // Add additional project filter if specified (applies to all types)
+
+    const sinceIso = opts && opts.sinceIso ? opts.sinceIso : null;
+    if (sinceIso) {
+      baseJql = `(${baseJql}) AND updated >= "${this._formatJqlDateTime(sinceIso)}"`;
+    }
+
     if (projectKey) {
       baseJql = `(${baseJql}) AND project = "${projectKey}"`;
     }
-    
-    // Return the base JQL without ORDER BY - let the calling method handle ordering
-    const jql = baseJql;
-    
-    console.log(`🔍 JQL Query: ${jql}`);
-    return jql;
+
+    console.log(`🔍 JQL Query: ${baseJql}`);
+    return baseJql;
+  }
+
+  // Convert an ISO timestamp to JIRA's JQL date format (minute precision).
+  // Returns input as-is if it doesn't match the expected ISO shape (defensive
+  // — callers should always pass a well-formed ISO string).
+  _formatJqlDateTime(iso) {
+    if (!iso) return iso;
+    const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+    if (!m) return iso;
+    return `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}`;
   }
 
   // PRESERVED: Original getBugs method (unchanged for backward compatibility)

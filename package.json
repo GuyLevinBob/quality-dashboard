@@ -20,21 +20,33 @@
     "setup-combined-automation": "chmod +x scripts/automation/setup-combined-automation.sh && ./scripts/automation/setup-combined-automation.sh",
     "scheduler-start": "node scripts/automation/daily-scheduler.js start",
     "scheduler-once": "node scripts/automation/daily-scheduler.js run-once",
-    "scheduler-status": "node scripts/automation/daily-scheduler.js status", 
+    "scheduler-status": "node scripts/automation/daily-scheduler.js status",
     "serve": "npx http-server -p 8080 -o bug-dashboard-embedded.html",
     "serve-safe": "npx http-server -p 8080 -o dashboard-safe-standalone.html",
     "serve-external": "npx http-server -p 8080 -o dashboard-external-data.html",
     "serve-automated": "npx http-server -p 8080 -o dashboard-automated-fixed.html",
-    "serve-multi": "npx http-server -p 8090 -o dashboard-multi-issue.html",
+    "serve-multi": "npx http-server . -p 8090 -o dashboard-multi-issue.html",
     "serve-with-api": "concurrently \"npx http-server -p 8081 dashboard-automated-fixed.html\" \"node api/bug-api-server.js\"",
-    "serve-multi-with-api": "concurrently \"npx http-server -p 8090 -o dashboard-multi-issue.html\" \"node api/bug-api-server.js\"",
-    "start-api": "node api/bug-api-server.js"
+    "serve-multi-with-api": "concurrently \"npx http-server . -p 8090 -o dashboard-multi-issue.html\" \"node api/bug-api-server.js\"",
+    "start-api": "node api/bug-api-server.js",
+    "build-appscript": "node appscript/build.js",
+    "test-appscript": "node appscript/test-parity.js && node appscript/test-shape.js && node appscript/test-format-mdy.js && node appscript/test-incremental.js",
+    "deploy-appscript": "npm run test-appscript && npm run build-appscript && cd appscript && npx clasp push && npx clasp deploy --description \"manual\"",
+    "appscript-pull": "cd appscript && npx clasp pull",
+    "appscript-push": "npm run build-appscript && cd appscript && npx clasp push"
   },
   "dependencies": {
     "http-server": "^14.1.1"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@fontsource/archivo-black": "^5.2.8",
+    "@fontsource/domine": "^5.2.8",
+    "@fontsource/lato": "^5.2.7",
+    "@google/clasp": "^2.4.2",
+    "chart.js": "^4.5.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "concurrently": "^8.2.2",
+    "sortablejs": "^1.15.7"
   },
   "author": "HiBob Team",
   "license": "MIT"

@@ -9,7 +9,6 @@ on:
       - 'dashboard-automated-fixed.html'
       - 'dashboard-multi-issue.html'
       - 'index.html'
-      - 'bugs-cache.json'
       - 'data/cache/issues-cache.json'
   workflow_dispatch: # Allow manual triggering
 

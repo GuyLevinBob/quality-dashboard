@@ -8,7 +8,10 @@ const { JIRA_FIELD_MAPPINGS, FIELD_EXTRACTORS } = require('./jira-field-mappings
 class BugApiServer {
     constructor(port = 3002) {
         this.port = port;
-        this.dataFile = path.join(__dirname, '..', 'bugs-cache.json');
+        // UNIFIED CACHE: Use issues-cache.json for all data
+        this.unifiedCacheFile = path.join(__dirname, '..', 'data', 'cache', 'issues-cache.json');
+        // Keep legacy path for reference but don't use it
+        this.legacyDataFile = path.join(__dirname, '..', 'bugs-cache.json');
         this.jiraClient = null;
         this.initializeJiraClient();
     }
@@ -234,16 +237,16 @@ class BugApiServer {
             let lastSync = null;
             let jiraInstance = 'hibob.atlassian.net';
             
-            // Handle Bug requests - use dedicated bugs cache
+            // Handle Bug requests - use unified issues cache
             if (issueTypes.includes('Bug')) {
-                const bugsData = this.loadCachedData();
-                if (bugsData && bugsData.bugs) {
-                    const bugsWithType = bugsData.bugs.map(bug => ({...bug, issueType: 'Bug'}));
-                    allIssues.push(...bugsWithType);
+                const issuesData = this.loadCachedIssuesData();
+                if (issuesData && issuesData.issues) {
+                    const bugs = issuesData.issues.filter(issue => issue.issueType === 'Bug');
+                    allIssues.push(...bugs);
                     actualIssueTypes.push('Bug');
-                    lastSync = bugsData.lastSync;
-                    jiraInstance = bugsData.metadata?.jiraInstance || jiraInstance;
-                    console.log(`✅ Added ${bugsData.bugs.length} bugs`);
+                    lastSync = issuesData.lastSync;
+                    jiraInstance = issuesData.metadata?.jiraInstance || jiraInstance;
+                    console.log(`✅ Added ${bugs.length} bugs from unified cache`);
                 }
             }
             
@@ -298,6 +301,17 @@ class BugApiServer {
     }
 
     // NEW: POST /api/sync-issues - Sync multiple issue types from JIRA
+    //
+    // Sync-mode decision (aligned with the Apps Script handler):
+    //   - body.mode === 'full'          -> force full sync
+    //   - body.mode === 'incremental'   -> force incremental (falls back to
+    //                                       full if there's no prior cache)
+    //   - body.since (legacy)           -> honored as an explicit sinceIso
+    //                                       (forces incremental)
+    //   - (no mode) + no prior lastSync -> full
+    //   - (no mode) + lastFullSync older than FULL_SYNC_MAX_AGE_HOURS env
+    //                                   -> full (drift / deletion safety net)
+    //   - otherwise                     -> incremental using cache.lastSync
     async handleSyncIssues(req, res) {
         if (!this.jiraClient) {
             this.sendError(res, 503, 'Jira client not configured');
@@ -311,88 +325,221 @@ class BugApiServer {
                     fs.appendFileSync('sprint-debug.log', `${new Date().toISOString()} - SYNC: ${message}\n`);
                 } catch (e) { /* ignore */ }
             };
-            
+
             debugLog('handleSyncIssues called');
-            
+
             const body = await this.readRequestBody(req);
-            const { since, types } = JSON.parse(body || '{}');
+            const parsed = JSON.parse(body || '{}');
+            const { since, types, mode } = parsed;
             const issueTypes = types || ['Bug', 'Story', 'Test'];
-            
-            console.log('🔄 Starting multi-issue sync...', since ? `since ${since}` : 'full sync');
-            console.log('📋 Issue types:', issueTypes.join(', '));
-            debugLog(`Starting sync for types: ${issueTypes.join(', ')}`);
-            
-            let allIssues;
-            if (since) {
-                // Incremental sync - fetch issues updated since timestamp
-                debugLog('Using incremental sync');
-                allIssues = await this.fetchUpdatedIssues(since, issueTypes);
+
+            const decision = this.decideSyncMode({ mode, since });
+            console.log(`🔄 Sync decision: ${decision.mode} (${decision.reason})`);
+            debugLog(`Sync mode = ${decision.mode} (${decision.reason})`);
+
+            const startedAt = Date.now();
+            let result;
+            if (decision.mode === 'incremental') {
+                result = await this.runIncrementalSync(issueTypes, decision.sinceIso, debugLog);
             } else {
-                // Full sync - fetch all issues of specified types
-                debugLog('Using full sync - calling fetchAllIssues');
-                allIssues = await this.fetchAllIssues(issueTypes);
+                result = await this.runFullSync(issueTypes, debugLog);
             }
-            
-            debugLog(`Fetched ${allIssues?.issues?.length || 0} issues from JIRA`);
-            debugLog('About to call processIssuesData');
+            result.reason = decision.reason;
+            result.elapsedMs = Date.now() - startedAt;
 
-            const processedIssues = this.processIssuesData(allIssues);
-            
-            debugLog(`processIssuesData returned ${processedIssues?.length || 0} processed issues`);
-            
-            // Store in cache (for now, separate from bugs cache)
-            const issueData = {
-                issues: processedIssues,
-                metadata: {
-                    totalIssues: processedIssues.length,
-                    issueTypes: issueTypes,
-                    jiraInstance: this.jiraClient.domain || 'hibob.atlassian.net'
-                },
-                lastSync: new Date().toISOString()
-            };
-
-            this.saveCachedIssuesData(issueData);
-            
-            this.sendJson(res, {
-                success: true,
-                syncType: since ? 'incremental' : 'full',
-                issuesProcessed: processedIssues.length,
-                lastSync: issueData.lastSync
-            });
-            
+            this.sendJson(res, result);
         } catch (error) {
             console.error('❌ Multi-issue sync failed:', error);
             this.sendError(res, 500, 'Multi-issue sync failed', error.message);
         }
     }
 
+    // Policy helper — same shape as the Apps Script decideSyncMode_.
+    decideSyncMode({ mode, since }) {
+        const requested = mode ? String(mode).toLowerCase() : null;
+
+        // Legacy: a `since` in the body forces incremental with that timestamp.
+        if (requested !== 'full' && since) {
+            return { mode: 'incremental', sinceIso: since, reason: 'explicit-since' };
+        }
+        if (requested === 'full') {
+            return { mode: 'full', reason: 'requested=full' };
+        }
+
+        let existing;
+        try {
+            existing = this.loadCachedIssuesData();
+        } catch (_e) {
+            existing = null;
+        }
+        if (!existing || !existing.lastSync) {
+            return { mode: 'full', reason: 'no-prior-lastSync' };
+        }
+
+        const lastFullSync = existing.metadata && existing.metadata.lastFullSync;
+        if (!lastFullSync) {
+            return { mode: 'full', reason: 'no-prior-fullSync' };
+        }
+
+        const maxAgeHoursRaw = process.env.FULL_SYNC_MAX_AGE_HOURS;
+        const maxAgeHours = Number.isFinite(parseFloat(maxAgeHoursRaw))
+            ? parseFloat(maxAgeHoursRaw)
+            : 24;
+        const ageMs = Date.now() - new Date(lastFullSync).getTime();
+        if (requested !== 'incremental' && Number.isFinite(ageMs) && ageMs >= maxAgeHours * 3600000) {
+            return {
+                mode: 'full',
+                reason: `lastFullSync-age-${Math.round(ageMs / 3600000)}h>=${maxAgeHours}h`
+            };
+        }
+
+        return {
+            mode: 'incremental',
+            sinceIso: existing.lastSync,
+            reason: requested === 'incremental' ? 'requested=incremental' : 'auto'
+        };
+    }
+
+    async runFullSync(issueTypes, debugLog) {
+        debugLog('runFullSync: fetchAllIssues');
+        const raw = await this.fetchAllIssues(issueTypes);
+        debugLog(`Fetched ${raw?.issues?.length || 0} issues (full)`);
+
+        const processedIssues = this.processIssuesData(raw);
+        debugLog(`processIssuesData returned ${processedIssues?.length || 0}`);
+
+        this.recomputeDaysOpenInPlace(processedIssues);
+
+        const nowIso = new Date().toISOString();
+        const issueData = {
+            issues: processedIssues,
+            metadata: {
+                totalIssues: processedIssues.length,
+                issueTypes,
+                jiraInstance: this.jiraClient.domain || 'hibob.atlassian.net',
+                lastFullSync: nowIso
+            },
+            lastSync: nowIso
+        };
+
+        this.saveCachedIssuesData(issueData);
+        return {
+            success: true,
+            syncType: 'full',
+            issuesProcessed: processedIssues.length,
+            added: processedIssues.length,
+            updated: 0,
+            removed: 0,
+            lastSync: issueData.lastSync
+        };
+    }
+
+    async runIncrementalSync(issueTypes, sinceIso, debugLog) {
+        const existing = this.loadCachedIssuesData();
+        if (!existing || !existing.issues || !existing.issues.length) {
+            debugLog('runIncrementalSync: no existing cache, falling back to full');
+            return this.runFullSync(issueTypes, debugLog);
+        }
+
+        // 5-minute safety overlap window — absorbs JIRA indexing lag + clock skew.
+        const overlapMinRaw = process.env.INCREMENTAL_OVERLAP_MINUTES;
+        const overlapMin = Number.isFinite(parseFloat(overlapMinRaw))
+            ? parseFloat(overlapMinRaw)
+            : 5;
+        const jqlSinceIso = new Date(
+            new Date(sinceIso).getTime() - overlapMin * 60000
+        ).toISOString();
+
+        debugLog(`runIncrementalSync: since=${sinceIso}, jqlSince=${jqlSinceIso}`);
+        const raw = await this.fetchUpdatedIssues(jqlSinceIso, issueTypes);
+        debugLog(`Fetched ${raw.issues.length} changed issue(s)`);
+
+        const merge = this.mergeIncrementalIssues(existing.issues, raw.issues);
+        debugLog(`Merge: +${merge.added} ~${merge.updated} -${merge.removed}`);
+
+        this.recomputeDaysOpenInPlace(merge.issues);
+
+        const nowIso = new Date().toISOString();
+        const issueData = {
+            issues: merge.issues,
+            metadata: {
+                ...(existing.metadata || {}),
+                totalIssues: merge.issues.length,
+                issueTypes,
+                jiraInstance: (existing.metadata && existing.metadata.jiraInstance) ||
+                    this.jiraClient.domain || 'hibob.atlassian.net'
+                // lastFullSync preserved from existing.metadata via spread above
+            },
+            lastSync: nowIso
+        };
+
+        // Skip the write when absolutely nothing changed — still bump lastSync
+        // so the next incremental starts from here.
+        if (merge.added === 0 && merge.updated === 0 && merge.removed === 0) {
+            existing.lastSync = nowIso;
+            this.saveCachedIssuesData(existing);
+            return {
+                success: true,
+                syncType: 'incremental',
+                issuesProcessed: 0,
+                added: 0,
+                updated: 0,
+                removed: 0,
+                lastSync: nowIso
+            };
+        }
+
+        this.saveCachedIssuesData(issueData);
+        return {
+            success: true,
+            syncType: 'incremental',
+            issuesProcessed: merge.issues.length,
+            added: merge.added,
+            updated: merge.updated,
+            removed: merge.removed,
+            lastSync: issueData.lastSync
+        };
+    }
+
     // NEW: GET /api/issues/:id/details - Get heavy issue details
     async handleGetIssueDetails(req, res, issueId) {
         try {
-            // First try issues cache, then fall back to bugs cache
-            let issue = null;
-            
-            const issuesData = this.loadCachedIssuesData();
-            if (issuesData?.issues) {
-                issue = issuesData.issues.find(i => i.key === issueId);
+            // UNIFIED CACHE: Load only from unified cache
+            const unifiedData = this.loadUnifiedCache();
+            if (!unifiedData?.issues) {
+                this.sendError(res, 404, 'No cached data available');
+                return;
             }
-            
-            if (!issue) {
-                const bugsData = this.loadCachedData();
-                issue = bugsData?.bugs?.find(b => b.key === issueId);
-            }
-            
+
+            const issue = unifiedData.issues.find(i => i.key === issueId);
             if (!issue) {
                 this.sendError(res, 404, 'Issue not found');
                 return;
             }
 
-            // Return full issue details
+            // Return full issue details with enhanced information
             this.sendJson(res, {
-                issue: issue,
+                issue: {
+                    ...issue,
+                    // Ensure all fields are present
+                    description: issue.description || '',
+                    // Include issue-type specific fields for completeness
+                    ...(issue.issueType === 'Bug' && {
+                        severity: issue.severity,
+                        regression: issue.regression
+                    }),
+                    ...(issue.issueType === 'Story' && {
+                        storyPoints: issue.storyPoints,
+                        testCaseCreated: issue.testCaseCreated
+                    }),
+                    ...(issue.issueType === 'Test' && {
+                        aiGeneratedTestCases: issue.aiGeneratedTestCases
+                    })
+                },
                 metadata: {
                     issueType: issue.issueType || 'Bug',
-                    lastUpdate: issue.updated
+                    lastUpdate: issue.updated,
+                    source: 'unified-cache'
                 }
             });
             
@@ -647,12 +794,24 @@ class BugApiServer {
 
     // Health check endpoint
     handleHealth(req, res) {
-        const data = this.loadCachedData();
+        // UNIFIED CACHE: Report from unified cache with full breakdown
+        const unifiedData = this.loadUnifiedCache();
+        const legacyBugData = this.loadCachedData(); // For backward compatibility
+        
         this.sendJson(res, {
             status: 'healthy',
             jiraClientConfigured: !!this.jiraClient,
-            cachedBugs: data?.bugs?.length || 0,
-            lastSync: data?.lastSync || null
+            // Legacy fields for backward compatibility
+            cachedBugs: legacyBugData?.bugs?.length || 0,
+            lastSync: legacyBugData?.lastSync || null,
+            // New unified cache info
+            unifiedCache: unifiedData ? {
+                totalIssues: unifiedData.issues?.length || 0,
+                bugs: unifiedData.issues?.filter(i => i.issueType === 'Bug').length || 0,
+                stories: unifiedData.issues?.filter(i => i.issueType === 'Story').length || 0,
+                tests: unifiedData.issues?.filter(i => i.issueType === 'Test').length || 0,
+                lastSync: unifiedData.lastSync
+            } : null
         });
     }
 
@@ -854,27 +1013,69 @@ class BugApiServer {
         console.log(`🔄 Merged ${newBugs.length} updated bugs into cache`);
     }
 
-    // Load cached data from file
+    // Load cached data from unified cache (backward compatibility for bug endpoints)
     loadCachedData() {
         try {
-            if (!fs.existsSync(this.dataFile)) {
+            // UNIFIED CACHE: Load from issues-cache.json and filter for bugs
+            if (!fs.existsSync(this.unifiedCacheFile)) {
                 return null;
             }
-            const content = fs.readFileSync(this.dataFile, 'utf8');
-            return JSON.parse(content);
+            const unifiedData = JSON.parse(fs.readFileSync(this.unifiedCacheFile, 'utf8'));
+            
+            // Filter for bugs only to maintain API compatibility
+            const bugs = unifiedData.issues ? unifiedData.issues.filter(issue => issue.issueType === 'Bug') : [];
+            
+            // Return in legacy format for backward compatibility
+            return {
+                bugs: bugs,
+                metadata: {
+                    totalBugs: bugs.length,
+                    projects: unifiedData.metadata?.projects || ['BT'],
+                    jiraInstance: unifiedData.metadata?.jiraInstance || 'hibob.atlassian.net'
+                },
+                lastSync: unifiedData.lastSync
+            };
         } catch (error) {
-            console.error('❌ Error loading cached data:', error);
+            console.error('❌ Error loading cached data from unified cache:', error);
             return null;
         }
     }
 
-    // Save data to cache file
+    // Save data to unified cache while preserving other issue types
     saveCachedData(data) {
         try {
-            fs.writeFileSync(this.dataFile, JSON.stringify(data, null, 2));
-            console.log(`💾 Saved ${data.bugs.length} bugs to cache file`);
+            // UNIFIED CACHE: Merge bugs into unified cache while preserving stories/tests
+            let unifiedData = { issues: [], metadata: {}, lastSync: null };
+            
+            // Load existing unified cache if it exists
+            if (fs.existsSync(this.unifiedCacheFile)) {
+                unifiedData = JSON.parse(fs.readFileSync(this.unifiedCacheFile, 'utf8'));
+            }
+            
+            // Remove existing bugs and add updated ones
+            const nonBugIssues = unifiedData.issues ? unifiedData.issues.filter(issue => issue.issueType !== 'Bug') : [];
+            const newBugs = data.bugs || [];
+            
+            // Combine non-bug issues with updated bugs
+            const allIssues = [...nonBugIssues, ...newBugs];
+            
+            // Update unified cache structure
+            const updatedUnifiedData = {
+                issues: allIssues,
+                metadata: {
+                    totalIssues: allIssues.length,
+                    issueTypes: [...new Set(allIssues.map(i => i.issueType))],
+                    jiraInstance: data.metadata?.jiraInstance || unifiedData.metadata?.jiraInstance || 'hibob.atlassian.net'
+                },
+                lastSync: data.lastSync || new Date().toISOString()
+            };
+            
+            // Save to unified cache
+            fs.writeFileSync(this.unifiedCacheFile, JSON.stringify(updatedUnifiedData, null, 2));
+            console.log(`💾 Saved ${newBugs.length} bugs to unified cache (${allIssues.length} total issues)`);
+            
         } catch (error) {
-            console.error('❌ Error saving cached data:', error);
+            console.error('❌ Error saving to unified cache:', error);
             throw error;
         }
     }
@@ -1051,6 +1252,7 @@ class BugApiServer {
             updatedDate: issue.updatedDate,
             resolutionDate: issue.resolutionDate,
             resolutionDateFormatted: issue.resolutionDateFormatted,
+            resolutiondate: issue.resolutiondate,
             daysOpen: issue.daysOpen,
             
             // Common fields
@@ -1065,11 +1267,17 @@ class BugApiServer {
             issueType: issue.issueType || 'Bug'
         };
 
+        if (Array.isArray(issue.allSprints) && issue.allSprints.length > 0) {
+            base.allSprints = issue.allSprints;
+        }
+
         // Add type-specific fields
         if (issue.issueType === 'Bug' || !issue.issueType) {
             base.regression = issue.regression;
             base.severity = issue.severity;
             base.bugType = issue.bugType;
+            base.classification = issue.classification || 'N/A';
+            base.businessProcessClassification = issue.businessProcessClassification || 'N/A';
         } else if (issue.issueType === 'Story') {
             base.storyPoints = issue.storyPoints || 0;
             base.epicLink = issue.epicLink;
@@ -1120,30 +1328,117 @@ class BugApiServer {
         };
     }
 
-    // Fetch issues updated since timestamp (for incremental sync)
-    async fetchUpdatedIssues(since, issueTypes = ['Bug']) {
-        console.log(`🔄 Fetching ${issueTypes.join(', ')} issues updated since ${since}...`);
-        
-        // For now, fetch all and filter - in production you'd modify the JQL
-        const response = await this.fetchAllIssues(issueTypes);
-        
-        // Filter to only issues updated since the timestamp
-        const updatedIssues = response.issues.filter(issue => {
-            const updated = new Date(issue.fields.updated);
-            const sinceTimestamp = new Date(since);
-            return updated > sinceTimestamp;
-        });
+    // Fetch issues whose `updated` field has advanced since `sinceIso`.
+    // Pushes the filter into JQL via buildJqlForIssueTypes + getIssuesWithTokenPagination,
+    // so we actually save the JIRA round-trips (previously this fetched
+    // everything and filtered client-side — the TODO comment said so).
+    async fetchUpdatedIssues(sinceIso, issueTypes = ['Bug']) {
+        console.log(`🔄 Fetching ${issueTypes.join(', ')} issues updated since ${sinceIso}...`);
 
-        console.log(`✅ Found ${updatedIssues.length} updated issues out of ${response.issues.length} total`);
-        
+        let page = 0;
+        const maxPages = 200;
+        const allIssues = [];
+        let nextPageToken = null;
+
+        while (page < maxPages) {
+            console.log(`📄 Incremental page ${page + 1}...`);
+            const response = await this.jiraClient.getIssuesWithTokenPagination(
+                issueTypes,
+                null,
+                100,
+                nextPageToken,
+                { sinceIso }
+            );
+
+            if (response.issues && response.issues.length) {
+                allIssues.push(...response.issues);
+            }
+            console.log(`   +${response.issues ? response.issues.length : 0} (${allIssues.length} so far)`);
+
+            if (response.isLast || !response.nextPageToken) break;
+            nextPageToken = response.nextPageToken;
+            page++;
+        }
+
+        console.log(`✅ Incremental fetch complete: ${allIssues.length} issue(s)`);
         return {
-            issues: updatedIssues,
-            total: updatedIssues.length,
+            issues: allIssues,
+            total: allIssues.length,
             metadata: {
-                ...response.metadata,
-                filteredSince: since
+                issueTypes,
+                pages: page + 1,
+                filteredSince: sinceIso
             }
         };
+    }
+
+    // Decide whether a RAW JIRA issue still matches the per-type scope
+    // filters (Production bugs; non-Cancelled/Rejected stories + test
+    // Merge a batch of RAW fetched issues into an existing processed-issue
+    // list (the cache's `issues` array). Returns {issues, added, updated,
+    // removed}.
+    //
+    // The incremental JQL now applies the per-type scope filter
+    // server-side, so every `raw` passed in here is guaranteed in scope and
+    // is safe to upsert. Scope escapes (e.g., bug retyped off Production,
+    // story moved to Cancelled) are NOT visible via incremental — they get
+    // reconciled on the next daily auto-full-sync.
+    mergeIncrementalIssues(existingIssues, rawFetched) {
+        const byKey = new Map();
+        const keyOrder = [];
+        if (existingIssues && existingIssues.length) {
+            for (const e of existingIssues) {
+                if (!e || !e.key) continue;
+                if (!byKey.has(e.key)) keyOrder.push(e.key);
+                byKey.set(e.key, e);
+            }
+        }
+
+        let added = 0;
+        let updated = 0;
+
+        if (rawFetched && rawFetched.length) {
+            for (const raw of rawFetched) {
+                if (!raw || !raw.key) continue;
+                const key = raw.key;
+                const wasPresent = byKey.has(key);
+
+                let processed;
+                try {
+                    processed = this.processIssuesData({ issues: [raw] })[0];
+                } catch (e) {
+                    console.error(`⚠️ processIssuesData failed for ${key}: ${e.message}`);
+                    continue;
+                }
+                byKey.set(key, processed);
+                if (wasPresent) {
+                    updated++;
+                } else {
+                    added++;
+                    keyOrder.push(key);
+                }
+            }
+        }
+
+        const mergedIssues = [];
+        for (const k of keyOrder) {
+            if (byKey.has(k)) mergedIssues.push(byKey.get(k));
+        }
+        return { issues: mergedIssues, added, updated, removed: 0 };
+    }
+
+    // Refresh `daysOpen` on every processed entry in-place against "now".
+    // Essential because incremental sync never re-fetches untouched issues,
+    // so their cached daysOpen would otherwise drift.
+    recomputeDaysOpenInPlace(processedIssues) {
+        if (!processedIssues || !processedIssues.length) return;
+        const now = Date.now();
+        for (const issue of processedIssues) {
+            if (!issue || !issue.created) continue;
+            const created = new Date(issue.created).getTime();
+            if (Number.isNaN(created)) continue;
+            issue.daysOpen = Math.ceil(Math.abs(now - created) / 86400000);
+        }
     }
 
     // Process multiple issue types from JIRA response
@@ -1189,7 +1484,9 @@ class BugApiServer {
                 
                 // Resolution handling
                 resolutionDate: null,
-                resolutionDateFormatted: null
+                resolutionDateFormatted: null,
+                // Native JIRA resolution timestamp (used for Story Fix Duration)
+                resolutiondate: issue.fields.resolutiondate || null
             };
 
             // UNIFIED Sprint logic for ALL issue types
@@ -1197,9 +1494,11 @@ class BugApiServer {
             const issueType = FIELD_EXTRACTORS.getIssueTypeName(issue.fields.issuetype);
             debugLog(`Processing ${issueType} ${issue.key} with unified earliest sprint logic`);
             
-            const earliestSprint = FIELD_EXTRACTORS.getSprintName(issue.fields.customfield_10020);
+            const sprintFieldRaw = issue.fields.customfield_10020;
+            const earliestSprint = FIELD_EXTRACTORS.getSprintName(sprintFieldRaw);
             baseIssue.sprintName = earliestSprint;
             baseIssue.sprint = earliestSprint; // Dashboard compatibility
+            baseIssue.allSprints = FIELD_EXTRACTORS.getAllSprintNames(sprintFieldRaw);
 
             // Handle resolution date from changelog if available
             if (issue.changelog?.histories) {
@@ -1229,6 +1528,13 @@ class BugApiServer {
                 baseIssue.regression = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10106);
                 baseIssue.severity = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10104);
                 baseIssue.bugType = FIELD_EXTRACTORS.getCustomFieldValue(issue.fields.customfield_10578);
+                // Bug-only classification fields (May 2026). Default to 'N/A' when JIRA has no value.
+                baseIssue.classification = FIELD_EXTRACTORS.getCustomFieldValue(
+                    issue.fields[JIRA_FIELD_MAPPINGS.CLASSIFICATION]
+                ) || 'N/A';
+                baseIssue.businessProcessClassification = FIELD_EXTRACTORS.getCustomFieldValue(
+                    issue.fields[JIRA_FIELD_MAPPINGS.BUSINESS_PROCESS_CLASSIFICATION]
+                ) || 'N/A';
             } else if (baseIssue.issueType === 'Story') {
                 // Debug BT-12463 story points field
                 if (baseIssue.key === 'BT-12463') {
@@ -1303,30 +1609,40 @@ class BugApiServer {
         return result;
     }
 
-    // Cache management for issues
+    // Load unified cache data (replaces loadCachedIssuesData)
     loadCachedIssuesData() {
         try {
-            const issuesFile = path.join(__dirname, '..', 'data', 'cache', 'issues-cache.json');
-            if (!fs.existsSync(issuesFile)) {
+            // UNIFIED CACHE: Load from single unified cache file
+            if (!fs.existsSync(this.unifiedCacheFile)) {
                 return null;
             }
-            const content = fs.readFileSync(issuesFile, 'utf8');
+            const content = fs.readFileSync(this.unifiedCacheFile, 'utf8');
             return JSON.parse(content);
         } catch (error) {
-            console.error('❌ Error loading cached issues data:', error);
+            console.error('❌ Error loading unified cache data:', error);
             return null;
         }
+    }
+    
+    // Alias for unified cache access 
+    loadUnifiedCache() {
+        return this.loadCachedIssuesData();
     }
 
     saveCachedIssuesData(data) {
         try {
-            const issuesFile = path.join(__dirname, '..', 'data', 'cache', 'issues-cache.json');
-            fs.writeFileSync(issuesFile, JSON.stringify(data, null, 2));
-            console.log(`💾 Saved ${data.issues.length} issues to cache file`);
+            // UNIFIED CACHE: Save directly to unified cache file
+            fs.writeFileSync(this.unifiedCacheFile, JSON.stringify(data, null, 2));
+            console.log(`💾 Saved ${data.issues.length} issues to unified cache`);
         } catch (error) {
-            console.error('❌ Error saving cached issues data:', error);
+            console.error('❌ Error saving to unified cache:', error);
             throw error;
         }
+    }
+    
+    // Alias for unified cache saving
+    saveUnifiedCache(data) {
+        return this.saveCachedIssuesData(data);
     }
 
     // HTTP utility methods

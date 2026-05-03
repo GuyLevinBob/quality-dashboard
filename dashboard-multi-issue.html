@@ -204,6 +204,79 @@
         .coverage-medium { color: #FAA32B; }   /* Orange Juice for medium coverage */
         .coverage-low { color: #EF4444; }      /* Red for low coverage */
 
+        /* KPI Tooltip System - HiBob Brand Aligned */
+        .kpi-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-bottom: 10px;
+            transform: translateX(-50%);
+            background: #FF0000;  /* Temporary: bright red for debugging */
+            color: #FFFFFF;       /* Temporary: white text for contrast */
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 3px solid #0000FF;  /* Temporary: blue border for visibility */
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+            white-space: nowrap;
+            max-width: 300px;
+            white-space: normal;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 99999;
+            pointer-events: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .kpi-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #EE164F, #FAA32B);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .kpi-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            border-top-color: #FDF6EB;
+            filter: drop-shadow(0 3px 6px rgba(238, 22, 79, 0.1));
+        }
+
+        /* Tooltip visibility states for JavaScript control */
+        .kpi-tooltip.visible {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateX(-50%) translateY(-8px) !important;
+        }
+
+        /* Ensure KPI cards support tooltips */
+        .stat-card,
+        .coverage-kpi-card {
+            position: relative;
+            overflow: visible !important;  /* Prevent tooltip clipping */
+        }
+
+        /* Ensure parent containers don't clip tooltips */
+        .stats-overview,
+        .coverage-kpis-grid,
+        .testing-coverage-section {
+            overflow: visible !important;
+        }
+
         /* Testing Coverage Section Styling - HiBob Brand */
         .testing-coverage-section {
             background: linear-gradient(135deg, #FFFFFF 0%, #FDF6EB 100%);
@@ -267,7 +340,9 @@
 
         .coverage-filters-section {
             display: flex;
+            flex-wrap: wrap;
             justify-content: flex-start;
+            align-items: flex-start;
             gap: 24px;
             margin-bottom: 40px;
             padding: 32px;
@@ -356,6 +431,49 @@
             font-weight: 700;
             color: #EE164F;
             font-size: 0.9em;
+        }
+
+        .coverage-filter-group.coverage-mode-filter-group {
+            min-width: 200px;
+            max-width: 380px;
+        }
+
+        .coverage-filter-group .coverage-mode-label {
+            font-family: 'Domine', serif;
+            font-weight: 700;
+            color: #EE164F;
+            font-size: 0.9em;
+        }
+
+        .coverage-loose-hint {
+            flex: 1 1 100%;
+            margin: 0;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(250, 163, 43, 0.12);
+            border: 1px solid rgba(238, 22, 79, 0.2);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9em;
+            color: #3A3A37;
+            line-height: 1.45;
+        }
+
+        .coverage-mode-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 20px;
+        }
+
+        .coverage-mode-toggle input[type="radio"] {
+            margin-right: 4px;
+        }
+
+        .coverage-mode-toggle label {
+            font-family: 'Lato', sans-serif;
+            font-weight: 500;
+            color: #3A3A37;
+            cursor: pointer;
         }
 
         .coverage-kpis-grid {
@@ -1338,10 +1456,100 @@
             cursor: not-allowed;
         }
 
+        /* Split-button wrapper for Sync Data (incremental) + Full Refresh dropdown. */
+        .sync-split {
+            display: inline-flex;
+            align-items: stretch;
+            border-radius: 6px;
+            overflow: visible;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .sync-split .sync-btn {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            padding-right: 14px;
+        }
+
+        .sync-caret {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.35);
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .sync-caret:hover:not(:disabled) {
+            background: linear-gradient(135deg, #e85a87, #a83d5c);
+        }
+
+        .sync-caret:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .sync-menu {
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 220px;
+            padding: 6px;
+            z-index: 50;
+            display: none;
+        }
+
+        .sync-menu.open {
+            display: block;
+        }
+
+        .sync-menu-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .sync-menu-item:hover {
+            background: #fdf6eb;
+        }
+
+        .sync-menu-item .sync-menu-subtitle {
+            display: block;
+            color: #888;
+            font-size: 0.78em;
+            margin-top: 2px;
+        }
+
         #lastSyncTime {
             color: #666;
             font-size: 0.85em;
             opacity: 0.8;
+        }
+
+        #lastSyncTime .sync-delta {
+            color: #3a3a37;
+            font-weight: 600;
+            margin-left: 4px;
         }
 
         /* Date Range Styling */
@@ -2789,10 +2997,21 @@
                 Instance: <span id="jiraInstance">hibob.atlassian.net</span>
             </div>
             <div id="sync-controls" class="sync-controls">
-                <button id="syncButton" class="sync-btn">
-                    <span id="syncIcon">🔄</span> 
-                    <span id="syncText">Sync Data</span>
-                </button>
+                <div class="sync-split">
+                    <button id="syncButton" class="sync-btn" title="Sync changed issues since last sync (incremental)">
+                        <span id="syncIcon">🔄</span>
+                        <span id="syncText">Sync Data</span>
+                    </button>
+                    <button id="syncMenuToggle" class="sync-caret" aria-haspopup="true" aria-expanded="false" title="More sync options">
+                        <span aria-hidden="true">▾</span>
+                    </button>
+                    <div id="syncMenu" class="sync-menu" role="menu">
+                        <button class="sync-menu-item" data-sync-mode="full" role="menuitem">
+                            Full Refresh
+                            <span class="sync-menu-subtitle">Re-fetch every Bug / Story / Test Case from Jira</span>
+                        </button>
+                    </div>
+                </div>
                 <span id="lastSyncTime"></span>
             </div>
         </header>
@@ -2807,24 +3026,28 @@
                     <div class="stat-trend" id="monthlyTrend"></div>
                     <div class="stat-label">Bugs This Month</div>
                     <div class="stat-detail">Compared to 3-month average</div>
+                    <div class="kpi-tooltip">Total number of bugs created in the current calendar month</div>
                 </div>
                 <div class="stat-card">
                     <div class="organic-shape organic-shape-2"></div>
                     <div class="stat-number high-priority" id="highPriorityBugs">-</div>
                     <div class="stat-label">High Priority</div>
                     <div class="stat-detail">In-progress critical issues</div>
+                    <div class="kpi-tooltip">Count of bugs with Critical or High severity ratings requiring immediate attention</div>
                 </div>
                 <div class="stat-card">
                     <div class="organic-shape organic-shape-1"></div>
                     <div class="stat-number deployed" id="deployedBugs">-</div>
                     <div class="stat-label">Resolved This Month</div>
                     <div class="stat-detail">Successfully deployed in April</div>
+                    <div class="kpi-tooltip">Number of issues closed/resolved during the current calendar month</div>
                 </div>
                 <div class="stat-card">
                     <div class="organic-shape organic-shape-2"></div>
                     <div class="stat-number avg-days" id="avgDaysOpen">-</div>
                     <div class="stat-label">Median Resolution</div>
                     <div class="stat-detail">Days to fix</div>
+                    <div class="kpi-tooltip">Median number of days it takes to resolve bugs from creation to closure (all-time, across every deployed bug)</div>
                 </div>
                 
                 <!-- New Strategic KPIs -->
@@ -2833,19 +3056,22 @@
                     <div class="stat-number regression-rate" id="regressionRateKpi">-</div>
                     <div class="stat-label">Regression Rate</div>
                     <div class="stat-detail">Overall percentage</div>
+                    <div class="kpi-tooltip">Percentage of bugs marked as regressions that reintroduce previously fixed issues</div>
                 </div>
                 <div class="stat-card">
                     <div class="organic-shape organic-shape-2"></div>
                     <div class="stat-number sla-compliance" id="slaComplianceKpi">-</div>
                     <div class="stat-label">SLA Compliance</div>
                     <div class="stat-detail">Critical/High deployed bugs</div>
+                    <div class="kpi-tooltip">Percentage of Critical/High deployed bugs resolved within SLA based on severity (Critical &lt;= 1 day, High &lt;= 3 days; all-time)</div>
                 </div>
                 <div class="stat-card">
                     <div class="organic-shape organic-shape-1"></div>
                     <div class="stat-number bug-velocity" id="bugVelocityKpi">-</div>
                     <div class="stat-trend" id="velocityTrend"></div>
                     <div class="stat-label">Bug Velocity</div>
-                    <div class="stat-detail">Resolved per month</div>
+                    <div class="stat-detail">vs previous month</div>
+                    <div class="kpi-tooltip">Month-over-month change in deployed bugs (current month vs previous month)</div>
                 </div>
             </div>
 
@@ -2872,7 +3098,21 @@
                             <div class="multiselect-dropdown" id="coverageSprintFilterDropdown"></div>
                         </div>
                     </div>
+                    <div class="coverage-filter-group coverage-mode-filter-group">
+                        <span class="coverage-mode-label" id="coverageModeLabel">Sprint Assignment Mode:</span>
+                        <div class="coverage-mode-toggle" role="radiogroup" aria-labelledby="coverageModeLabel">
+                            <label title="Each story counts only in its earliest sprint">
+                                <input type="radio" name="coverageSprintMode" id="coverageModeRigid" value="rigid">
+                                Rigid
+                            </label>
+                            <label title="Each story counts in every sprint it was assigned to">
+                                <input type="radio" name="coverageSprintMode" id="coverageModeLoose" value="loose" checked>
+                                Loose
+                            </label>
+                        </div>
+                    </div>
                 </div>
+                <div id="coverageLooseModeHint" class="coverage-loose-hint" style="display: none;" role="status"></div>
 
                 <!-- Coverage KPIs Grid -->
                 <div class="coverage-kpis-grid">
@@ -2881,6 +3121,7 @@
                         <div class="stat-number testing-coverage" id="overallCoverageKpi">-</div>
                         <div class="stat-label">Overall Testing Coverage</div>
                         <div class="stat-detail" id="overallCoverageDetail">- of - eligible stories</div>
+                        <div class="kpi-tooltip" id="overallCoverageKpiTooltip">Percentage of eligible stories (≥0.5 points) that have associated test cases created</div>
                     </div>
 
                     <!-- MIS-CORP Team -->
@@ -2888,6 +3129,7 @@
                         <div class="stat-number coverage-high" id="corpTeamCoverageKpi">-</div>
                         <div class="stat-label">MIS - CORP</div>
                         <div class="stat-detail" id="corpTeamCoverageDetail">- of - stories</div>
+                        <div class="kpi-tooltip">Test case creation percentage for stories owned by the MIS - CORP team</div>
                     </div>
 
                     <!-- MIS-GTC Team -->
@@ -2895,6 +3137,7 @@
                         <div class="stat-number coverage-medium" id="gtcTeamCoverageKpi">-</div>
                         <div class="stat-label">MIS - GTC</div>
                         <div class="stat-detail" id="gtcTeamCoverageDetail">- of - stories</div>
+                        <div class="kpi-tooltip">Test case creation percentage for stories owned by the MIS - GTC team</div>
                     </div>
 
                     <!-- MIS-GTM Team -->
@@ -2902,6 +3145,7 @@
                         <div class="stat-number coverage-low" id="gtmTeamCoverageKpi">-</div>
                         <div class="stat-label">MIS - GTM</div>
                         <div class="stat-detail" id="gtmTeamCoverageDetail">- of - stories</div>
+                        <div class="kpi-tooltip">Test case creation percentage for stories owned by the MIS - GTM team</div>
                     </div>
 
                     <!-- MIS-Platform Team -->
@@ -2909,6 +3153,7 @@
                         <div class="stat-number coverage-high" id="platformTeamCoverageKpi">-</div>
                         <div class="stat-label">MIS - Platform</div>
                         <div class="stat-detail" id="platformTeamCoverageDetail">- of - stories</div>
+                        <div class="kpi-tooltip">Test case creation percentage for stories owned by the MIS - Platform team</div>
                     </div>
                 </div>
 
@@ -3010,6 +3255,32 @@
                                     <button class="filter-clear-btn" data-filter="severity" title="Clear Severity Filter">×</button>
                                 </div>
                                 <div class="multiselect-dropdown" id="severityFilterDropdown"></div>
+                            </div>
+                        </div>
+                        <div class="filter-group bug-only">
+                            <label for="classificationFilter">Classification:</label>
+                            <div class="multiselect-container">
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="classificationFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="classification" title="Clear Classification Filter">×</button>
+                                </div>
+                                <div class="multiselect-dropdown" id="classificationFilterDropdown"></div>
+                            </div>
+                        </div>
+                        <div class="filter-group bug-only">
+                            <label for="businessProcessClassificationFilter">Business Process Classification:</label>
+                            <div class="multiselect-container">
+                                <div class="filter-with-clear">
+                                    <div class="multiselect-button" id="businessProcessClassificationFilterButton">
+                                        <span>Choose a Value</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <button class="filter-clear-btn" data-filter="businessProcessClassification" title="Clear Business Process Classification Filter">×</button>
+                                </div>
+                                <div class="multiselect-dropdown" id="businessProcessClassificationFilterDropdown"></div>
                             </div>
                         </div>
                         <div class="filter-group">
@@ -3323,6 +3594,387 @@
     </div>
 
     <script>
+        // ============================================================================
+        // RUNTIME ADAPTER (added for Apps Script enablement, April 2026)
+        // ----------------------------------------------------------------------------
+        // The dashboard runs in three environments:
+        //   - 'local'         (npm run serve-multi  ->  http://localhost:8090)
+        //   - 'github-pages'  (https://*.github.io/...)
+        //   - 'appsscript'    (https://script.google.com/macros/s/.../exec)
+        //
+        // Local + GitHub Pages behavior is preserved bit-for-bit. Apps Script gets
+        // its own data source priority (see loadDashboardDataFromSource PRIORITY 0.5).
+        //
+        // The Apps Script web app injects `window.__APPSCRIPT_URL__` and an optional
+        // `window.__APPSCRIPT_TOKEN__` from a server-side template (see appscript/Index.html).
+        // ============================================================================
+        const RUNTIME = (function detectRuntime() {
+            try {
+                const host = window.location.hostname || '';
+                const href = window.location.href || '';
+                if (host.indexOf('script.google.com') !== -1 ||
+                    host.indexOf('googleusercontent.com') !== -1 ||
+                    typeof window.__APPSCRIPT_URL__ === 'string' && window.__APPSCRIPT_URL__) {
+                    return 'appsscript';
+                }
+                if (host.indexOf('github.io') !== -1) return 'github-pages';
+                return 'local';
+            } catch (_e) {
+                return 'local';
+            }
+        })();
+
+        // Apps Script URL resolution.
+        //
+        // The Apps Script iframe is hosted on googleusercontent.com but data calls
+        // must hit `https://script.google.com/.../macros/s/<DEPLOYMENT_ID>/exec`
+        // for the SAME deployment that loaded the iframe — otherwise the cross-
+        // deployment fetch fails CORS preflight (no Access-Control-Allow-Origin).
+        //
+        // `ScriptApp.getService().getUrl()` (server-side) is NOT reliable when
+        // multiple deployments share one script project: it can return a stale or
+        // "primary" deployment URL that does not match the deployment the user
+        // actually opened. The resulting CORS error is what produces
+        // "Failed to load dashboard data: Failed to fetch" on every URL except
+        // whichever one happens to match `getService().getUrl()`.
+        //
+        // Resolution order (most reliable first):
+        //   1. `document.referrer` — when the page is embedded by Apps Script,
+        //      this is exactly `script.google.com/.../macros/s/<thisDeploymentId>/exec`,
+        //      i.e. the URL we MUST fetch to stay same-origin.
+        //   2. `window.__APPSCRIPT_URL__` — server-injected URL (legacy fallback).
+        //   3. `window.location.href` minus query — only meaningful for clasp
+        //      local previews, never inside the published iframe.
+        // Diagnostic snapshot used by the runtime detection log below. Captured
+        // unconditionally so we can tell which fallback path resolved
+        // APPSCRIPT_BASE on Apps Script (/exec vs /dev have different reachability).
+        const __APPSCRIPT_BASE_DEBUG = {
+            referrer: '',
+            referrerPicked: null,
+            injected: '',
+            injectedPicked: null,
+            location: '',
+            chosen: null,
+            source: null
+        };
+
+        let APPSCRIPT_BASE = (function () {
+            // Apps Script web-app URLs come in two shapes that we MUST accept:
+            //   1. Published deployment: https://script.google.com/a/<domain>/macros/s/<id>/exec
+            //   2. Test deployment:      https://script.google.com/a/macros/<domain>/s/<id>/dev
+            //   3. Personal published:   https://script.google.com/macros/s/<id>/exec
+            //   4. Personal test:        https://script.google.com/macros/s/<id>/dev
+            // The path segments differ, but every variant ends in `/exec` or `/dev`,
+            // which is the only invariant we can safely anchor on.
+            function cleanScriptUrl(href) {
+                if (typeof href !== 'string' || !href) return null;
+                try {
+                    var u = new URL(href);
+                    if (u.hostname.indexOf('script.google.com') === -1) return null;
+                    if (!/\/(?:exec|dev)$/.test(u.pathname)) return null;
+                    return u.origin + u.pathname;
+                } catch (_e) {
+                    return null;
+                }
+            }
+
+            try { __APPSCRIPT_BASE_DEBUG.referrer = document.referrer || ''; } catch (_) {}
+            try { __APPSCRIPT_BASE_DEBUG.injected = (typeof window.__APPSCRIPT_URL__ === 'string') ? window.__APPSCRIPT_URL__ : ''; } catch (_) {}
+            try { __APPSCRIPT_BASE_DEBUG.location = window.location.href || ''; } catch (_) {}
+
+            if (RUNTIME === 'appsscript') {
+                var fromReferrer = cleanScriptUrl(__APPSCRIPT_BASE_DEBUG.referrer);
+                __APPSCRIPT_BASE_DEBUG.referrerPicked = fromReferrer;
+                if (fromReferrer) {
+                    __APPSCRIPT_BASE_DEBUG.chosen = fromReferrer;
+                    __APPSCRIPT_BASE_DEBUG.source = 'referrer';
+                    return fromReferrer;
+                }
+            }
+
+            if (typeof window.__APPSCRIPT_URL__ === 'string' && window.__APPSCRIPT_URL__) {
+                // Server-side ScriptApp.getService().getUrl() always returns a /exec
+                // URL — even when the user is accessing /dev. That URL is unreachable
+                // because no published deployment exists for the HEAD ID. When we're
+                // running in the test-deployment iframe (signalled by `AuthDialog=true`
+                // in the iframe's query — Apps Script appends this to /dev iframes
+                // but not to /exec iframes), flip the suffix to /dev so the fetch
+                // hits the SAME deployment we were loaded from.
+                var injected = window.__APPSCRIPT_URL__;
+                __APPSCRIPT_BASE_DEBUG.injectedPicked = injected;
+                var looksLikeDev = false;
+                try {
+                    var loc = window.location || {};
+                    var path = loc.pathname || '';
+                    var search = loc.search || '';
+                    // Apps Script iframe paths: /userCodeAppPanel (both modes) and
+                    // /userCodeAppDialog (some flows). The reliable mode signal is
+                    // the *AuthDialog=true query param, which only appears on /dev.
+                    if (/AuthDialog=true/i.test(search)) looksLikeDev = true;
+                    if (path.indexOf('userCodeAppDialog') !== -1) looksLikeDev = true;
+                } catch (_) {}
+
+                if (looksLikeDev && /\/exec$/.test(injected)) {
+                    var devUrl = injected.replace(/\/exec$/, '/dev');
+                    __APPSCRIPT_BASE_DEBUG.chosen = devUrl;
+                    __APPSCRIPT_BASE_DEBUG.source = 'injected->dev';
+                    return devUrl;
+                }
+                __APPSCRIPT_BASE_DEBUG.chosen = injected;
+                __APPSCRIPT_BASE_DEBUG.source = 'injected';
+                return injected;
+            }
+            if (RUNTIME === 'appsscript') {
+                // Best-effort fallback: strip query/hash from the current URL.
+                var loc = window.location.href.split('?')[0].split('#')[0];
+                __APPSCRIPT_BASE_DEBUG.chosen = loc;
+                __APPSCRIPT_BASE_DEBUG.source = 'location';
+                return loc;
+            }
+            return null;
+        })();
+
+        // Optional share token forwarded to every data call when configured server-side.
+        const APPSCRIPT_TOKEN = (function () {
+            if (typeof window.__APPSCRIPT_TOKEN__ === 'string' && window.__APPSCRIPT_TOKEN__) {
+                return window.__APPSCRIPT_TOKEN__;
+            }
+            try {
+                const params = new URLSearchParams(window.location.search || '');
+                return params.get('t') || params.get('token') || null;
+            } catch (_e) {
+                return null;
+            }
+        })();
+
+        const API_BASE = (RUNTIME === 'appsscript') ? APPSCRIPT_BASE : 'http://localhost:3002';
+
+        // ---------------------------------------------------------------------
+        // Apps Script fetch self-heal:
+        //   `ScriptApp.getService().getUrl()` is often wrong (returns /exec for
+        //   the HEAD deployment, which only serves /dev). Even with the
+        //   AuthDialog heuristic above we can still pick the wrong suffix when
+        //   Apps Script changes its iframe URL params. To make this robust:
+        //
+        //     - Compute the toggled-suffix alternate URL (/exec ↔ /dev).
+        //     - Wrap window.fetch so that any call to APPSCRIPT_BASE that fails
+        //       with a network error is automatically retried once against the
+        //       alternate URL.
+        //     - On a successful retry, swap APPSCRIPT_BASE so all subsequent
+        //       calls go straight to the working URL.
+        //
+        //   This is a no-op for non-Apps-Script runtimes and for fetches that
+        //   don't target our deployment base.
+        // ---------------------------------------------------------------------
+        if (RUNTIME === 'appsscript' && APPSCRIPT_BASE) {
+            const __APPSCRIPT_BASE_ALT = (function () {
+                if (/\/exec$/.test(APPSCRIPT_BASE)) return APPSCRIPT_BASE.replace(/\/exec$/, '/dev');
+                if (/\/dev$/.test(APPSCRIPT_BASE))  return APPSCRIPT_BASE.replace(/\/dev$/, '/exec');
+                return null;
+            })();
+
+            if (__APPSCRIPT_BASE_ALT && typeof window.fetch === 'function') {
+                const __origFetch = window.fetch.bind(window);
+                let __altRetryDone = false;
+
+                window.fetch = function (input, init) {
+                    let url = (typeof input === 'string') ? input : (input && input.url) || '';
+                    const isOurs = url.indexOf(APPSCRIPT_BASE) === 0;
+                    if (!isOurs) return __origFetch(input, init);
+
+                    return __origFetch(input, init).catch(function (err) {
+                        if (__altRetryDone) throw err;
+                        __altRetryDone = true;
+                        const altUrl = url.replace(APPSCRIPT_BASE, __APPSCRIPT_BASE_ALT);
+                        console.warn('[runtime] fetch failed against', APPSCRIPT_BASE,
+                            '(' + (err && err.message || err) + ') — retrying with', __APPSCRIPT_BASE_ALT);
+                        return __origFetch(altUrl, init).then(function (resp) {
+                            APPSCRIPT_BASE = __APPSCRIPT_BASE_ALT;
+                            console.log('[runtime] APPSCRIPT_BASE flipped to', APPSCRIPT_BASE);
+                            return resp;
+                        });
+                    });
+                };
+            }
+        }
+
+        /**
+         * Build a URL for one of the data actions in a runtime-aware way.
+         *   action:  'issues' | 'sync' | 'testing-coverage' | 'health' | 'kpis'
+         *   params:  optional plain object of extra query params
+         *
+         * Apps Script: ${APPSCRIPT_BASE}?action=<action>&t=<token>&...
+         * Local/GH:    ${API_BASE}/api/<endpoint>?...
+         */
+        function dataUrl(action, params) {
+            params = params || {};
+            const cacheBust = '_=' + Date.now();
+
+            if (RUNTIME === 'appsscript') {
+                const qs = ['action=' + encodeURIComponent(action)];
+                if (APPSCRIPT_TOKEN) qs.push('t=' + encodeURIComponent(APPSCRIPT_TOKEN));
+                Object.keys(params).forEach(function (k) {
+                    qs.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+                });
+                qs.push(cacheBust);
+                return APPSCRIPT_BASE + '?' + qs.join('&');
+            }
+
+            // Local / GitHub Pages -> existing Node API endpoints
+            const endpointMap = {
+                'issues': '/api/issues-lite',
+                'sync': '/api/sync-issues',
+                'testing-coverage': '/api/testing-coverage',
+                'health': '/health'
+            };
+            const path = endpointMap[action] || ('/api/' + action);
+            const qs = [];
+            Object.keys(params).forEach(function (k) {
+                qs.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+            });
+            qs.push(cacheBust);
+            return API_BASE + path + '?' + qs.join('&');
+        }
+
+        /**
+         * Fetch options for the sync action. The Node API expects POST with a
+         * JSON body; Apps Script web apps only accept GET reliably, so we map
+         * sync to GET on Apps Script and POST elsewhere.
+         *
+         * @param {string[]=} types  issue types to sync
+         * @param {{mode?: 'full'|'incremental'}=} opts
+         *   Apps Script: mode is already threaded via the URL (see dataUrl()).
+         *   Node:        mode is passed in the JSON body.
+         */
+        function syncFetchOptions(types, opts) {
+            if (RUNTIME === 'appsscript') return { method: 'GET' };
+            const body = { issueTypes: types || ['Bug', 'Story', 'Test'] };
+            if (opts && opts.mode) body.mode = opts.mode;
+            return {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            };
+        }
+
+        console.log('[runtime] detected =', RUNTIME, '| API_BASE =', API_BASE,
+            '| token =', APPSCRIPT_TOKEN ? 'yes' : 'no');
+        if (RUNTIME === 'appsscript') {
+            console.log('[runtime] APPSCRIPT_BASE source =', __APPSCRIPT_BASE_DEBUG.source,
+                '| referrer =', JSON.stringify(__APPSCRIPT_BASE_DEBUG.referrer),
+                '| injected =', JSON.stringify(__APPSCRIPT_BASE_DEBUG.injected),
+                '| location =', JSON.stringify(__APPSCRIPT_BASE_DEBUG.location));
+        }
+        // ============================================================================
+        // END RUNTIME ADAPTER
+        // ============================================================================
+
+        // ============================================================================
+        // BROWSER DASHBOARD CACHE (added April 2026)
+        // ----------------------------------------------------------------------------
+        // After the first successful load (or after Sync Data), persist the full
+        // dashboard payload to localStorage keyed by lastSync. On subsequent F5s the
+        // dashboard fetches only ?action=health (~277 bytes) to read the server's
+        // lastSync; if it matches the cached value we render directly from
+        // localStorage and skip every other round-trip — bringing the warm refresh
+        // from ~16-17 s down to ~2 s.
+        //
+        // Cache shape:
+        //   {
+        //     lastSync: "...",
+        //     issues: [...],                 // raw lightweight projection from server
+        //     metadata: { jiraInstance, ... },
+        //     kpis: { lastSync, stats },
+        //     testingCoverage: { stories, total, metadata },
+        //     savedAt: "...",
+        //     version: 3
+        //   }
+        // ----------------------------------------------------------------------------
+        const DASH_CACHE_KEY = 'hibob-dashboard-cache-v3';
+        const DASH_CACHE_VERSION = 3;
+
+        function loadDashCache(expectedLastSync) {
+            try {
+                const raw = localStorage.getItem(DASH_CACHE_KEY);
+                if (!raw) return null;
+                const obj = JSON.parse(raw);
+                if (!obj || obj.version !== DASH_CACHE_VERSION) return null;
+                if (!obj.lastSync || obj.lastSync !== expectedLastSync) return null;
+                if (!Array.isArray(obj.issues) || !obj.testingCoverage) return null;
+                return obj;
+            } catch (e) {
+                console.warn('[cache] read failed:', e && e.message);
+                return null;
+            }
+        }
+
+        function saveDashCache(payload) {
+            if (!payload || !payload.lastSync) return false;
+            try {
+                const toStore = Object.assign({}, payload, {
+                    version: DASH_CACHE_VERSION,
+                    savedAt: new Date().toISOString()
+                });
+                localStorage.setItem(DASH_CACHE_KEY, JSON.stringify(toStore));
+                console.log('[cache] saved (' + (payload.issues ? payload.issues.length : 0) +
+                    ' issues, lastSync=' + payload.lastSync + ')');
+                return true;
+            } catch (e) {
+                // Most likely QuotaExceededError. The dashboard works fine without
+                // cache; we just refetch on the next F5.
+                console.warn('[cache] write failed (likely localStorage quota):', e && e.message);
+                try { localStorage.removeItem(DASH_CACHE_KEY); } catch (_e) {}
+                return false;
+            }
+        }
+
+        function clearDashCache() {
+            try { localStorage.removeItem(DASH_CACHE_KEY); console.log('[cache] cleared'); }
+            catch (_e) {}
+        }
+
+        /**
+         * Pure transform: turn the raw `apiData.issues` array (lightweight projection
+         * straight from the server) into the dashboard's `data` shape, with
+         * Bug/Story/TestCase split + the testCaseCreated normalisation.
+         *
+         * Used by both the cold-fetch path and the cache-hydration path so they
+         * stay byte-identical.
+         */
+        function buildDashDataFromApi(apiIssues, apiMetadata, precomputedStats) {
+            apiIssues = apiIssues || [];
+            return {
+                issues: apiIssues,
+                bugs: apiIssues.filter(i => i.issueType === 'Bug'),
+                stories: apiIssues.filter(i => i.issueType === 'Story').map(story => {
+                    if (story.testCaseCreated && Array.isArray(story.testCaseCreated)) {
+                        story.testCaseCreated = story.testCaseCreated.includes('Yes') ? 'Yes' : 'No';
+                    } else if (story.testCaseCreated && typeof story.testCaseCreated === 'object') {
+                        const value = story.testCaseCreated.value || story.testCaseCreated;
+                        story.testCaseCreated = (Array.isArray(value)
+                            ? (value.includes('Yes') ? 'Yes' : 'No')
+                            : (value === 'Yes' ? 'Yes' : 'No'));
+                    } else if (!story.testCaseCreated) {
+                        story.testCaseCreated = 'No';
+                    }
+                    return story;
+                }),
+                testCases: apiIssues.filter(i => i.issueType === 'Test' || i.issueType === 'Test Case').map(testCase => {
+                    if (!testCase.hasOwnProperty('generatedFromAI')) {
+                        testCase.generatedFromAI = 'No';
+                    }
+                    return testCase;
+                }),
+                metadata: apiMetadata || {},
+                stats: 'WILL_BE_CALCULATED',
+                precomputedStats: precomputedStats || null,
+                source: 'appsscript'
+            };
+        }
+        // ============================================================================
+        // END BROWSER DASHBOARD CACHE
+        // ============================================================================
+
         // Global variables for multi-issue support
         let issuesData = [];      // All issues (unified)
         let bugsData = [];        // Bugs only (for compatibility)
@@ -3345,6 +3997,8 @@
                 { key: 'system', label: 'System', width: '120px' },
                 { key: 'sprint', label: 'Sprint', width: '180px' },
                 { key: 'regression', label: 'Regression', width: '100px' },
+                { key: 'classification', label: 'Classification', width: '160px' },
+                { key: 'businessProcessClassification', label: 'Business Process Classification', width: '200px' },
                 { key: 'fixDuration', label: 'Fix Duration', width: '120px' },
                 { key: 'createdDate', label: 'Created', width: '100px' }
             ],
@@ -3369,7 +4023,7 @@
                 { key: 'system', label: 'System', width: '120px' },
                 { key: 'sprint', label: 'Sprint', width: '180px' },
                 { key: 'generatedFromAI', label: 'Generated from AI', width: '140px' },
-                { key: 'fixDuration', label: 'Fix Duration', width: '120px' },
+                // Fix Duration intentionally hidden for Test Cases (May 2026) — not crucial.
                 { key: 'createdDate', label: 'Created', width: '100px' }
             ]
         };
@@ -3383,7 +4037,9 @@
                 { field: 'system', label: 'System' },
                 { field: 'assignee', label: 'Assignee' },
                 { field: 'sprint', label: 'Sprint' },
-                { field: 'regression', label: 'Regression' }
+                { field: 'regression', label: 'Regression' },
+                { field: 'classification', label: 'Classification' },
+                { field: 'businessProcessClassification', label: 'Business Process Classification' }
             ],
             Story: [
                 { field: 'status', label: 'Status' },
@@ -3525,6 +4181,17 @@
                         }
                         td.innerHTML = regressionDisplay;
                         break;
+
+                    case 'classification':
+                    case 'businessProcessClassification': {
+                        const value = item[column.key];
+                        if (!value || value === 'N/A') {
+                            td.innerHTML = '<span style="color: #999; font-style: italic;">N/A</span>';
+                        } else {
+                            td.textContent = value;
+                        }
+                        break;
+                    }
                         
                     case 'testCaseCreated':
                         let testCaseDisplay = '<span style="color: #999; font-style: italic;">No Data</span>';
@@ -3897,7 +4564,133 @@
         async function loadDashboardDataFromSource() {
             try {
                 console.log('🚀 loadDashboardDataFromSource started');
-                
+
+                // PRIORITY 0 (Apps Script): when hosted by the Apps Script web app,
+                // the only valid data source is the same web app's ?action=issues
+                // endpoint. Skip every other priority because localhost:3002 is
+                // unreachable from a public URL and the GitHub Pages static file
+                // is stale relative to what management can sync on demand.
+                //
+                // Two-tier load (April 2026 perf rewrite):
+                //   1. Fetch ?action=health (~277 bytes) to read the server's
+                //      current `cache.lastSync`. Always.
+                //   2. If localStorage has a cached payload tagged with the same
+                //      lastSync, hydrate from it and skip every other request.
+                //   3. Otherwise fetch issues + kpis + testing-coverage in
+                //      parallel, render, and persist to localStorage so the
+                //      *next* F5 takes the warm path above.
+                if (RUNTIME === 'appsscript') {
+                    document.getElementById('status').innerHTML = 'Checking for fresh data...';
+
+                    // --- Tier 1: tiny health probe -----------------------------
+                    let serverLastSync = null;
+                    let healthBreakdown = null;
+                    let healthJiraInstance = null;
+                    try {
+                        const healthResp = await fetch(dataUrl('health'));
+                        if (healthResp.ok) {
+                            const health = await healthResp.json();
+                            if (health && health.cache) {
+                                serverLastSync = health.cache.lastSync || null;
+                                healthBreakdown = health.cache.breakdown || null;
+                                healthJiraInstance = health.cache.jiraInstance || null;
+                                console.log('[appsscript] health: lastSync=' + serverLastSync +
+                                    ', breakdown=' + JSON.stringify(healthBreakdown));
+                            }
+                        }
+                    } catch (healthErr) {
+                        console.warn('[appsscript] health probe failed (will attempt cold fetch):', healthErr.message);
+                    }
+
+                    // --- Tier 2: localStorage cache hit -------------------------
+                    if (serverLastSync) {
+                        const cached = loadDashCache(serverLastSync);
+                        if (cached) {
+                            console.log('[appsscript] cache HIT for lastSync=' + serverLastSync +
+                                ' (' + cached.issues.length + ' issues from localStorage)');
+                            document.getElementById('status').innerHTML = 'Loading from cache...';
+
+                            const precomputedStats = (cached.kpis && cached.kpis.stats) || null;
+                            data = buildDashDataFromApi(cached.issues, cached.metadata, precomputedStats);
+
+                            // Pre-populate testingCoverageData so loadTestingCoverageData()
+                            // skips its fetch (see loadTestingCoverageData early-return).
+                            if (cached.testingCoverage && Array.isArray(cached.testingCoverage.stories)) {
+                                window.testingCoverageData = cached.testingCoverage.stories;
+                                try { testingCoverageData = cached.testingCoverage.stories; } catch (_e) {}
+                            }
+
+                            if (precomputedStats && typeof displayStats === 'function') {
+                                try { displayStats(precomputedStats); } catch (_e) {}
+                            }
+
+                            await loadData(data);
+                            console.log('✅ Hydrated from localStorage cache');
+                            return;
+                        }
+                        console.log('[appsscript] cache MISS (no entry or stale lastSync)');
+                    }
+
+                    // --- Tier 3: cold path, parallel fetch -----------------------
+                    document.getElementById('status').innerHTML = 'Loading fresh data... (Apps Script web app)';
+                    try {
+                        const [issuesResp, kpisResp, tcResp] = await Promise.all([
+                            fetch(dataUrl('issues', { types: 'Bug,Story,Test' })),
+                            fetch(dataUrl('kpis')),
+                            fetch(dataUrl('testing-coverage'))
+                        ]);
+
+                        let kpiPayload = null;
+                        if (kpisResp.ok) {
+                            try { kpiPayload = await kpisResp.json(); } catch (_e) { /* non-fatal */ }
+                        }
+                        const precomputedStats = (kpiPayload && kpiPayload.stats) || null;
+                        if (precomputedStats && typeof displayStats === 'function') {
+                            try { displayStats(precomputedStats); } catch (_e) {}
+                        }
+
+                        if (!issuesResp.ok) {
+                            throw new Error('Apps Script returned HTTP ' + issuesResp.status + ' for issues');
+                        }
+                        const apiData = await issuesResp.json();
+                        console.log(`✅ Apps Script returned ${apiData.issues?.length || 0} issues`);
+
+                        let tcPayload = null;
+                        if (tcResp.ok) {
+                            try { tcPayload = await tcResp.json(); } catch (_e) { /* non-fatal */ }
+                        }
+                        if (tcPayload && Array.isArray(tcPayload.stories)) {
+                            window.testingCoverageData = tcPayload.stories;
+                            try { testingCoverageData = tcPayload.stories; } catch (_e) {}
+                        }
+
+                        data = buildDashDataFromApi(apiData.issues || [], apiData.metadata, precomputedStats);
+
+                        // Persist for next F5. Use the server's authoritative lastSync
+                        // (from /health) when we have it; fall back to apiData metadata.
+                        const cacheLastSync = serverLastSync ||
+                            (apiData.metadata && apiData.metadata.lastSync) || null;
+                        if (cacheLastSync) {
+                            saveDashCache({
+                                lastSync: cacheLastSync,
+                                issues: apiData.issues || [],
+                                metadata: apiData.metadata || { jiraInstance: healthJiraInstance },
+                                kpis: kpiPayload || null,
+                                testingCoverage: tcPayload || { stories: [], total: 0, metadata: {} }
+                            });
+                        }
+
+                        await loadData(data);
+                        console.log('✅ Successfully loaded via Apps Script web app (cold path)');
+                        return;
+                    } catch (asError) {
+                        console.error('❌ Apps Script load failed:', asError);
+                        document.getElementById('status').innerHTML =
+                            'Error: could not load dashboard data from Apps Script (' + asError.message + ')';
+                        throw asError;
+                    }
+                }
+
                 // PRIORITY 0: GitHub Pages detection - load static file directly
                 if (window.location.hostname.includes('github.io')) {
                     console.log('🌐 GitHub Pages detected - loading from static multi-dashboard-data.json');
@@ -3939,7 +4732,7 @@
                 // PRIORITY 1: Try API server first for fresh JIRA data (local development only)
                 try {
                     console.log('🔄 Checking API server for fresh JIRA data...');
-                    const apiResponse = await fetch(`http://localhost:3002/api/issues-lite?types=Bug,Story,Test&_=${Date.now()}`);
+                    const apiResponse = await fetch(dataUrl('issues', { types: 'Bug,Story,Test' }));
                     
                     if (apiResponse.ok) {
                         console.log('✅ API server available - using fresh data');
@@ -4046,7 +4839,7 @@
                 
                 // Try to load from new multi-issue API first
                 try {
-                    const apiResponse = await fetch(`http://localhost:3002/api/issues-lite?types=Bug,Story,Test&_=${Date.now()}`);
+                    const apiResponse = await fetch(dataUrl('issues', { types: 'Bug,Story,Test' }));
                     
                     if (apiResponse.ok) {
                         console.log('✅ Successfully fetched from multi-issue API');
@@ -4400,17 +5193,15 @@
             console.log('🔍 KPI: Independent monthly bugs calculation (separate from table filters)');
             console.log('📊 Processing', bugs.length, 'total bugs');
             
-            // Dynamically detect current month from the most recent bug dates in the dataset
-            const currentDate = new Date(); // Use actual current date
-            const dataDate = new Date(2026, 3, 23); // But data is from 2026, so use April 2026
-            
-            const currentMonth = dataDate.getMonth(); // April = 3 (0-indexed)  
-            const currentYear = dataDate.getFullYear(); // 2026
-            const monthName = dataDate.toLocaleString('default', { month: 'long' });
+            // Use the actual current date so KPIs always track the live calendar month
+            const now = new Date();
+            const currentMonth = now.getMonth(); // 0-indexed
+            const currentYear = now.getFullYear();
+            const monthName = now.toLocaleString('default', { month: 'long' });
             
             console.log(`🔍 KPI: Calculating for ${monthName} ${currentYear} (month index: ${currentMonth})`);
             
-            // Count ALL bugs created in the current month (April 2026)
+            // Count ALL bugs created in the current calendar month
             const currentMonthBugs = bugs.filter(bug => {
                 const createdDateStr = bug.createdDate || bug.created;
                 if (!createdDateStr) {
@@ -4513,12 +5304,15 @@
             // Calculate trend by comparing to previous 3 months average
             const actualCount = currentMonthBugs.length;
             
-            // Calculate previous 3 months (January, February, March 2026)
-            const previousMonths = [
-                { month: 0, year: 2026, name: 'January' },   // January 2026
-                { month: 1, year: 2026, name: 'February' },  // February 2026  
-                { month: 2, year: 2026, name: 'March' }      // March 2026
-            ];
+            // Calculate previous 3 months relative to the current month, handling year rollover
+            const previousMonths = [1, 2, 3].map(offset => {
+                const d = new Date(currentYear, currentMonth - offset, 1);
+                return {
+                    month: d.getMonth(),
+                    year: d.getFullYear(),
+                    name: d.toLocaleString('default', { month: 'long' })
+                };
+            });
             
             const previousCounts = previousMonths.map(monthInfo => {
                 const monthBugs = bugs.filter(bug => {
@@ -4569,11 +5363,12 @@
             }
             
             console.log(`📊 KPI: Final result - ${actualCount} bugs, trend: ${trendText}`);
-            
+
             return {
                 count: actualCount,
                 trend: trendText,
-                trendClass: trendClass
+                trendClass: trendClass,
+                previousAverage: Math.round(previousAverage)
             };
         }
 
@@ -4686,12 +5481,14 @@
             return median;
         }
 
-        // Calculate bugs resolved this month (April 2026)
+        // Calculate bugs resolved this month (live current calendar month)
         function calculateResolvedThisMonth(bugs) {
-            const currentMonth = 3; // April (0-indexed)
-            const currentYear = 2026;
+            const now = new Date();
+            const currentMonth = now.getMonth(); // 0-indexed
+            const currentYear = now.getFullYear();
+            const monthName = now.toLocaleString('default', { month: 'long' });
 
-            console.log('🔍 calculateResolvedThisMonth: Processing', bugs.length, 'bugs for April 2026');
+            console.log(`🔍 calculateResolvedThisMonth: Processing ${bugs.length} bugs for ${monthName} ${currentYear}`);
             
             // Sample updatedDate values
             const sampleUpdates = bugs.slice(0, 5).map(bug => ({
@@ -4702,10 +5499,16 @@
             }));
             console.log('📅 Sample updated dates:', sampleUpdates);
 
+            // Prefer the actual JIRA `resolutiondate` (when the bug was
+            // resolved/deployed). Only fall back to `updated` for the small
+            // set of legacy cache entries where resolutionDate wasn't
+            // extracted yet — otherwise any post-deploy touch (comment,
+            // label, linked issue) would bump `updated` and wrongly count
+            // the bug as "resolved this month".
             const resolvedThisMonth = bugs.filter(bug => {
                 if (bug.status !== 'Deployed') return false;
 
-                const dateStr = bug.updatedDate || bug.updated;
+                const dateStr = bug.resolutionDate || bug.updatedDate || bug.updated;
                 if (!dateStr) return false;
 
                 let bugDate;
@@ -4713,7 +5516,7 @@
                     if (dateStr.includes('/')) {
                         const parts = dateStr.split('/');
                         if (parts.length === 3) {
-                            const month = parseInt(parts[0]) - 1; // 0-indexed
+                            const month = parseInt(parts[0]) - 1;
                             const day = parseInt(parts[1]);
                             const year = parseInt(parts[2]);
                             bugDate = new Date(year, month, day);
@@ -4734,16 +5537,15 @@
                 }
             });
 
-            console.log('✅ Resolved this month (April 2026):', resolvedThisMonth.length);
-            
-            // Log first few matches
+            console.log(`✅ Resolved this month (${monthName} ${currentYear}):`, resolvedThisMonth.length);
+
             if (resolvedThisMonth.length > 0) {
                 console.log('Sample resolved bugs:', resolvedThisMonth.slice(0, 3).map(bug => ({
                     key: bug.key,
-                    updatedDate: bug.updatedDate || bug.updated
+                    resolutionDate: bug.resolutionDate || '(fallback) ' + (bug.updatedDate || bug.updated)
                 })));
             }
-            
+
             return resolvedThisMonth.length;
         }
 
@@ -4841,14 +5643,18 @@
             
             // Filter to deployed bugs (resolved), excluding cancelled/rejected
             const resolvedBugs = bugs.filter(bug => bug.status === 'Deployed');
-            
-            // Group by month based on updatedDate (when they were resolved)
+
+            // Group by month using the actual JIRA `resolutiondate`, not
+            // `updated` — otherwise any post-deploy touch on an old Deployed
+            // bug (comment, label, linked issue) bumps `updated` and gets
+            // miscounted as a current-month resolution. Fall back to
+            // `updated` only when resolutionDate is missing.
             const monthlyResolutions = {};
-            
+
             resolvedBugs.forEach(bug => {
-                const dateStr = bug.updatedDate || bug.updated;
+                const dateStr = bug.resolutionDate || bug.updatedDate || bug.updated;
                 if (!dateStr) return;
-                
+
                 let bugDate;
                 if (dateStr.includes('/')) {
                     const parts = dateStr.split('/');
@@ -4858,47 +5664,65 @@
                 } else {
                     bugDate = new Date(dateStr);
                 }
-                
+
                 if (!isNaN(bugDate.getTime())) {
                     const monthKey = `${bugDate.getFullYear()}-${bugDate.getMonth() + 1}`;
                     monthlyResolutions[monthKey] = (monthlyResolutions[monthKey] || 0) + 1;
                 }
             });
             
-            const months = Object.keys(monthlyResolutions);
-            const currentMonth = '2026-4'; // April 2026
-            const previousMonth = '2026-3'; // March 2026
-            
-            const currentMonthCount = monthlyResolutions[currentMonth] || 0;
-            const previousMonthCount = monthlyResolutions[previousMonth] || 0;
-            
-            // Calculate trend
-            let trend = '';
+            // Derive the current and previous month keys from the live calendar so the KPI
+            // updates automatically every month and handles year rollover (Jan -> previous Dec).
+            const now = new Date();
+            const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+            const currentMonthKey = `${currentMonthDate.getFullYear()}-${currentMonthDate.getMonth() + 1}`;
+            const previousMonthKey = `${previousMonthDate.getFullYear()}-${previousMonthDate.getMonth() + 1}`;
+            const currentMonthName = currentMonthDate.toLocaleString('default', { month: 'long' });
+            const previousMonthName = previousMonthDate.toLocaleString('default', { month: 'long' });
+
+            const currentMonthCount = monthlyResolutions[currentMonthKey] || 0;
+            const previousMonthCount = monthlyResolutions[previousMonthKey] || 0;
+
+            // Compute month-over-month percent delta. When previous month has zero bugs
+            // we cannot compute a percentage, so surface 'N/A' instead of dividing by zero.
+            let diffPercentRaw = null;
+            let diffLabel = 'N/A';
             let trendClass = 'trend-neutral';
-            
+
             if (previousMonthCount > 0) {
-                const changePercent = Math.round(((currentMonthCount - previousMonthCount) / previousMonthCount) * 100);
-                if (changePercent > 5) {
-                    trend = `+${changePercent}%`;
+                diffPercentRaw = Math.round(((currentMonthCount - previousMonthCount) / previousMonthCount) * 100);
+                if (diffPercentRaw > 5) {
+                    diffLabel = `+${diffPercentRaw}%`;
                     trendClass = 'trend-up';
-                } else if (changePercent < -5) {
-                    trend = `${changePercent}%`;
+                } else if (diffPercentRaw < -5) {
+                    diffLabel = `${diffPercentRaw}%`;
                     trendClass = 'trend-down';
                 } else {
-                    trend = 'Stable';
+                    // Within +/- 5% we treat as stable but still show the actual signed value.
+                    diffLabel = diffPercentRaw > 0 ? `+${diffPercentRaw}%` : `${diffPercentRaw}%`;
                     trendClass = 'trend-neutral';
                 }
+            } else if (currentMonthCount > 0) {
+                // Previous month had no resolutions but the current month does -> "new" activity.
+                diffLabel = 'New';
+                trendClass = 'trend-up';
             }
-            
+
             console.log('✅ Bug Velocity analysis:');
-            console.log(`   • Current month (April): ${currentMonthCount} bugs`);
-            console.log(`   • Previous month (March): ${previousMonthCount} bugs`);
-            console.log(`   • Trend: ${trend}`);
-            
+            console.log(`   • Current month (${currentMonthName}): ${currentMonthCount} bugs`);
+            console.log(`   • Previous month (${previousMonthName}): ${previousMonthCount} bugs`);
+            console.log(`   • Diff: ${diffLabel}`);
+
             return {
-                count: currentMonthCount,
-                trend: trend,
-                trendClass: trendClass
+                diffLabel,
+                diffPercentRaw,
+                currentMonthCount,
+                previousMonthCount,
+                currentMonthName,
+                previousMonthName,
+                trendClass
             };
         }
 
@@ -4906,8 +5730,126 @@
         
         // Global variables for testing coverage filters
         const testingCoverageFilters = {
-            sprint: null // Single selected sprint or null for "All Sprints"
+            sprint: null, // Single selected sprint or null for "All Sprints"
+            /** 'rigid' = earliest sprint only (legacy); 'loose' = one row per assigned sprint */
+            sprintMode: 'loose'
         };
+
+        /** True when coverage sprint filter is "All Sprints" (no specific sprint). */
+        function isCoverageSprintFilterAllSprints() {
+            const s = testingCoverageFilters.sprint;
+            return s == null || s === '' || s === 'all';
+        }
+
+        /**
+         * Rows used for Testing Coverage KPIs, filters, and details table.
+         * In loose mode, multi-sprint stories are expanded (cached allSprints or fallback to story.sprint).
+         */
+        function countUniqueCoverageStoryKeys(stories) {
+            if (!Array.isArray(stories) || stories.length === 0) return 0;
+            return new Set(stories.map(s => s && s.key).filter(Boolean)).size;
+        }
+
+        function getCoverageStories() {
+            if (!Array.isArray(testingCoverageData)) return [];
+            if (testingCoverageFilters.sprintMode !== 'loose') return testingCoverageData;
+            const out = [];
+            for (const story of testingCoverageData) {
+                const sprints = (Array.isArray(story.allSprints) && story.allSprints.length)
+                    ? story.allSprints
+                    : (story.sprint ? [story.sprint] : [null]);
+                for (const s of sprints) {
+                    out.push({ ...story, sprint: s, _explodedFrom: story.key });
+                }
+            }
+            return out;
+        }
+
+        /**
+         * Copy allSprints from issuesData (same JIRA sync) when coverage rows lack it.
+         * @returns {boolean} true if any coverage row was updated
+         */
+        function hydrateCoverageAllSprintsFromIssuesData() {
+            if (!Array.isArray(testingCoverageData) || testingCoverageData.length === 0) return false;
+            if (typeof issuesData === 'undefined' || !Array.isArray(issuesData) || issuesData.length === 0) {
+                return false;
+            }
+            const map = new Map();
+            for (const i of issuesData) {
+                if (i && i.issueType === 'Story' && i.key &&
+                    Array.isArray(i.allSprints) && i.allSprints.length > 0) {
+                    map.set(i.key, i.allSprints);
+                }
+            }
+            if (map.size === 0) return false;
+            let changed = false;
+            for (const s of testingCoverageData) {
+                const al = map.get(s.key);
+                if (!al) continue;
+                const sparse = !Array.isArray(s.allSprints) || s.allSprints.length === 0;
+                const shorter = Array.isArray(s.allSprints) && s.allSprints.length < al.length;
+                if (sparse || shorter) {
+                    s.allSprints = al.slice();
+                    changed = true;
+                }
+            }
+            if (changed) {
+                console.log('📎 Hydrated allSprints on testing-coverage stories from issuesData');
+            }
+            return changed;
+        }
+
+        function coverageHasMultiSprintStories() {
+            return Array.isArray(testingCoverageData) && testingCoverageData.some(
+                s => Array.isArray(s.allSprints) && s.allSprints.length > 1
+            );
+        }
+
+        function updateCoverageLooseModeHint() {
+            const el = document.getElementById('coverageLooseModeHint');
+            if (!el) return;
+            if (testingCoverageFilters.sprintMode !== 'loose') {
+                el.style.display = 'none';
+                el.textContent = '';
+                return;
+            }
+            if (coverageHasMultiSprintStories()) {
+                el.style.display = 'none';
+                el.textContent = '';
+                return;
+            }
+            const anyAllSprints = Array.isArray(testingCoverageData) && testingCoverageData.some(
+                s => Array.isArray(s.allSprints) && s.allSprints.length > 0
+            );
+            el.style.display = 'block';
+            if (!anyAllSprints) {
+                el.textContent = 'Loose mode needs sprint history in your data. Restart the local API server, then use Sync → Full Refresh once so stories include all assigned sprints. Until then, numbers match Rigid (one sprint per story).';
+            } else {
+                el.textContent = 'No stories in this filtered cohort have more than one assigned sprint, so Loose matches Rigid for the current sprint and scope.';
+            }
+        }
+
+        function setupCoverageSprintModeToggle() {
+            const rigid = document.getElementById('coverageModeRigid');
+            const loose = document.getElementById('coverageModeLoose');
+            if (!rigid || !loose) return;
+            if (rigid.dataset.listenerAttached === 'true') return;
+            const syncFromDom = () => {
+                testingCoverageFilters.sprintMode = loose.checked ? 'loose' : 'rigid';
+            };
+            const onChange = () => {
+                syncFromDom();
+                if (testingCoverageData && testingCoverageData.length > 0) {
+                    const sprints = getUniqueSprints(getCoverageStories());
+                    populateCoverageSprintDropdown(sprints);
+                    updateTestingCoverageDisplay();
+                }
+            };
+            rigid.addEventListener('change', onChange);
+            loose.addEventListener('change', onChange);
+            rigid.dataset.listenerAttached = 'true';
+            syncFromDom();
+        }
 
         // Calculate overall testing coverage with optional filters
         function calculateTestingCoverage(stories, filters = {}) {
@@ -5164,9 +6106,21 @@
         // Load testing coverage data from dedicated API endpoint
         async function loadTestingCoverageData() {
             console.log('🔄 Loading testing coverage data from dedicated API...');
-            
+
+            // Fast path: if loadDashboardDataFromSource (or the post-sync handler)
+            // has already populated testingCoverageData via the cache or the fat
+            // sync response, skip the redundant /testing-coverage round-trip.
+            if (Array.isArray(testingCoverageData) && testingCoverageData.length > 0) {
+                console.log('✅ Testing coverage already hydrated (' + testingCoverageData.length +
+                    ' stories); skipping fetch');
+                if (typeof initializeCoverageFilters === 'function') {
+                    initializeCoverageFilters();
+                }
+                return testingCoverageData;
+            }
+
             try {
-                const response = await fetch(`${API_BASE}/api/testing-coverage?_=${Date.now()}`);
+                const response = await fetch(dataUrl('testing-coverage'));
                 
                 if (!response.ok) {
                     throw new Error(`Testing coverage API failed: ${response.status}`);
@@ -5178,8 +6132,18 @@
                 console.log(`✅ Loaded ${testingCoverageData.length} stories for testing coverage`);
                 console.log('📊 Testing coverage metadata:', data.metadata);
                 
-                // Update the display
-                updateTestingCoverageDisplay();
+                // Wire up the sprint dropdown + populate options + render the
+                // coverage display. Done here (instead of via the early
+                // setTimeout in setupSyncButtonListener / DOMContentLoaded)
+                // because in the Apps Script runtime the API round-trip can
+                // take >1s, so the early timers fire before testingCoverageData
+                // is populated and bail at the empty-data guard inside
+                // initializeCoverageFilters() — leaving the dropdown without
+                // a click handler. Calling it here guarantees setup runs
+                // exactly when the data lands. initializeCoverageFilters()
+                // itself calls updateTestingCoverageDisplay(), so we don't
+                // need a separate render call.
+                initializeCoverageFilters();
                 
                 return testingCoverageData;
                 
@@ -5253,7 +6217,16 @@
                     console.log('❌ No story data available in any source');
                 }
                 
-                updateTestingCoverageDisplay();
+                // Same reasoning as the API-success path above: when one of
+                // the fallbacks populated testingCoverageData, run the full
+                // initializeCoverageFilters() flow so the sprint dropdown gets
+                // its options + click handler. The empty-data branch still
+                // just refreshes the display so any "no data" state renders.
+                if (testingCoverageData && testingCoverageData.length > 0) {
+                    initializeCoverageFilters();
+                } else {
+                    updateTestingCoverageDisplay();
+                }
             }
         }
 
@@ -5271,15 +6244,20 @@
 
             if (!testingCoverageData || testingCoverageData.length === 0) {
                 console.log('❌ No testing coverage data available');
+                const hintEl = document.getElementById('coverageLooseModeHint');
+                if (hintEl) {
+                    hintEl.style.display = 'none';
+                    hintEl.textContent = '';
+                }
                 return;
             }
 
             // Debug: Show total stories count and team breakdown  
-            console.log(`📊 Total stories available for testing coverage: ${testingCoverageData.length}`);
+            console.log(`📊 Total stories available for testing coverage: ${getCoverageStories().length} (${testingCoverageData.length} unique stories)`);
             
             // Check team distribution
             const teamCount = {};
-            testingCoverageData.forEach(story => {
+            getCoverageStories().forEach(story => {
                 const team = story.leadingTeam || 'No Team';
                 teamCount[team] = (teamCount[team] || 0) + 1;
             });
@@ -5287,7 +6265,7 @@
             
             // Check testCaseCreated distribution
             const testCaseCount = {};
-            testingCoverageData.forEach(story => {
+            getCoverageStories().forEach(story => {
                 const testCase = story.testCaseCreated || 'No Value';
                 testCaseCount[testCase] = (testCaseCount[testCase] || 0) + 1;
             });
@@ -5295,7 +6273,7 @@
 
             // Log sample of first 5 stories for detailed inspection
             console.log('🔍 Sample testing coverage stories (first 5):');
-            testingCoverageData.slice(0, 5).forEach((story, index) => {
+            getCoverageStories().slice(0, 5).forEach((story, index) => {
                 console.log(`  ${index + 1}. ${story.key}: team="${story.leadingTeam}", points=${story.storyPoints}, status="${story.status}", testCase="${story.testCaseCreated}"`);
             });
             
@@ -5303,10 +6281,10 @@
             const filters = {
                 sprint: testingCoverageFilters.sprint
             };
-            const overallCoverage = calculateTestingCoverage(testingCoverageData, filters);
+            const overallCoverage = calculateTestingCoverage(getCoverageStories(), filters);
 
             // Calculate team-specific coverage
-            const teamCoverage = calculateTestingCoverageByTeam(testingCoverageData, filters);
+            const teamCoverage = calculateTestingCoverageByTeam(getCoverageStories(), filters);
             
             // Update overall KPI
             const overallKpiElement = document.getElementById('overallCoverageKpi');
@@ -5317,7 +6295,26 @@
             }
             
             if (overallDetailElement) {
-                overallDetailElement.textContent = `${overallCoverage.withTests} of ${overallCoverage.total} eligible stories`;
+                const loose = testingCoverageFilters.sprintMode === 'loose';
+                if (loose) {
+                    const unique = countUniqueCoverageStoryKeys(overallCoverage.stories);
+                    const showUnique = isCoverageSprintFilterAllSprints();
+                    const suffix = showUnique ? ` (${unique} unique stories)` : '';
+                    overallDetailElement.textContent =
+                        `${overallCoverage.withTests} of ${overallCoverage.total} story–sprint rows${suffix}`;
+                } else {
+                    overallDetailElement.textContent =
+                        `${overallCoverage.withTests} of ${overallCoverage.total} eligible stories`;
+                }
+            }
+
+            const overallTip = document.getElementById('overallCoverageKpiTooltip');
+            if (overallTip) {
+                if (testingCoverageFilters.sprintMode === 'loose') {
+                    overallTip.textContent = 'Loose mode: same eligibility as Rigid (≥0.5 pts, MIS teams, not cancelled/rejected), but each story is counted once per assigned sprint—so totals are story–sprint rows, not unique stories.';
+                } else {
+                    overallTip.textContent = 'Percentage of eligible stories (≥0.5 points) that have associated test cases created';
+                }
             }
             
             // Update team KPIs
@@ -5348,7 +6345,16 @@
                 }
                 
                 if (detailElement) {
-                    detailElement.textContent = `${coverage.withTests} of ${coverage.total} stories`;
+                    const loose = testingCoverageFilters.sprintMode === 'loose';
+                    if (loose) {
+                        const unique = countUniqueCoverageStoryKeys(coverage.stories);
+                        const showUnique = isCoverageSprintFilterAllSprints();
+                        const suffix = showUnique ? ` (${unique} unique stories)` : '';
+                        detailElement.textContent =
+                            `${coverage.withTests} of ${coverage.total} rows${suffix}`;
+                    } else {
+                        detailElement.textContent = `${coverage.withTests} of ${coverage.total} stories`;
+                    }
                 }
             });
             
@@ -5362,6 +6368,8 @@
             
             // Setup KPI click handlers after KPIs are rendered
             setupCoverageKpiClickHandlers();
+
+            updateCoverageLooseModeHint();
             
             console.log('✅ Testing coverage display updated');
         }
@@ -5482,7 +6490,7 @@
                     const filters = {
                         sprint: testingCoverageFilters.sprint
                     };
-                    const coverage = calculateTestingCoverage(testingCoverageData, filters);
+                    const coverage = calculateTestingCoverage(getCoverageStories(), filters);
                     updateCoverageDetailsTable(coverage.stories);
                 }
             }
@@ -5574,7 +6582,7 @@
                 }
                 
                 // Apply the same filtering logic
-                sortedStories = [...testingCoverageData];
+                sortedStories = [...getCoverageStories()];
                 if (filters.sprint) {
                     sortedStories = sortedStories.filter(story => story.sprint === filters.sprint);
                 }
@@ -5761,12 +6769,12 @@
             console.log('  filters.team value:', filters.team);
             
             // Apply filters to get filtered data
-            let filteredStories = [...testingCoverageData];
-            console.log(`📊 Starting with ${filteredStories.length} total stories`);
+            let filteredStories = [...getCoverageStories()];
+            console.log(`📊 Starting with ${filteredStories.length} total coverage rows (${testingCoverageData.length} unique stories)`);
             
             // Debug: Show team distribution in original data
             const teamDistribution = {};
-            testingCoverageData.forEach(story => {
+            getCoverageStories().forEach(story => {
                 const team = story.leadingTeam || 'Unknown';
                 teamDistribution[team] = (teamDistribution[team] || 0) + 1;
             });
@@ -5774,7 +6782,7 @@
             
             // Debug: Show sprint distribution in original data
             const sprintDistribution = {};
-            testingCoverageData.forEach(story => {
+            getCoverageStories().forEach(story => {
                 const sprint = story.sprint || 'No Sprint';
                 sprintDistribution[sprint] = (sprintDistribution[sprint] || 0) + 1;
             });
@@ -5826,7 +6834,7 @@
                     console.warn(`❌ No stories found for sprint "${filters.sprint}"`);
                     // Show available sprints for debugging
                     const sprints = {};
-                    testingCoverageData.forEach(story => {
+                    getCoverageStories().forEach(story => {
                         const sprint = story.sprint || 'No Sprint';
                         sprints[sprint] = (sprints[sprint] || 0) + 1;
                     });
@@ -5860,7 +6868,7 @@
                     
                     // Show available teams in the sprint-filtered data for debugging
                     const teamsInFilteredData = {};
-                    let tempFiltered = [...testingCoverageData];
+                    let tempFiltered = [...getCoverageStories()];
                     if (filters.sprint && filters.sprint !== 'all') {
                         tempFiltered = tempFiltered.filter(story => story.sprint === filters.sprint);
                     }
@@ -5901,7 +6909,8 @@
             
             // FINAL VERIFICATION: What filters were actually applied?
             const finalVerification = {
-                totalStarting: testingCoverageData.length,
+                totalStarting: getCoverageStories().length,
+                uniqueStoriesStarting: testingCoverageData.length,
                 totalEnding: filteredStories.length,
                 sprintFilterApplied: 'sprint' in filters,
                 teamFilterApplied: 'team' in filters,
@@ -5975,7 +6984,8 @@
                 sprintFilter: testingCoverageFilters.sprint,
                 sprintFilterType: typeof testingCoverageFilters.sprint,
                 sprintFilterEmpty: !testingCoverageFilters.sprint,
-                totalStories: testingCoverageData?.length
+                totalStories: testingCoverageData?.length,
+                coverageRows: getCoverageStories().length
             });
             
             // Show current sprint filter button text for verification
@@ -6080,118 +7090,135 @@
 
         // Sync button functionality
         let syncInProgress = false;
-        const API_BASE = 'http://localhost:3002';
+        // NOTE: API_BASE is now declared once at the top of this script block by the
+        // runtime adapter; do not redeclare it here.
 
-        async function handleSyncData() {
-            console.log('🔄 handleSyncData function called');
-            
+        async function handleSyncData(options) {
+            options = options || {};
+            const mode = options.mode || null; // null = server decides (auto)
+            console.log('🔄 handleSyncData called', mode ? `(mode=${mode})` : '(mode=auto)');
+
             if (syncInProgress) {
                 console.log('⏳ Sync already in progress, ignoring click');
                 return;
             }
-            
+
             console.log('🚀 Starting sync process...');
             syncInProgress = true;
-            updateSyncButton('syncing');
-            
-            try {
-                // Step 1: Trigger fresh JIRA fetch
-                console.log('🔄 Starting sync with local API server...');
-                console.log(`📡 API endpoint: ${API_BASE}/api/sync-issues`);
+            updateSyncButton('syncing', mode);
 
-                const syncResponse = await fetch(`${API_BASE}/api/sync-issues`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ issueTypes: ["Bug", "Story", "Test"] })
-                });
-                
+            try {
+                // Step 1: Trigger fresh JIRA fetch (runtime-aware via dataUrl/syncFetchOptions).
+                //
+                // The Apps Script ?action=sync response now embeds the same
+                // payloads ?action=issues / ?action=kpis / ?action=testing-coverage
+                // would return, so we hydrate the dashboard directly from the
+                // sync response and skip every follow-up round-trip. (April 2026
+                // perf rewrite — was previously a chain of sync -> issues ->
+                // kpis -> testing-coverage that took ~12 s after sync finished.)
+                const syncParams = { types: 'Bug,Story,Test' };
+                if (mode) syncParams.mode = mode;
+                const syncEndpoint = dataUrl('sync', syncParams);
+                console.log(`🔄 Starting sync${mode ? ' [' + mode + ']' : ''}...`);
+                console.log(`📡 API endpoint: ${syncEndpoint}`);
+
+                const syncResponse = await fetch(
+                    syncEndpoint,
+                    syncFetchOptions(['Bug', 'Story', 'Test'], mode ? { mode } : undefined)
+                );
+
                 if (!syncResponse.ok) {
                     throw new Error(`Sync failed: ${syncResponse.status} - ${syncResponse.statusText}`);
                 }
-                
-                console.log('✅ JIRA sync completed, fetching processed data...');
-                
-                // Step 2: Get fresh processed data
-                const dataResponse = await fetch(`${API_BASE}/api/issues-lite?types=Bug,Story,Test`);
-                if (!dataResponse.ok) {
-                    throw new Error(`Data fetch failed: ${dataResponse.status}`);
-                }
-                
-                const apiResponse = await dataResponse.json();
-                
-                // Step 3: Transform API response to dashboard format with proper field mapping
-                const transformedBugs = apiResponse.issues.map(bug => ({
-                    key: bug.key,
-                    project: bug.project,
-                    summary: bug.summary,
-                    status: bug.status,
-                    priority: bug.priority,
-                    severity: bug.severity || 'Unknown',
-                    assignee: bug.assignee || 'Unassigned',
-                    reporter: bug.reporter,
-                    created: bug.created,
-                    updated: bug.updated,
-                    createdDate: bug.createdDate,
-                    updatedDate: bug.updatedDate,
-                    resolutionDate: bug.resolutionDate,
-                    resolutionDateFormatted: bug.resolutionDateFormatted,
-                    daysOpen: bug.daysOpen,
-                    leadingTeam: bug.leadingTeam || 'Unknown',
-                    system: bug.system || 'Unknown',
-                    sprint: bug.sprintName || bug.sprint || 'No Sprint', // Map sprintName to sprint
-                    regression: bug.regression || 'Unknown',
-                    fixDuration: 'CALCULATED', // Let calculateFixDuration function handle this using precise resolution dates
-                    bugType: bug.bugType,
-                    components: bug.components || [],
-                    labels: bug.labels || []
-                }));
 
-                const freshData = {
-                    issues: transformedBugs,
-                    bugs: transformedBugs, // Keep for backwards compatibility with existing functions
-                    metadata: {
-                        exported: new Date().toISOString(),
-                        totalBugs: apiResponse.metadata.totalIssues || transformedBugs.length,
-                        projects: ["BT"],
-                        jiraInstance: apiResponse.metadata.jiraInstance
-                    },
-                    stats: generateStatsFromBugs(transformedBugs)
-                };
-                
-                data = freshData;
-                console.log(`✅ Loaded ${data.issues.length} fresh issues from local API`);
-                
-                // Save synced data to localStorage so it persists across refreshes
-                try {
-                    localStorage.setItem('hibob-dashboard-synced-data', JSON.stringify({
-                        data: freshData,
-                        syncTimestamp: new Date().toISOString()
-                    }));
-                    console.log('💾 Synced data saved to localStorage for persistence');
-                } catch (e) {
-                    console.warn('⚠️ Could not save synced data to localStorage:', e);
-                }
-                
-                loadData(); // Re-initialize dashboard with fresh data
+                const syncBody = await syncResponse.json();
+                console.log('✅ JIRA sync completed: ' + (syncBody.issuesProcessed || 0) +
+                    ' issues, lastSync=' + syncBody.lastSync);
 
-                // Re-load testing coverage data
-                if (typeof loadTestingCoverageData === 'function') {
-                    await loadTestingCoverageData();
+                if (RUNTIME === 'appsscript' && syncBody && Array.isArray(syncBody.issues)) {
+                    // ----- Apps Script fast path: hydrate from fat sync response -----
+                    const precomputedStats = (syncBody.kpis && syncBody.kpis.stats) || null;
+                    const tcPayload = syncBody.testingCoverage || { stories: [], total: 0, metadata: {} };
+                    const apiMetadata = syncBody.metadata || {
+                        totalIssues: syncBody.issues.length,
+                        lastSync: syncBody.lastSync
+                    };
+
+                    // Pre-populate testingCoverageData so loadTestingCoverageData() (which
+                    // displayStats triggers) sees data and skips its fetch.
+                    if (Array.isArray(tcPayload.stories)) {
+                        window.testingCoverageData = tcPayload.stories;
+                        try { testingCoverageData = tcPayload.stories; } catch (_e) {}
+                    }
+
+                    data = buildDashDataFromApi(syncBody.issues, apiMetadata, precomputedStats);
+
+                    // Persist for future F5s. The next refresh's /health probe will
+                    // match this lastSync and we render straight from cache.
+                    if (syncBody.lastSync) {
+                        saveDashCache({
+                            lastSync: syncBody.lastSync,
+                            issues: syncBody.issues,
+                            metadata: apiMetadata,
+                            kpis: syncBody.kpis || null,
+                            testingCoverage: tcPayload
+                        });
+                    }
+
+                    if (precomputedStats && typeof displayStats === 'function') {
+                        try { displayStats(precomputedStats); } catch (_e) {}
+                    }
+
+                    await loadData(data);
+                } else {
+                    // ----- Non-appsscript runtimes: reuse canonical loader (Node/Pages) -----
+                    data = null;
+                    await loadDashboardDataFromSource();
+
+                    if (!data || !data.issues) {
+                        throw new Error('Post-sync reload returned no data');
+                    }
+
+                    // Local-runtime PRIORITY 2 fallback path persistence.
+                    try {
+                        localStorage.setItem('hibob-dashboard-synced-data', JSON.stringify({
+                            data: data,
+                            syncTimestamp: new Date().toISOString()
+                        }));
+                    } catch (_e) {}
+
+                    if (typeof loadTestingCoverageData === 'function') {
+                        await loadTestingCoverageData();
+                    }
                 }
 
-                // Re-initialize event listeners after sync
+                console.log(`✅ Loaded ${data.issues.length} fresh issues after sync`);
+
+                // Re-initialize event listeners after sync (the table re-render
+                // may have replaced DOM nodes the original listeners were bound to).
                 initializeEventListeners();
-                
-                // Log the updated KPIs for confirmation
-                console.log('🎯 UPDATED KPIs after sync:', {
-                    medianResolution: freshData.stats.averageResolutionDays + ' days',
-                    slaCompliance: freshData.stats.slaCompliance + '%',
-                    regressionRate: freshData.stats.regressionRate + '%'
-                });
+
+                if (data.stats && typeof data.stats === 'object') {
+                    console.log('🎯 UPDATED KPIs after sync:', {
+                        medianResolution: data.stats.averageResolutionDays + ' days',
+                        slaCompliance: data.stats.slaCompliance + '%',
+                        regressionRate: data.stats.regressionRate + '%'
+                    });
+                }
 
                 updateSyncButton('success');
-                updateLastSyncTime();
-                
+                updateLastSyncTime({
+                    syncType: syncBody && syncBody.syncType,
+                    added: syncBody && syncBody.added,
+                    updated: syncBody && syncBody.updated,
+                    removed: syncBody && syncBody.removed,
+                    lastSync: syncBody && syncBody.lastSync
+                });
+
+                console.log(`📊 Sync result: type=${syncBody && syncBody.syncType}, ` +
+                    `added=${syncBody && syncBody.added}, updated=${syncBody && syncBody.updated}, ` +
+                    `removed=${syncBody && syncBody.removed}`);
+
             } catch (error) {
                 console.error('❌ Sync failed:', error);
                 updateSyncButton('error');
@@ -6201,23 +7228,26 @@
             }
         }
 
-        function updateSyncButton(state) {
+        function updateSyncButton(state, mode) {
             const button = document.getElementById('syncButton');
             const icon = document.getElementById('syncIcon');
             const text = document.getElementById('syncText');
-            
+            const caret = document.getElementById('syncMenuToggle');
+
             if (!button || !icon || !text) return;
-            
+
             switch(state) {
                 case 'syncing':
                     icon.textContent = '⏳';
-                    text.textContent = 'Syncing...';
+                    text.textContent = mode === 'full' ? 'Full refresh...' : 'Syncing...';
                     button.disabled = true;
+                    if (caret) caret.disabled = true;
                     break;
                 case 'success':
                     icon.textContent = '✅';
                     text.textContent = 'Data Synced';
                     button.disabled = false;
+                    if (caret) caret.disabled = false;
                     setTimeout(() => {
                         icon.textContent = '🔄';
                         text.textContent = 'Sync Data';
@@ -6227,6 +7257,7 @@
                     icon.textContent = '❌';
                     text.textContent = 'Sync Failed';
                     button.disabled = false;
+                    if (caret) caret.disabled = false;
                     setTimeout(() => {
                         icon.textContent = '🔄';
                         text.textContent = 'Sync Data';
@@ -6235,12 +7266,44 @@
             }
         }
 
-        function updateLastSyncTime() {
+        /**
+         * Update the "Last synced" status line with the server-reported sync
+         * type and delta counts. Falls back to a plain timestamp when the
+         * caller didn't receive a sync body (e.g., initial page load).
+         *
+         * @param {{syncType?:'full'|'incremental', added?:number,
+         *          updated?:number, removed?:number, lastSync?:string}=} info
+         */
+        function updateLastSyncTime(info) {
             const syncTimeElement = document.getElementById('lastSyncTime');
-            if (syncTimeElement) {
-                const now = new Date().toLocaleTimeString();
+            if (!syncTimeElement) return;
+
+            const now = new Date().toLocaleTimeString();
+            if (!info || !info.syncType) {
                 syncTimeElement.textContent = `Last synced: ${now}`;
+                return;
             }
+
+            const added = Number(info.added || 0);
+            const updated = Number(info.updated || 0);
+            const removed = Number(info.removed || 0);
+
+            let label;
+            let delta;
+            if (info.syncType === 'full') {
+                label = 'full sync';
+                delta = `${added} issue${added === 1 ? '' : 's'}`;
+            } else if (added === 0 && updated === 0 && removed === 0) {
+                label = 'incremental';
+                delta = 'no changes';
+            } else {
+                label = 'incremental';
+                delta = `+${added} / ~${updated} / -${removed}`;
+            }
+
+            syncTimeElement.innerHTML =
+                `Last synced: ${now} ` +
+                `<span class="sync-delta" title="Sync mode and delta counts">(${label}: ${delta})</span>`;
         }
 
         function showSyncError(message) {
@@ -6666,12 +7729,35 @@
             try {
                 console.log('🚀 Starting loadData function...');
                 console.log('📊 Data object exists:', !!data);
+
+                // Guard against partial-data renders. Historically the post-
+                // Sync flow stuffed a bug-only object into `data`, leaving
+                // `data.issues` populated but `data.stories` / `data.testCases`
+                // undefined — which caused the dropdown to flash
+                // "Stories (0) / Test Cases (0)" for ~1 s before
+                // fetchMultiIssueData() self-healed. The proper sync flow now
+                // calls loadDashboardDataFromSource() which always populates
+                // `data.issues`, so anything reaching this point without
+                // `data.issues` is a programming error in a NEW caller and
+                // should be ignored rather than partially rendered.
+                if (!data || (!data.issues && !data.bugs)) {
+                    console.warn('⚠️ loadData called with no data; skipping render to avoid partial state');
+                    return;
+                }
+
                 console.log('📊 Bugs count:', data.bugs ? data.bugs.length : 'undefined');
-                
+
                 // Handle multi-issue data structure
                 if (data.issues) {
                     console.log('📊 Multi-issue data detected');
                     issuesData = data.issues;
+                    const coverageHydrated = typeof hydrateCoverageAllSprintsFromIssuesData === 'function'
+                        ? hydrateCoverageAllSprintsFromIssuesData()
+                        : false;
+                    if (coverageHydrated && typeof updateTestingCoverageDisplay === 'function' &&
+                        Array.isArray(testingCoverageData) && testingCoverageData.length > 0) {
+                        updateTestingCoverageDisplay();
+                    }
                     bugsData = data.bugs || data.issues.filter(i => i.issueType === 'Bug');
                     
                     // Transform stories data (same transformation as in API fetch)
@@ -6770,7 +7856,9 @@
                 
                 // Generate fresh stats using new calculation functions
                 console.log('🔄 Generating fresh stats from loaded bugs...');
-                const freshStats = generateStatsFromBugs(bugsData);
+                const freshStats = (data.precomputedStats && data.source === 'appsscript')
+                    ? data.precomputedStats
+                    : generateStatsFromBugs(bugsData);
                 
                 displayStats(freshStats);
                 createBrandCharts(freshStats);
@@ -6780,8 +7868,19 @@
                 displayBugsTable();
                 console.log('✅ Dashboard displayed instantly with export data');
                 
-                document.getElementById('lastUpdate').textContent = 
-                    new Date(data.metadata.exported).toLocaleString() + ' (Export Data)';
+                const lastUpdateEl = document.getElementById('lastUpdate');
+                if (lastUpdateEl) {
+                    if (data.metadata && data.metadata.exported) {
+                        lastUpdateEl.textContent =
+                            new Date(data.metadata.exported).toLocaleString() + ' (Export Data)';
+                    } else if (data.metadata && data.metadata.lastSync) {
+                        const syncLabel = data.source === 'appsscript' ? ' (Jira sync)' : ' (Cached)';
+                        lastUpdateEl.textContent =
+                            new Date(data.metadata.lastSync).toLocaleString() + syncLabel;
+                    } else {
+                        lastUpdateEl.textContent = new Date().toLocaleString();
+                    }
+                }
                 document.getElementById('jiraInstance').textContent = data.metadata.jiraInstance;
                 
                 document.getElementById('status').innerHTML = '<span class="success">✅ Dashboard loaded! Starting real-time enhancement...</span>';
@@ -6984,7 +8083,7 @@
                 
                 // Always fetch all types to ensure complete data set
                 const typesParam = 'Bug,Story,Test';  // Always fetch all types
-                const apiResponse = await fetch(`http://localhost:3002/api/issues-lite?types=${typesParam}&_=${Date.now()}`);
+                const apiResponse = await fetch(dataUrl('issues', { types: typesParam }));
                 
                 if (!apiResponse.ok) {
                     throw new Error(`API request failed: ${apiResponse.status}`);
@@ -7307,6 +8406,18 @@
                 monthlyTrendElement.className = `stat-trend ${stats.monthlyBugsWithTrend.trendClass}`;
                 console.log('Monthly trend set to:', stats.monthlyBugsWithTrend.trend);
             }
+
+            // Surface the actual 3-month baseline in the tile subtitle so the comparison is quantified.
+            if (monthlyBugsElement && stats.monthlyBugsWithTrend &&
+                typeof stats.monthlyBugsWithTrend.previousAverage === 'number') {
+                const monthlyDetail = monthlyBugsElement.parentElement
+                    ? monthlyBugsElement.parentElement.querySelector('.stat-detail')
+                    : null;
+                if (monthlyDetail) {
+                    monthlyDetail.textContent =
+                        `Compared to 3-month average (${stats.monthlyBugsWithTrend.previousAverage})`;
+                }
+            }
             
             // Display in-progress high priority bugs
             const highPriorityElement = document.getElementById('highPriorityBugs');
@@ -7315,11 +8426,19 @@
                 console.log('High priority set to:', stats.inProgressHighPriority);
             }
             
-            // Display resolved this month count
+            // Display resolved this month count, and refresh its month-specific subtitle
             const deployedElement = document.getElementById('deployedBugs');
             if (deployedElement) {
                 deployedElement.textContent = stats.resolvedThisMonth || 0;
                 console.log('Resolved this month set to:', stats.resolvedThisMonth);
+
+                const deployedDetail = deployedElement.parentElement
+                    ? deployedElement.parentElement.querySelector('.stat-detail')
+                    : null;
+                if (deployedDetail) {
+                    const currentMonthName = new Date().toLocaleString('default', { month: 'long' });
+                    deployedDetail.textContent = `Successfully deployed in ${currentMonthName}`;
+                }
             }
             
             // Display average resolution time for deployed bugs
@@ -7342,17 +8461,28 @@
                 console.log('SLA compliance set to:', stats.slaCompliance + '%');
             }
             
+            // Bug Velocity headline is now the month-over-month % delta; the count
+            // comparison moves to the stat-detail subtitle ("X this month vs Y last month").
             const bugVelocityElement = document.getElementById('bugVelocityKpi');
             const velocityTrendElement = document.getElementById('velocityTrend');
             if (bugVelocityElement && stats.bugVelocity) {
-                bugVelocityElement.textContent = stats.bugVelocity.count;
-                console.log('Bug velocity set to:', stats.bugVelocity.count);
+                bugVelocityElement.textContent = stats.bugVelocity.diffLabel;
+                bugVelocityElement.className = `stat-number bug-velocity ${stats.bugVelocity.trendClass}`;
+                console.log('Bug velocity set to:', stats.bugVelocity.diffLabel);
+
+                const velocityDetail = bugVelocityElement.parentElement
+                    ? bugVelocityElement.parentElement.querySelector('.stat-detail')
+                    : null;
+                if (velocityDetail) {
+                    velocityDetail.textContent =
+                        `${stats.bugVelocity.currentMonthCount} this month vs ${stats.bugVelocity.previousMonthCount} last month`;
+                }
             }
-            
-            if (velocityTrendElement && stats.bugVelocity) {
-                velocityTrendElement.textContent = stats.bugVelocity.trend;
-                velocityTrendElement.className = `stat-trend ${stats.bugVelocity.trendClass}`;
-                console.log('Velocity trend set to:', stats.bugVelocity.trend);
+
+            // The legacy trend badge is no longer needed (its data is now in the headline + subtitle).
+            if (velocityTrendElement) {
+                velocityTrendElement.textContent = '';
+                velocityTrendElement.className = 'stat-trend';
             }
             
             // Load and update testing coverage display
@@ -7612,6 +8742,18 @@
             if (activeIssueTypes.includes('Bug')) {
                 populateMultiSelect('severity', severities);
                 populateMultiSelect('regression', regressions);
+
+                // Bug-only Classification + Business Process Classification (May 2026).
+                // Always include 'N/A' as an option so users can filter for unclassified bugs.
+                const bugData = currentData.filter(item => item.issueType === 'Bug');
+                const classifications = [...new Set(
+                    bugData.map(b => (b.classification && b.classification !== '') ? b.classification : 'N/A')
+                )].sort((a, b) => a === 'N/A' ? 1 : b === 'N/A' ? -1 : a.localeCompare(b));
+                const businessProcessClassifications = [...new Set(
+                    bugData.map(b => (b.businessProcessClassification && b.businessProcessClassification !== '') ? b.businessProcessClassification : 'N/A')
+                )].sort((a, b) => a === 'N/A' ? 1 : b === 'N/A' ? -1 : a.localeCompare(b));
+                populateMultiSelect('classification', classifications);
+                populateMultiSelect('businessProcessClassification', businessProcessClassifications);
             }
             
             // Story-specific filters (using same pattern as regression filter for bugs)
@@ -7809,6 +8951,8 @@
             system: new Set(),
             sprint: new Set(),
             regression: new Set(),
+            classification: new Set(),
+            businessProcessClassification: new Set(),
             testCaseCreated: new Set(),
             generatedFromAI: new Set()
         };
@@ -8084,7 +9228,7 @@
         
         // Set up button click handlers for filter dropdowns
         function setupFilterButtonHandlers() {
-            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'testCaseCreated', 'generatedFromAI'];
+            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'classification', 'businessProcessClassification', 'testCaseCreated', 'generatedFromAI'];
             
             filterTypes.forEach(filterType => {
                 const button = document.getElementById(`${filterType}FilterButton`);
@@ -8121,7 +9265,7 @@
 
         // Set up clear button event handlers
         function setupClearButtonHandlers() {
-            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'testCaseCreated', 'generatedFromAI'];
+            const filterTypes = ['status', 'severity', 'assignee', 'leadingTeam', 'system', 'sprint', 'regression', 'classification', 'businessProcessClassification', 'testCaseCreated', 'generatedFromAI'];
             
             // Handle regular filter clear buttons
             filterTypes.forEach(filterType => {
@@ -8459,10 +9603,12 @@
                     system: 'Choose a Value',
                     sprint: 'Choose a Value',
                     regression: 'Choose a Value',
+                    classification: 'Choose a Value',
+                    businessProcessClassification: 'Choose a Value',
                     testCaseCreated: 'Choose a Value',
                     generatedFromAI: 'Choose a Value'
                 };
-                button.textContent = labels[filterType];
+                button.textContent = labels[filterType] || 'Choose a Value';
             } else if (selections.size === 1) {
                 button.textContent = [...selections][0];
             } else {
@@ -8501,6 +9647,26 @@
         }
 
         function calculateFixDuration(bug) {
+            // Stories (May 2026): days from creation -> JIRA native resolutiondate.
+            // Falls back to N/A when not yet resolved.
+            if (bug.issueType === 'Story') {
+                const createdRaw = bug.created || bug.createdDate;
+                const resolvedRaw = bug.resolutiondate || bug.resolutionDate;
+                if (!createdRaw || !resolvedRaw) return 'N/A';
+                const created = new Date(createdRaw);
+                const resolved = new Date(resolvedRaw);
+                if (isNaN(created.getTime()) || isNaN(resolved.getTime())) return 'N/A';
+                const days = Math.ceil(Math.abs(resolved - created) / 86400000);
+                return `${days} days`;
+            }
+
+            // Test Cases (May 2026): fix duration intentionally hidden — column is dropped
+            // from ISSUE_TYPE_COLUMNS.Test, but guard here so the function is safe to call.
+            if (bug.issueType === 'Test' || bug.issueType === 'Test Case') {
+                return 'N/A';
+            }
+
+            // Bugs: original Deployed-only logic preserved.
             if (bug.status !== 'Deployed') {
                 return 'N/A';
             }
@@ -8546,6 +9712,48 @@
             
             // No resolution date available - return N/A instead of incorrect approximation
             return 'N/A';
+        }
+
+        /**
+         * Days used in Quality Analysis "Days to Fix" averages / chart click filtering.
+         * Mirrors calculateFixDuration per issue type but returns a positive integer or 0.
+         */
+        function getNumericDaysToFixForChart(item) {
+            if (!item) return 0;
+            if (item.issueType === 'Story') {
+                const createdRaw = item.created || item.createdDate;
+                const resolvedRaw = item.resolutiondate || item.resolutionDate;
+                if (!createdRaw || !resolvedRaw) return 0;
+                const created = new Date(createdRaw);
+                const resolved = new Date(resolvedRaw);
+                if (isNaN(created.getTime()) || isNaN(resolved.getTime())) return 0;
+                return Math.ceil(Math.abs(resolved - created) / 86400000);
+            }
+            if (item.issueType === 'Test' || item.issueType === 'Test Case') {
+                return 0;
+            }
+            // Bugs and legacy rows without issueType: unchanged — Deployed + changelog resolution only.
+            if (item.status !== 'Deployed') return 0;
+            const createdDateStr = item.createdDate || item.created;
+            if (!createdDateStr) return 0;
+            let createdDate;
+            if (createdDateStr.includes('/')) {
+                const parts = createdDateStr.split('/');
+                createdDate = new Date(parts[2], parts[0] - 1, parts[1]);
+            } else {
+                createdDate = new Date(createdDateStr);
+            }
+            if (isNaN(createdDate.getTime())) return 0;
+            let resolutionDate = null;
+            if (item.resolutionDate) {
+                resolutionDate = new Date(item.resolutionDate);
+            } else if (item.resolutionDateFormatted) {
+                const parts = item.resolutionDateFormatted.split('/');
+                resolutionDate = new Date(parts[2], parts[0] - 1, parts[1]);
+            }
+            if (!resolutionDate || isNaN(resolutionDate.getTime())) return 0;
+            const diffTime = Math.abs(resolutionDate - createdDate);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
 
         function displayBugsTable() {
@@ -8624,7 +9832,17 @@
                 const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(bug.system);
                 const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(bug.sprint);
                 const regressionMatch = filterSelections.regression.size === 0 || !bug.regression || filterSelections.regression.has(bug.regression);
-                
+
+                // Bug-only Classification filters (May 2026). Non-bugs always pass.
+                let classificationMatch = true;
+                let businessProcessClassificationMatch = true;
+                if (bug.issueType === 'Bug') {
+                    classificationMatch = filterSelections.classification.size === 0 ||
+                        filterSelections.classification.has(bug.classification || 'N/A');
+                    businessProcessClassificationMatch = filterSelections.businessProcessClassification.size === 0 ||
+                        filterSelections.businessProcessClassification.has(bug.businessProcessClassification || 'N/A');
+                }
+
                 // TestCaseCreated filter (for stories) - only match stories with specific testCaseCreated values
                 let testCaseCreatedMatch = true;
                 if (bug.issueType === 'Story') {
@@ -8680,7 +9898,8 @@
                 
                 // Check if bug passes all table filters
                 const tableFiltersMatch = statusMatch && severityMatch && assigneeMatch &&
-                                        leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && 
+                                        leadingTeamMatch && systemMatch && sprintMatch && regressionMatch &&
+                                        classificationMatch && businessProcessClassificationMatch &&
                                         testCaseCreatedMatch && generatedFromAIMatch && searchMatch && dateMatch;
                 
                 // If table filters fail, bug is out regardless of chart filter
@@ -8731,13 +9950,23 @@
                 const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(item.system);
                 const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(item.sprint);
                 const regressionMatch = filterSelections.regression.size === 0 || !item.regression || filterSelections.regression.has(item.regression);
+                let classificationMatch = true;
+                let businessProcessClassificationMatch = true;
+                if (item.issueType === 'Bug') {
+                    classificationMatch = filterSelections.classification.size === 0 ||
+                        filterSelections.classification.has(item.classification || 'N/A');
+                    businessProcessClassificationMatch = filterSelections.businessProcessClassification.size === 0 ||
+                        filterSelections.businessProcessClassification.has(item.businessProcessClassification || 'N/A');
+                }
                 const searchMatch = !searchFilter || 
                                   (item.summary && item.summary.toLowerCase().includes(searchFilter)) || 
                                   (item.key && item.key.toLowerCase().includes(searchFilter)) ||
                                   (item.assignee && item.assignee.toLowerCase().includes(searchFilter));
                 const dateMatch = checkDateRange(item, dateFromValue, dateToValue);
                 return statusMatch && severityMatch && assigneeMatch &&
-                       leadingTeamMatch && systemMatch && sprintMatch && regressionMatch && searchMatch && dateMatch;
+                       leadingTeamMatch && systemMatch && sprintMatch && regressionMatch &&
+                       classificationMatch && businessProcessClassificationMatch &&
+                       searchMatch && dateMatch;
             }).length;
             
             const issueTypeText = activeIssueTypes.length === 1 ? activeIssueTypes[0].toLowerCase() + 's' : 'items';
@@ -9256,6 +10485,9 @@
                 event.preventDefault();
                 handleSyncData();
             };
+
+            // Wire up the split-button dropdown (caret toggle + Full Refresh).
+            setupSyncMenuListener();
             
             // Verify the button works by testing it
             console.log('🧪 Testing button responsiveness...');
@@ -9274,6 +10506,53 @@
                     initializeCoverageFilters();
                 }, 500); // Delay to ensure data is loaded
             }
+        }
+
+        /**
+         * Wire up the split-button dropdown for the sync control:
+         *   [Sync Data] [▾]
+         *               └─ Full Refresh (forces a full re-fetch from Jira)
+         * The main button path stays "auto" — the server decides whether to run
+         * incremental or full based on cache age; the dropdown is the escape
+         * hatch when the user wants to reconcile deletions immediately.
+         */
+        let syncMenuListenerSet = false;
+        function setupSyncMenuListener() {
+            if (syncMenuListenerSet) return;
+            const toggle = document.getElementById('syncMenuToggle');
+            const menu = document.getElementById('syncMenu');
+            if (!toggle || !menu) return;
+
+            toggle.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const isOpen = menu.classList.toggle('open');
+                toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+
+            // Menu item → trigger sync in the requested mode.
+            menu.querySelectorAll('.sync-menu-item').forEach((item) => {
+                item.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const mode = item.getAttribute('data-sync-mode') || 'full';
+                    menu.classList.remove('open');
+                    toggle.setAttribute('aria-expanded', 'false');
+                    handleSyncData({ mode });
+                });
+            });
+
+            // Click-away closes the menu.
+            document.addEventListener('click', (event) => {
+                if (!menu.classList.contains('open')) return;
+                if (event.target === toggle || toggle.contains(event.target)) return;
+                if (menu.contains(event.target)) return;
+                menu.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+            });
+
+            syncMenuListenerSet = true;
+            console.log('✅ Sync menu listener attached');
         }
 
         // TESTING COVERAGE FILTER SETUP FUNCTIONS
@@ -10364,8 +11643,12 @@
 
             console.log('🎯 Initializing coverage filters with', testingCoverageData.length, 'stories');
 
+            hydrateCoverageAllSprintsFromIssuesData();
+
+            setupCoverageSprintModeToggle();
+
             // Get unique sprints
-            const sprints = getUniqueSprints(testingCoverageData);
+            const sprints = getUniqueSprints(getCoverageStories());
             
             // Populate sprint dropdown
             populateCoverageSprintDropdown(sprints);
@@ -10685,6 +11968,11 @@
                 const systemMatch = filterSelections.system.size === 0 || filterSelections.system.has(item.system);
                 const sprintMatch = filterSelections.sprint.size === 0 || filterSelections.sprint.has(item.sprint);
                 const regressionMatch = filterSelections.regression.size === 0 || filterSelections.regression.has(item.regression);
+                // Bug-only Classification filters (May 2026)
+                const classificationMatch = filterSelections.classification.size === 0 ||
+                    filterSelections.classification.has(item.classification || 'N/A');
+                const businessProcessClassificationMatch = filterSelections.businessProcessClassification.size === 0 ||
+                    filterSelections.businessProcessClassification.has(item.businessProcessClassification || 'N/A');
                 // Story-specific filters
                 const testCaseCreatedMatch = filterSelections.testCaseCreated.size === 0 || filterSelections.testCaseCreated.has(item.testCaseCreated);
                 // Test case-specific filters
@@ -10700,8 +11988,9 @@
                 
                 // NOTE: Intentionally EXCLUDE chartFilter check here to maintain full chart context
                 return statusMatch && severityMatch && assigneeMatch &&
-                       leadingTeamMatch && systemMatch && sprintMatch && 
-                       regressionMatch && testCaseCreatedMatch && generatedFromAIMatch && 
+                       leadingTeamMatch && systemMatch && sprintMatch &&
+                       regressionMatch && classificationMatch && businessProcessClassificationMatch &&
+                       testCaseCreatedMatch && generatedFromAIMatch &&
                        searchMatch && dateMatch;
             });
         }
@@ -10877,40 +12166,10 @@
                     }
                 }
 
-                // Calculate numeric value (days to fix)
+                // Calculate numeric value (days to fix) — Stories use resolutiondate; Bugs unchanged (Deployed + changelog resolution).
                 let numValue = 0;
                 if (yField.field === 'daysToFix') {
-                    const createdDateStr = bug.createdDate || bug.created;
-                    
-                    if (createdDateStr && bug.status === 'Deployed') {
-                        // Parse creation date
-                        let createdDate;
-                        if (createdDateStr.includes('/')) {
-                            const parts = createdDateStr.split('/');
-                            createdDate = new Date(parts[2], parts[0] - 1, parts[1]);
-                        } else {
-                            createdDate = new Date(createdDateStr);
-                        }
-                        
-                        if (!isNaN(createdDate.getTime())) {
-                            // PRECISE CALCULATION: Use actual resolution date from Jira when available
-                            let resolutionDate = null;
-                            
-                            if (bug.resolutionDate) {
-                                resolutionDate = new Date(bug.resolutionDate);
-                            } 
-                            else if (bug.resolutionDateFormatted) {
-                                const parts = bug.resolutionDateFormatted.split('/');
-                                resolutionDate = new Date(parts[2], parts[0] - 1, parts[1]);
-                            }
-                            
-                            // ONLY use precise resolution date - no fallback
-                            if (resolutionDate && !isNaN(resolutionDate.getTime())) {
-                                const diffTime = Math.abs(resolutionDate - createdDate);
-                                numValue = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                            }
-                        }
-                    }
+                    numValue = getNumericDaysToFixForChart(bug);
                 }
                 
                 if (numValue > 0) { // Only include bugs with valid numeric values
@@ -13167,7 +14426,29 @@
             if (!window.location.hostname.includes('github.io')) {
                 setupSyncButtonListener();
             }
-            
+
+            // Force-refetch hotkey: Cmd/Ctrl + Shift + R clears the localStorage
+            // dashboard cache and reloads. Browsers normally intercept this
+            // shortcut for a hard-refresh, but cache busting via this listener
+            // also fires for keys we receive (e.g. when the user presses the
+            // combo while DevTools is focused). Catches the typical user
+            // intent of "give me genuinely fresh data".
+            //
+            // Also exposes window.forceDashRefetch() for ad-hoc clearing.
+            window.forceDashRefetch = function () {
+                if (typeof clearDashCache === 'function') clearDashCache();
+                console.log('[cache] forced refetch requested - reloading');
+                window.location.reload();
+            };
+            document.addEventListener('keydown', function (e) {
+                const isReloadCombo = (e.key === 'R' || e.key === 'r') && e.shiftKey && (e.metaKey || e.ctrlKey);
+                if (isReloadCombo) {
+                    if (typeof clearDashCache === 'function') clearDashCache();
+                    // Don't preventDefault - let the browser do its hard reload too,
+                    // which now picks up an empty cache and goes through the cold path.
+                }
+            });
+
             loadDashboardDataFromSource(); // Load from automated source, then initialize all functionality
             
             
@@ -13227,6 +14508,46 @@
             console.log('  - window.debugSyncButton() - Debug button state');  
             console.log('  - window.forceSyncButtonSetup() - Force button setup');
             
+            // KPI Tooltip functionality
+            function setupKPITooltips() {
+                console.log('🔍 Setting up KPI tooltips...');
+                
+                // Find all KPI cards (both stat-card and coverage-kpi-card)
+                const kpiCards = document.querySelectorAll('.stat-card, .coverage-kpi-card');
+                console.log(`📊 Found ${kpiCards.length} KPI cards`);
+                
+                kpiCards.forEach((card, index) => {
+                    const tooltip = card.querySelector('.kpi-tooltip');
+                    if (tooltip) {
+                        console.log(`✅ Setting up tooltip for card ${index + 1}: "${tooltip.textContent.substring(0, 50)}..."`);
+                        
+                        // Mouse enter event
+                        card.addEventListener('mouseenter', function(e) {
+                            console.log(`🖱️ Mouse entered KPI card ${index + 1}`);
+                            tooltip.classList.add('visible');
+                            console.log(`✅ Added 'visible' class. Classes: ${tooltip.className}`);
+                            console.log(`📏 Computed styles:`, {
+                                opacity: window.getComputedStyle(tooltip).opacity,
+                                visibility: window.getComputedStyle(tooltip).visibility,
+                                transform: window.getComputedStyle(tooltip).transform
+                            });
+                        });
+                        
+                        // Mouse leave event
+                        card.addEventListener('mouseleave', function(e) {
+                            console.log(`🖱️ Mouse left KPI card ${index + 1}`);
+                            tooltip.classList.remove('visible');
+                            console.log(`❌ Removed 'visible' class. Classes: ${tooltip.className}`);
+                        });
+                    } else {
+                        console.log(`⚠️ No tooltip found for card ${index + 1}`);
+                    }
+                });
+            }
+            
+            // Set up tooltips after DOM is loaded
+            setupKPITooltips();
+            
             // Final fallback: Set up sync button using different approach after full page load
             window.addEventListener('load', function() {
                 if (!window.location.hostname.includes('github.io')) {
@@ -13240,6 +14561,10 @@
                         }
                     }, 100);
                 }
+                
+                // Re-setup tooltips after full page load as well
+                console.log('🔄 Re-setting up KPI tooltips after full page load...');
+                setupKPITooltips();
             });
         });
     </script>
