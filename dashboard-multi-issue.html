@@ -588,6 +588,13 @@
             background: radial-gradient(circle, rgba(250, 163, 43, 0.2) 0%, transparent 70%);
             border-radius: 50%;
             transform: translate(30px, -30px);
+            pointer-events: none;
+        }
+
+        /* Keep header toggle above decorative layers so clicks reach the button */
+        .coverage-details-header .toggle-details-btn {
+            position: relative;
+            z-index: 1;
         }
 
         @media (max-width: 1200px) {
@@ -785,6 +792,20 @@
         .filter-group-section.characteristics {
             /* Group 1: Status, Severity, Leading Team, Assignee, System, Clear */
             order: 1;
+            /* Wider cells so four bug-only filters fit on one row; long labels stay aligned */
+            grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
+        }
+
+        /*
+         * Multiline labels (e.g. "Business Process Classification") must not push
+         * the multiselect above neighbors: reserve label band height and bottom-align label text.
+         */
+        .filter-group-section.characteristics .filter-group > label:first-of-type {
+            min-height: 2.75em;
+            line-height: 1.28;
+            display: flex;
+            align-items: flex-end;
+            max-width: 100%;
         }
 
         .filter-group-section.issue-types {
@@ -1706,7 +1727,8 @@
         /* MAIN CONTENT LAYOUT - Side by Side */
         .main-content-layout {
             display: grid;
-            grid-template-columns: 1fr 1.3fr; /* Give Quality Analysis MORE space (43/57 split) */
+            /* Slightly more width for Issue Details (filters/table) vs Quality Analysis (~51/49) */
+            grid-template-columns: minmax(0, 1.22fr) minmax(0, 1.15fr);
             gap: 48px; /* Increased gap even more */
             align-items: start;
             margin-top: 32px;
@@ -3161,7 +3183,7 @@
                 <div class="coverage-details-table" id="coverageDetailsTable" style="display: none;">
                     <div class="coverage-details-header">
                         <span>Testing Coverage Details</span>
-                        <button class="toggle-details-btn" id="toggleCoverageDetails" onclick="toggleCoverageDetailsTable()" style="float: right; background: none; border: none; color: white; cursor: pointer;">Hide Details ▲</button>
+                        <button type="button" class="toggle-details-btn" id="toggleCoverageDetails" style="float: right; background: none; border: none; color: white; cursor: pointer;">Hide Details ▲</button>
                     </div>
                     <div class="coverage-table-container">
                         <table class="coverage-table" id="coverageTable">
@@ -3169,6 +3191,7 @@
                                 <tr>
                                     <th data-column="key"><div class="sortable-header">Story Key<span class="sort-indicator">↕</span></div></th>
                                     <th data-column="summary"><div class="sortable-header">Summary<span class="sort-indicator">↕</span></div></th>
+                                    <th data-column="assignee"><div class="sortable-header">Assignee<span class="sort-indicator">↕</span></div></th>
                                     <th data-column="leadingTeam"><div class="sortable-header">Leading Team<span class="sort-indicator">↕</span></div></th>
                                     <th data-column="sprint"><div class="sortable-header">Sprint<span class="sort-indicator">↕</span></div></th>
                                     <th data-column="storyPoints"><div class="sortable-header">Story Points<span class="sort-indicator">↕</span></div></th>
@@ -6425,6 +6448,7 @@
                 row.innerHTML = `
                     <td><a href="${jiraUrl}" target="_blank" class="issue-link">${story.key}</a></td>
                     <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${story.summary || 'N/A'}</td>
+                    <td>${story.assignee || 'Unassigned'}</td>
                     <td>${story.leadingTeam || 'N/A'}</td>
                     <td>${story.sprint || 'N/A'}</td>
                     <td>${story.storyPoints || 0}</td>
@@ -6463,9 +6487,14 @@
                 return;
             }
             
-            const isVisible = table.style.display !== 'none';
-            console.log('📊 Current state - isVisible:', isVisible);
-            
+            const computedDisplay = typeof getComputedStyle === 'function'
+                ? window.getComputedStyle(table).display
+                : table.style.display;
+            const isVisible = computedDisplay !== 'none';
+
+            console.log('📊 Current state - isVisible:', isVisible,
+                '(inline:', table.style.display, ', computed:', computedDisplay + ')');
+
             if (isVisible) {
                 // Hide table
                 console.log('🙈 Hiding coverage details table');
@@ -6500,13 +6529,11 @@
         // Setup event listener for the hide details button in the table header
         function setupCoverageDetailsToggleListener() {
             const toggleBtn = document.getElementById('toggleCoverageDetails');
-            if (toggleBtn) {
-                // Remove existing listener if any
-                toggleBtn.removeEventListener('click', toggleCoverageDetailsTable);
-                // Add new listener
-                toggleBtn.addEventListener('click', toggleCoverageDetailsTable);
-                console.log('✅ Coverage details toggle button listener attached');
-            }
+            if (!toggleBtn) return;
+            if (toggleBtn.getAttribute('data-toggle-wired') === '1') return;
+            toggleBtn.setAttribute('data-toggle-wired', '1');
+            toggleBtn.addEventListener('click', toggleCoverageDetailsTable);
+            console.log('✅ Coverage details header toggle listener attached');
         }
 
         // Coverage table sorting state
@@ -11685,6 +11712,8 @@
             if (typeof initializeCoverageFilters === 'function') {
                 initializeCoverageFilters();
             }
+
+            setupCoverageDetailsToggleListener();
             
             console.log('✅ All event listeners reinitialized');
         }
